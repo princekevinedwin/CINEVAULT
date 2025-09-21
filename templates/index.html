@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CineVault</title>
+
+  <!-- Font Awesome for icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="/static/styles/style.css" />
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="logo" />
+      <span class="brand-name"></span>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-link" href="#" data-page="home"><i class="fas fa-home"></i><span class="label">Home</span></a>
+      <a class="nav-link" href="#" data-page="movies"><i class="fas fa-film"></i><span class="label">Movies</span></a>
+      <a class="nav-link" href="#" data-page="series"><i class="fas fa-tv"></i><span class="label">Series</span></a>
+      <a class="nav-link" href="#" data-page="genres"><i class="fas fa-layer-group"></i><span class="label">Genres</span></a>
+      <a class="nav-link" href="#" data-page="mylist"><i class="fas fa-heart"></i><span class="label">My List</span></a>
+      <a class="nav-link" href="#" data-page="news/updates"><i class="fas fa-newspaper"></i><span class="label">News/Updates</span></a>
+    </nav>
+
+    <div class="bottom-actions">
+      <a class="nav-link" href="#"><i class="fas fa-user-circle"></i><span class="label">Profile</span></a>
+      <a class="nav-link" href="#"><i class="fas fa-cog"></i><span class="label">Settings</span></a>
+      <a class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i><span class="label">Logout</span></a>
+    </div>
+
+    <!-- Hamburger for mobile top popup -->
+    <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+    <!-- Popup menu for mobile (full sidebar content) -->
+    <div class="popup-menu" id="popup-menu">
+      <div class="popup-brand">
+        <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="logo" />
+        <span class="brand-name">CineVault</span>
+      </div>
+      <nav class="popup-nav">
+        <a class="nav-link" href="#" data-page="home"><i class="fas fa-home"></i><span class="label">Home</span></a>
+        <a class="nav-link" href="#" data-page="movies"><i class="fas fa-film"></i><span class="label">Movies</span></a>
+        <a class="nav-link" href="#" data-page="series"><i class="fas fa-tv"></i><span class="label">Series</span></a>
+        <a class="nav-link" href="#" data-page="genres"><i class="fas fa-layer-group"></i><span class="label">Genres</span></a>
+        <a class="nav-link" href="#" data-page="mylist"><i class="fas fa-heart"></i><span class="label">My List</span></a>
+      </nav>
+      <div class="popup-bottom-actions">
+        <a class="nav-link" href="#"><i class="fas fa-user-circle"></i><span class="label">Profile</span></a>
+        <a class="nav-link" href="#"><i class="fas fa-cog"></i><span class="label">Settings</span></a>
+        <a class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i><span class="label">Logout</span></a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <!-- Topbar: search + sign in -->
+    <header class="topbar">
+      <div class="left">
+        <!-- empty placeholder (can add breadcrumbs/logo) -->
+      </div>
+      <div class="right">
+        <input id="search" class="search-input" type="search" placeholder="Search movies, actors, genres..." />
+        <button class="btn-signin">Sign In</button>
+      </div>
+    </header>
+
+    <!-- Home Page Content -->
+    <div id="home-page" class="page">
+      <!-- HERO (card) -->
+      <section class="hero" id="hero">
+        <!-- background handled by JS -->
+        <div class="hero-gradient"></div>
+
+        <div class="hero-content">
+          <div class="hero-top">
+            <h1 class="site-title">CineVault</h1>
+            <div id="whats-new" class="whats-new">What's New</div>
+          </div>
+
+          <h2 id="hero-title" class="hero-title">Loading...</h2>
+
+          <div class="hero-meta">
+            <div class="left-meta">
+              <!-- Rating circle -->
+              <div class="rating-container">
+                <svg class="rating-circle" viewBox="0 0 36 36" aria-hidden="true">
+                  <path class="bg" d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831" />
+                  <path class="progress" d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831" stroke-dasharray="0 100" />
+                </svg>
+                <div class="rating-value-wrap">
+                  <span id="rating-value">0.0</span>
+                  <small>IMDb</small>
+                </div>
+              </div>
+
+              <!-- Runtime with mini clock -->
+              <div class="runtime">
+                <i class="fas fa-clock mini-clock" aria-hidden="true"></i>
+                <span id="runtime">—</span>
+              </div>
+            </div>
+
+            <div class="right-meta">
+              <!-- placeholder for any additional meta e.g. year -->
+              <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+              <span id="year" class="year"></span>
+            </div>
+          </div>
+
+          <p id="hero-overview" class="hero-overview">Overview will appear here.</p>
+
+          <p class="meta-line"><strong class="theme">Starring: </strong><span id="starring">Loading...</span></p>
+          <p class="meta-line"><strong class="theme">Genre: </strong><span id="genre">Loading...</span></p>
+
+          <div class="hero-cta">
+            <button id="watch-trailer" class="btn primary"><i class="fas fa-play"></i> Watch Trailer</button>
+            <button id="more-info" class="btn secondary"><i class="fas fa-info-circle"></i> More Info</button>
+          </div>
+        </div>
+
+        <!-- navigation arrows -->
+        <button class="nav-btn prev" id="prev" aria-label="Previous item"><i class="fas fa-chevron-left"></i></button>
+        <button class="nav-btn next" id="next" aria-label="Next item"><i class="fas fa-chevron-right"></i></button>
+      </section>
+
+      <!-- placeholder below hero -->
+      <section class="below">
+        <!-- put additional content here -->
+      </section>
+
+      <!-- ===== Featured Categories ===== -->
+      <section class="featured-section">
+        <h2>Popular Movies</h2>
+        <div class="carousel">
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <div class="carousel-track" id="popular-movies"></div>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+
+      <section class="featured-section">
+        <h2>Popular TV Shows</h2>
+        <div class="carousel">
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <div class="carousel-track" id="popular-tv"></div>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+
+      <section class="top-10">
+        <h2>Top 10 of the Week</h2>
+        <div class="top-10-carousel">
+          <div class="top-10-track" id="top10"></div>
+        </div>
+      </section>
+
+      <section class="featured-section">
+        <h2>Award Winning Movies</h2>
+        <div class="carousel">
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <div class="carousel-track" id="award-winning"></div>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+
+      <!-- ===== Genre Explorer ===== -->
+      <section class="genre-section">
+        <h2>Explore by Genre</h2>
+        <div class="genre-buttons">
+          <button class="genre-btn active" data-genre="28">Action</button>
+          <button class="genre-btn" data-genre="35">Comedy</button>
+          <button class="genre-btn" data-genre="18">Drama</button>
+          <button class="genre-btn" data-genre="27">Horror</button>
+          <button class="genre-btn" data-genre="878">Sci-Fi</button>
+          <button class="genre-btn" data-genre="10749">Romance</button>
+        </div>
+        <button class="see-more-btn">See More Genres</button>
+        <div class="genre-movies" id="genre-movies">
+          <button class="genre-close" id="genre-close"><i class="fas fa-times"></i></button>
+          <div class="genre-carousel">
+            <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+            <div class="carousel-track"></div>
+            <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Trending Actors ===== -->
+      <section class="actors-section">
+        <h2>Trending Actors</h2>
+        <div class="actor-carousel" id="trending-actors"></div>
+      </section>
+
+      <!-- ===== Latest Entertainment News ===== -->
+      <section class="news-section">
+        <h2>Latest Entertainment News</h2>
+        <div class="news-carousel" id="latest-news"></div>
+      </section>
+
+      <!-- ===== Personalized Recommendations ===== -->
+      <section class="recommendations-section">
+        <h2>Recommended for You</h2>
+        <div class="carousel">
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <div class="carousel-track" id="recommendations"></div>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+
+      <!-- ===== Newsletter ===== -->
+      <section class="newsletter-section">
+        <div class="newsletter-container">
+          <h2>Stay Updated</h2>
+          <p>Subscribe to our newsletter for the latest movie releases and exclusive content.</p>
+          <form class="newsletter-form">
+            <input type="email" placeholder="Enter your email" required>
+            <button type="submit">Subscribe</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ===== Footer ===== -->
+      <footer class="footer">
+        <p>&copy; 2025 CineVault. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="#">About</a>
+          <a href="#">Contact</a>
+          <a href="#">Privacy Policy</a>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Movies Page Content -->
+    <div id="movies-page" class="page" style="display: none;">
+      <!-- Mini Hero for Movies -->
+      <section class="hero mini-hero" id="movies-hero">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+          <h2 id="movies-hero-title" class="hero-title">Loading...</h2>
+          <div class="hero-meta">
+            <div class="left-meta">
+              <div class="rating-container">
+                <svg class="rating-circle" viewBox="0 0 36 36" aria-hidden="true">
+                  <path class="bg" d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831" />
+                  <path class="progress" d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831" stroke-dasharray="0 100" />
+                </svg>
+                <div class="rating-value-wrap">
+                  <span id="movies-rating-value">0.0</span>
+                  <small>IMDb</small>
+                </div>
+              </div>
+              <div class="runtime">
+                <i class="fas fa-clock mini-clock" aria-hidden="true"></i>
+                <span id="movies-runtime">—</span>
+              </div>
+            </div>
+            <div class="right-meta">
+              <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+              <span id="movies-year" class="year"></span>
+            </div>
+          </div>
+          <p id="movies-hero-overview" class="hero-overview">Overview will appear here.</p>
+          <p class="meta-line"><strong class="theme">Starring: </strong><span id="movies-starring">Loading...</span></p>
+          <p class="meta-line"><strong class="theme">Genre: </strong><span id="movies-genre">Loading...</span></p>
+          <div class="hero-cta">
+            <button id="movies-watch-trailer" class="btn primary"><i class="fas fa-play"></i> Watch Trailer</button>
+            <button id="movies-more-info" class="btn secondary"><i class="fas fa-info-circle"></i> More Info</button>
+          </div>
+        </div>
+        <button class="nav-btn prev" id="movies-prev" aria-label="Previous item"><i class="fas fa-chevron-left"></i></button>
+        <button class="nav-btn next" id="movies-next" aria-label="Next item"><i class="fas fa-chevron-right"></i></button>
+      </section>
+
+      <!-- Popular Movies List with Pagination -->
+      <section class="featured-section">
+        <h2>Popular Movies</h2>
+        <div class="movie-grid" id="movies-list"></div>
+        <div id="movies-pagination" class="pagination"></div>
+      </section>
+
+      <!-- Fun Sections -->
+      <section class="featured-section">
+        <h2>Top Rated Movies</h2>
+        <div class="carousel">
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <div class="carousel-track" id="movies-top-rated"></div>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+
+      <section class="featured-section">
+        <h2>Upcoming Movies</h2>
+        <div class="carousel">
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <div class="carousel-track" id="movies-upcoming"></div>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+
+      <!-- Add more fun sections if desired, e.g., Genre-specific carousels -->
+    </div>
+
+    <!-- Series Page Content -->
+    <div id="series-page" class="page" style="display: none;">
+      <!-- Mini Hero for Series -->
+      <section class="hero mini-hero" id="series-hero">
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+          <h2 id="series-hero-title" class="hero-title">Loading...</h2>
+          <div class="hero-meta">
+            <div class="left-meta">
+              <div class="rating-container">
+                <svg class="rating-circle" viewBox="0 0 36 36" aria-hidden="true">
+                  <path class="bg" d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831" />
+                  <path class="progress" d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831" stroke-dasharray="0 100" />
+                </svg>
+                <div class="rating-value-wrap">
+                  <span id="series-rating-value">0.0</span>
+                  <small>IMDb</small>
+                </div>
+              </div>
+              <div class="runtime">
+                <i class="fas fa-clock mini-clock" aria-hidden="true"></i>
+                <span id="series-runtime">—</span>
+              </div>
+            </div>
+            <div class="right-meta">
+              <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+              <span id="series-year" class="year"></span>
+            </div>
+          </div>
+          <p id="series-hero-overview" class="hero-overview">Overview will appear here.</p>
+          <p class="meta-line"><strong class="theme">Starring: </strong><span id="series-starring">Loading...</span></p>
+          <p class="meta-line"><strong class="theme">Genre: </strong><span id="series-genre">Loading...</span></p>
+          <div class="hero-cta">
+            <button id="series-watch-trailer" class="btn primary"><i class="fas fa-play"></i> Watch Trailer</button>
+            <button id="series-more-info" class="btn secondary"><i class="fas fa-info-circle"></i> More Info</button>
+          </div>
+        </div>
+        <button class="nav-btn prev" id="series-prev" aria-label="Previous item"><i class="fas fa-chevron-left"></i></button>
+        <button class="nav-btn next" id="series-next" aria-label="Next item"><i class="fas fa-chevron-right"></i></button>
+      </section>
+
+      <!-- Popular Series List with Pagination -->
+      <section class="featured-section">
+        <h2>Popular Series</h2>
+        <div class="series-grid" id="series-list"></div>
+        <div id="series-pagination" class="pagination"></div>
+      </section>
+
+      <!-- Fun Sections -->
+      <section class="featured-section">
+        <h2>Top Rated Series</h2>
+        <div class="carousel">
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <div class="carousel-track" id="series-top-rated"></div>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+
+      <section class="featured-section">
+        <h2>Airing Soon</h2>
+        <div class="carousel">
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <div class="carousel-track" id="series-airing"></div>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+
+      <!-- Add more fun sections if desired -->
+    </div>
+
+    <!-- Genres Page Content -->
+    <!-- Genres Page Content -->
+<div id="genres-page" class="page genres-page" style="display: none;">
+  <section class="genre-section">
+    <h2>Explore Genres</h2>
+    <div class="type-select">
+      <label><input type="radio" name="media-type" value="movie" checked> Movies</label>
+      <label><input type="radio" name="media-type" value="tv"> Series</label>
+    </div>
+    <div class="genre-buttons" id="genre-buttons"></div>
+    <div class="filters">
+      <select id="filter-year">
+        <option value="">Select Year</option>
+        <!-- Populated dynamically -->
+      </select>
+      <select id="filter-country">
+        <option value="">Select Country</option>
+        <!-- Populated dynamically with countries, including Nigeria -->
+      </select>
+      <select id="filter-sort">
+        <option value="popularity.desc">Popular</option>
+        <option value="vote_average.desc">Top Rated</option>
+        <option value="release_date.desc">Newest</option>
+      </select>
+      <button id="apply-filters">Apply Filters</button>
+    </div>
+    <div id="genres-results-container">
+      <p class="prompt-message">Select your preferences and click Apply Filters to explore movies or series.</p>
+      <div class="genres-grid" id="genres-results"></div>
+    </div>
+    <div id="genres-pagination" class="pagination"></div>
+  </section>
+</div>
+    <!-- Actor Modal -->
+    <div class="modal" id="actor-modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <div class="actor-details">
+          <img id="actor-img" src="" alt="">
+          <h3 id="actor-name"></h3>
+          <p id="actor-bio"></p>
+          <div class="actor-stats">
+            <p><i class="fas fa-film"></i> Movies: <span id="movie-count">0</span></p>
+            <p><i class="fas fa-tv"></i> TV Shows: <span id="tv-count">0</span></p>
+            <p><i class="fas fa-trophy"></i> Awards: <span id="awards-count">0</span></p>
+          </div>
+          <h4>Popular Works</h4>
+          <div class="popular-works" id="popular-works"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/static/js/index.js"></script>
+  
+</body>
+</html>
