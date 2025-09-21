@@ -113,6 +113,16 @@ let selectedYear = '';
 let selectedCountry = '';
 let selectedSort = 'popularity.desc';
 
+// News Page State
+let newsIntervals = {};
+let newsData = {
+  movie: [],
+  tv: [],
+  general: [],
+  actor: [],
+  social: []
+};
+
 // Genre lists
 const movieGenres = [
   { id: 28, name: 'Action' },
@@ -178,25 +188,29 @@ function showPage(page) {
   const today = new Date().toISOString().split('T')[0];
 
   if (page === 'home') {
+    console.log('Loading home page content');
     fetchTrending();
     fetchMovies(`${BASE}/movie/popular?api_key=${API_KEY}`, 'popular-movies');
     fetchMovies(`${BASE}/tv/popular?api_key=${API_KEY}`, 'popular-tv');
     fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'award-winning');
-    fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=primary_release_date.asc&primary_release_date.gte=${today}`, 'coming-soon', 10);
+    fetchUpcoming(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=primary_release_date.asc&primary_release_date.gte=${today}`, 'recommendations', 10, 'movie');
     fetchTop10();
     fetchActors();
-    fetchNews();
+    fetchHomeNews();
   } else if (page === 'movies') {
+    console.log('Loading movies page content');
     fetchMoviesTrending();
     loadMovies(moviesCurrentPage);
     fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'movies-top-rated', 10);
-    fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=primary_release_date.asc&primary_release_date.gte=${today}`, 'movies-upcoming', 10);
+    fetchUpcoming(`${BASE}/movie/upcoming?api_key=${API_KEY}`, 'movies-upcoming', 10, 'movie');
   } else if (page === 'series') {
+    console.log('Loading series page content');
     fetchSeriesTrending();
     loadSeries(seriesCurrentPage);
     fetchMovies(`${BASE}/discover/tv?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'series-top-rated', 10);
-    fetchMovies(`${BASE}/discover/tv?api_key=${API_KEY}&sort_by=first_air_date.asc&first_air_date.gte=${today}`, 'series-airing', 10);
+    fetchUpcoming(`${BASE}/discover/tv?api_key=${API_KEY}&sort_by=first_air_date.asc&first_air_date.gte=${today}&first_air_date.lte=2026-12-31`, 'series-airing', 10, 'tv');
   } else if (page === 'genres') {
+    console.log('Loading genres page content');
     selectedType = 'movie';
     selectedGenre = null;
     selectedYear = '';
@@ -209,12 +223,408 @@ function showPage(page) {
     promptMessage.style.display = 'block';
     genresResults.innerHTML = '';
     genresPagination.innerHTML = '';
+  } else if (page === 'news-updates') {
+    console.log('Loading news page content');
+    // Delay initialization to ensure DOM is ready
+    setTimeout(() => initNewsPage(), 100);
   }
+}
+
+// News Page Functions
+function initNewsPage() {
+  console.log('Initializing news page');
+  
+  // Clear any existing intervals
+  clearNewsIntervals();
+  
+  // Fetch initial news data
+  fetchAllNews();
+  
+  // Set up real-time updates
+  newsIntervals.movie = setInterval(() => fetchMovieNews(), 300000); // 5 minutes
+  newsIntervals.tv = setInterval(() => fetchTVNews(), 300000);
+  newsIntervals.general = setInterval(() => fetchGeneralNews(), 300000);
+  newsIntervals.actor = setInterval(() => fetchActorNews(), 300000);
+  newsIntervals.social = setInterval(() => fetchSocialMediaNews(), 300000);
+  
+  // Set up refresh buttons
+  setupRefreshButtons();
+}
+
+// Clear news intervals
+function clearNewsIntervals() {
+  Object.values(newsIntervals).forEach(interval => clearInterval(interval));
+  newsIntervals = {};
+}
+
+// Fetch all news categories
+async function fetchAllNews() {
+  await Promise.all([
+    fetchMovieNews(),
+    fetchTVNews(),
+    fetchGeneralNews(),
+    fetchActorNews(),
+    fetchSocialMediaNews()
+  ]);
+}
+
+// Fetch Movie News
+async function fetchMovieNews() {
+  try {
+    const res = await fetch(`https://newsapi.org/v2/everything?q=movies&apiKey=${NEWS_API_KEY}&pageSize=6`);
+    const data = await res.json();
+    newsData.movie = data.articles || [];
+    displayMovieNews();
+  } catch (error) {
+    console.error("Error fetching movie news:", error);
+  }
+}
+
+// Fetch TV News
+async function fetchTVNews() {
+  try {
+    const res = await fetch(`https://gnews.io/api/v4/search?q=tv%20shows&apikey=${GNEWS_API_KEY}&max=6`);
+    const data = await res.json();
+    newsData.tv = data.articles || [];
+    displayTVNews();
+  } catch (error) {
+    console.error("Error fetching TV news:", error);
+  }
+}
+
+// Fetch General News
+async function fetchGeneralNews() {
+  try {
+    const res = await fetch(`https://newsapi.org/v2/top-headlines?category=entertainment&apiKey=${NEWS_API_KEY}&pageSize=8`);
+    const data = await res.json();
+    newsData.general = data.articles || [];
+    displayGeneralNews();
+  } catch (error) {
+    console.error("Error fetching general news:", error);
+  }
+}
+
+// Fetch Actor News
+async function fetchActorNews() {
+  try {
+    const res = await fetch(`https://gnews.io/api/v4/search?q=celebrities&apikey=${GNEWS_API_KEY}&max=5`);
+    const data = await res.json();
+    newsData.actor = data.articles || [];
+    displayActorNews();
+  } catch (error) {
+    console.error("Error fetching actor news:", error);
+  }
+}
+
+// Fetch Social Media News
+async function fetchSocialMediaNews() {
+  try {
+    // Simulate social media data since we don't have a direct API
+    const socialPosts = [
+      {
+        id: 1,
+        user: "FilmFanatic",
+        handle: "@filmbuff",
+        content: "Just watched the new sci-fi blockbuster and it blew my mind! The visuals are stunning.",
+        time: "2m ago",
+        likes: 124,
+        retweets: 42,
+        avatar: "https://randomuser.me/api/portraits/men/32.jpg"
+      },
+      {
+        id: 2,
+        user: "SeriesBinger",
+        handle: "@tvaddict",
+        content: "Finished binge-watching the entire season in one weekend. Highly recommend!",
+        time: "15m ago",
+        likes: 89,
+        retweets: 21,
+        avatar: "https://randomuser.me/api/portraits/women/44.jpg"
+      },
+      {
+        id: 3,
+        user: "CinemaGuru",
+        handle: "@moviecritic",
+        content: "The director's cut adds so much depth to the story. A must-watch for fans!",
+        time: "1h ago",
+        likes: 256,
+        retweets: 78,
+        avatar: "https://randomuser.me/api/portraits/men/67.jpg"
+      },
+      {
+        id: 4,
+        user: "StarSpotter",
+        handle: "@celebwatch",
+        content: "Spotted two A-list actors having dinner together. New project in the works?",
+        time: "3h ago",
+        likes: 342,
+        retweets: 112,
+        avatar: "https://randomuser.me/api/portraits/women/28.jpg"
+      }
+    ];
+    
+    newsData.social = socialPosts;
+    displaySocialMediaNews();
+  } catch (error) {
+    console.error("Error fetching social media news:", error);
+  }
+}
+
+// Display Movie News in Grid Format
+function displayMovieNews() {
+  const container = document.getElementById('movie-news');
+  if (!container) {
+    console.error("Movie news container not found");
+    return;
+  }
+  
+  container.innerHTML = '';
+  container.className = 'movie-news-grid';
+  
+  if (newsData.movie.length === 0) {
+    container.innerHTML = '<p>No movie news available at this time.</p>';
+    return;
+  }
+  
+  newsData.movie.forEach(article => {
+    const card = document.createElement('div');
+    card.className = 'news-card movie-card';
+    card.innerHTML = `
+      <div class="news-image" style="background-image: url(${article.urlToImage || 'https://picsum.photos/seed/movie/400/250.jpg'})"></div>
+      <div class="news-content">
+        <h3>${article.title}</h3>
+        <p>${article.description || 'No description available'}</p>
+        <div class="news-meta">
+          <span class="news-source">${article.source.name}</span>
+          <span class="news-date">${formatNewsDate(article.publishedAt)}</span>
+        </div>
+        <button class="read-more-btn" data-url="${article.url}">Read More</button>
+      </div>
+    `;
+    
+    card.querySelector('.read-more-btn').addEventListener('click', () => {
+      window.open(article.url, '_blank');
+    });
+    
+    container.appendChild(card);
+  });
+}
+
+// Display TV News in Timeline Format
+function displayTVNews() {
+  const container = document.getElementById('tv-news');
+  if (!container) {
+    console.error("TV news container not found");
+    return;
+  }
+  
+  container.innerHTML = '';
+  container.className = 'tv-news-timeline';
+  
+  if (newsData.tv.length === 0) {
+    container.innerHTML = '<p>No TV news available at this time.</p>';
+    return;
+  }
+  
+  newsData.tv.forEach((article, index) => {
+    const timelineItem = document.createElement('div');
+    timelineItem.className = `timeline-item ${index % 2 === 0 ? 'left' : 'right'}`;
+    timelineItem.innerHTML = `
+      <div class="timeline-content">
+        <div class="timeline-date">${formatNewsDate(article.publishedAt)}</div>
+        <h3>${article.title}</h3>
+        <p>${article.description || 'No description available'}</p>
+        <div class="news-source">${article.source.name}</div>
+        <button class="read-more-btn" data-url="${article.url}">Read More</button>
+      </div>
+    `;
+    
+    timelineItem.querySelector('.read-more-btn').addEventListener('click', () => {
+      window.open(article.url, '_blank');
+    });
+    
+    container.appendChild(timelineItem);
+  });
+}
+
+// Display General News in Carousel Format
+function displayGeneralNews() {
+  const container = document.getElementById('general-news');
+  if (!container) {
+    console.error("General news container not found");
+    return;
+  }
+  
+  container.innerHTML = '';
+  container.className = 'general-news-carousel';
+  
+  if (newsData.general.length === 0) {
+    container.innerHTML = '<p>No general news available at this time.</p>';
+    return;
+  }
+  
+  newsData.general.forEach(article => {
+    const card = document.createElement('div');
+    card.className = 'news-card general-card';
+    card.innerHTML = `
+      <div class="news-image" style="background-image: url(${article.urlToImage || 'https://picsum.photos/seed/entertainment/400/250.jpg'})"></div>
+      <div class="news-content">
+        <h3>${article.title}</h3>
+        <p>${article.description || 'No description available'}</p>
+        <div class="news-meta">
+          <span class="news-source">${article.source.name}</span>
+          <span class="news-date">${formatNewsDate(article.publishedAt)}</span>
+        </div>
+        <button class="read-more-btn" data-url="${article.url}">Read More</button>
+      </div>
+    `;
+    
+    card.querySelector('.read-more-btn').addEventListener('click', () => {
+      window.open(article.url, '_blank');
+    });
+    
+    container.appendChild(card);
+  });
+}
+
+// Display Actor News in List Format
+function displayActorNews() {
+  const container = document.getElementById('actor-news');
+  if (!container) {
+    console.error("Actor news container not found");
+    return;
+  }
+  
+  container.innerHTML = '';
+  container.className = 'actor-news-list';
+  
+  if (newsData.actor.length === 0) {
+    container.innerHTML = '<p>No actor news available at this time.</p>';
+    return;
+  }
+  
+  newsData.actor.forEach(article => {
+    const listItem = document.createElement('div');
+    listItem.className = 'actor-news-item';
+    listItem.innerHTML = `
+      <div class="actor-news-image" style="background-image: url(${article.image || 'https://randomuser.me/api/portraits/men/1.jpg'})"></div>
+      <div class="actor-news-content">
+        <h3>${article.title}</h3>
+        <p>${article.description || 'No description available'}</p>
+        <div class="news-meta">
+          <span class="news-source">${article.source.name}</span>
+          <span class="news-date">${formatNewsDate(article.publishedAt)}</span>
+        </div>
+        <button class="read-more-btn" data-url="${article.url}">Read More</button>
+      </div>
+    `;
+    
+    listItem.querySelector('.read-more-btn').addEventListener('click', () => {
+      window.open(article.url, '_blank');
+    });
+    
+    container.appendChild(listItem);
+  });
+}
+
+// Display Social Media News in Grid Format
+function displaySocialMediaNews() {
+  const container = document.getElementById('social-media');
+  if (!container) {
+    console.error("Social media container not found");
+    return;
+  }
+  
+  container.innerHTML = '';
+  container.className = 'social-media-grid';
+  
+  if (newsData.social.length === 0) {
+    container.innerHTML = '<p>No social media posts available at this time.</p>';
+    return;
+  }
+  
+  newsData.social.forEach(post => {
+    const card = document.createElement('div');
+    card.className = 'social-card';
+    card.innerHTML = `
+      <div class="social-header">
+        <img src="${post.avatar}" alt="${post.user}" class="social-avatar">
+        <div>
+          <div class="social-user">${post.user}</div>
+          <div class="social-handle">${post.handle}</div>
+        </div>
+        <div class="social-time">${post.time}</div>
+      </div>
+      <div class="social-content">${post.content}</div>
+      <div class="social-actions">
+        <button class="social-action"><i class="far fa-heart"></i> ${post.likes}</button>
+        <button class="social-action"><i class="fas fa-retweet"></i> ${post.retweets}</button>
+        <button class="social-action"><i class="far fa-comment"></i></button>
+        <button class="social-action"><i class="far fa-share"></i></button>
+      </div>
+    `;
+    
+    container.appendChild(card);
+  });
+}
+
+// Setup Refresh Buttons
+function setupRefreshButtons() {
+  // Movie News Refresh
+  const movieRefresh = document.querySelector('#movie-news').parentElement.querySelector('.refresh-btn');
+  if (movieRefresh) {
+    movieRefresh.addEventListener('click', fetchMovieNews);
+  }
+  
+  // TV News Refresh
+  const tvRefresh = document.querySelector('#tv-news').parentElement.querySelector('.refresh-btn');
+  if (tvRefresh) {
+    tvRefresh.addEventListener('click', fetchTVNews);
+  }
+  
+  // General News Refresh
+  const generalRefresh = document.querySelector('#general-news').parentElement.querySelector('.refresh-btn');
+  if (generalRefresh) {
+    generalRefresh.addEventListener('click', fetchGeneralNews);
+  }
+  
+  // Actor News Refresh
+  const actorRefresh = document.querySelector('#actor-news').parentElement.querySelector('.refresh-btn');
+  if (actorRefresh) {
+    actorRefresh.addEventListener('click', fetchActorNews);
+  }
+  
+  // Social Media Refresh
+  const socialRefresh = document.querySelector('#social-media').parentElement.querySelector('.refresh-btn');
+  if (socialRefresh) {
+    socialRefresh.addEventListener('click', fetchSocialMediaNews);
+  }
+}
+
+// Format date for news display
+function formatNewsDate(dateString) {
+  if (!dateString) return 'Unknown date';
+  
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  
+  return date.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric', 
+    year: 'numeric' 
+  });
 }
 
 // Populate years and countries for filters
 function populateYearsAndCountries() {
-  // Years: from 1900 to current year + 2 for upcoming
   filterYear.innerHTML = '<option value="">All Years</option>';
   const currentYear = new Date().getFullYear();
   for (let y = currentYear + 2; y >= 1900; y--) {
@@ -224,7 +634,6 @@ function populateYearsAndCountries() {
     filterYear.appendChild(option);
   }
 
-  // Curated list of 30 countries, including African countries
   const countries = [
     { code: 'NG', name: 'Nigeria' },
     { code: 'ZA', name: 'South Africa' },
@@ -234,7 +643,7 @@ function populateYearsAndCountries() {
     { code: 'MA', name: 'Morocco' },
     { code: 'ET', name: 'Ethiopia' },
     { code: 'AL', name: 'Algeria' },
-    {érité: 'CM', name: 'Cameroon' },
+    { code: 'CM', name: 'Cameroon' },
     { code: 'US', name: 'United States' },
     { code: 'GB', name: 'United Kingdom' },
     { code: 'CA', name: 'Canada' },
@@ -391,7 +800,7 @@ async function fetchDetails(id, mediaType) {
     const res = await fetch(`${BASE}/${mediaType}/${id}?api_key=${API_KEY}&append_to_response=credits,videos`);
     return await res.json();
   } catch (err) {
-    console.error("Details fetch error:", err);
+    console.error(`Details fetch error for ${mediaType} ID ${id}:`, err);
     return null;
   }
 }
@@ -429,7 +838,7 @@ async function displayItem(index) {
   const cast = details?.credits?.cast ? details.credits.cast.slice(0,3).map(c => c.name).join(", ") : (it.original_name || it.original_title || "Unknown");
   starringEl.textContent = cast;
 
-  const genres = details?.genres ? details.genres.map(g => g.name).join(", ") : (it.genre_ids ? it.genre_ids.join(", ") : "N/A");
+  const genres = details?.genres ? details.genres.map(g => g.name).join(", ") : (it.genre_ids ? it.genre_ids.map(id => movieGenres.concat(tvGenres).find(g => g.id === id)?.name || '').join(", ") : "N/A");
   genreEl.textContent = genres;
 
   const year = (it.release_date || it.first_air_date) ? ((it.release_date || it.first_air_date).slice(0,4)) : "";
@@ -474,7 +883,7 @@ async function displayMoviesItem(index) {
   const cast = details?.credits?.cast ? details.credits.cast.slice(0,3).map(c => c.name).join(", ") : "Unknown";
   moviesStarringEl.textContent = cast;
 
-  const genres = details?.genres ? details.genres.map(g => g.name).join(", ") : "N/A";
+  const genres = details?.genres ? details.genres.map(g => g.name).join(", ") : (it.genre_ids ? it.genre_ids.map(id => movieGenres.find(g => g.id === id)?.name || '').join(", ") : "N/A");
   moviesGenreEl.textContent = genres;
 
   const year = (it.release_date || "").slice(0,4);
@@ -485,7 +894,7 @@ async function displayMoviesItem(index) {
   if (trailer) {
     moviesWatchTrailerBtn.onclick = () => window.open(`https://www.youtube.com/watch?v=${trailer.key}`, "_blank");
   } else {
-    moviesWatchTrailerBtn.onclick = () => alert("Trailer not available");
+    watchTrailerBtn.onclick = () => alert("Trailer not available");
   }
 
   moviesMoreInfoBtn.onclick = () => window.open(`https://www.themoviedb.org/movie/${it.id}`, "_blank");
@@ -519,7 +928,7 @@ async function displaySeriesItem(index) {
   const cast = details?.credits?.cast ? details.credits.cast.slice(0,3).map(c => c.name).join(", ") : "Unknown";
   seriesStarringEl.textContent = cast;
 
-  const genres = details?.genres ? details.genres.map(g => g.name).join(", ") : "N/A";
+  const genres = details?.genres ? details.genres.map(g => g.name).join(", ") : (it.genre_ids ? it.genre_ids.map(id => tvGenres.find(g => g.id === id)?.name || '').join(", ") : "N/A");
   seriesGenreEl.textContent = genres;
 
   const year = (it.first_air_date || "").slice(0,4);
@@ -654,22 +1063,39 @@ seriesHero.addEventListener("touchend", (e) => {
   }
 });
 
+// Date formatter for movie/series display
+function formatMovieDate(dateStr) {
+  if (!dateStr) return 'TBA';
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+};
+
 // Fetch movies/series for carousels or grids
 async function fetchMovies(endpoint, containerId, limit = 10, isGrid = false) {
   try {
+    console.log(`Fetching data for ${containerId} from ${endpoint}`);
     const res = await fetch(endpoint);
     const data = await res.json();
+    if (!data.results || data.results.length === 0) {
+      console.warn(`No results returned for ${containerId}`);
+      throw new Error("No results available");
+    }
     const container = document.getElementById(containerId);
     container.innerHTML = '';
     const today = new Date().toISOString().split('T')[0];
     let filteredResults = data.results.filter(item => {
       const releaseDate = item.release_date || item.first_air_date;
-      if (containerId.includes("upcoming") || containerId.includes("airing")) {
+      if (containerId.includes("upcoming") || containerId.includes("airing") || containerId.includes("recommendations")) {
         return releaseDate && releaseDate > today && item.poster_path;
       }
       return item.poster_path;
     });
     filteredResults = filteredResults.slice(0, limit);
+    if (filteredResults.length === 0) {
+      container.innerHTML = `<p>No ${containerId.includes('movies') ? 'movies' : containerId.includes('series') ? 'series' : 'content'} available at this time.</p>`;
+      console.warn(`No valid items for ${containerId} after filtering`);
+      return data.total_pages || 1;
+    }
     filteredResults.forEach(item => {
       const div = document.createElement('div');
       div.classList.add(isGrid ? 'grid-item' : 'carousel-item');
@@ -691,9 +1117,69 @@ async function fetchMovies(endpoint, containerId, limit = 10, isGrid = false) {
       });
       container.appendChild(div);
     });
+    console.log(`Successfully loaded ${filteredResults.length} items for ${containerId}`);
     return data.total_pages || 1;
   } catch (error) {
     console.error(`Error fetching ${containerId}:`, error);
+    const container = document.getElementById(containerId);
+    container.innerHTML = `<p>Unable to load ${containerId.includes('movies') ? 'movies' : containerId.includes('series') ? 'series' : 'content'}. Please try again.</p>`;
+    return 1;
+  }
+}
+
+// Fetch upcoming movies/series with detailed info for carousels
+async function fetchUpcoming(endpoint, containerId, limit = 10, mediaType) {
+  try {
+    console.log(`Fetching upcoming content for ${containerId} from ${endpoint}`);
+    const res = await fetch(endpoint);
+    const data = await res.json();
+    if (!data.results || data.results.length === 0) {
+      console.warn(`No upcoming results for ${containerId}`);
+      throw new Error("No upcoming results available");
+    }
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    const today = new Date().toISOString().split('T')[0];
+    let filteredResults = data.results.filter(item => {
+      const releaseDate = item.release_date || item.first_air_date;
+      return releaseDate && releaseDate > today && item.poster_path;
+    });
+    filteredResults = filteredResults.slice(0, limit);
+    if (filteredResults.length === 0) {
+      container.innerHTML = `<p>No upcoming ${mediaType === 'movie' ? 'movies' : 'series'} available at this time.</p>`;
+      console.warn(`No valid upcoming items for ${containerId}`);
+      return data.total_pages || 1;
+    }
+    const genreMap = mediaType === 'movie' ? movieGenres : tvGenres;
+    for (const item of filteredResults) {
+      const div = document.createElement('div');
+      div.classList.add('carousel-item');
+      const title = item.title || item.name || 'Untitled';
+      const releaseDate = item.release_date || item.first_air_date || 'TBA';
+      const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+      const genres = item.genre_ids ? item.genre_ids.map(id => genreMap.find(g => g.id === id)?.name || '').filter(g => g).join(", ") : 'N/A';
+      div.innerHTML = `
+        <img src="${item.poster_path ? IMG_PATH + item.poster_path : '/images/no-poster.png'}" alt="${title}">
+        <div class="overlay">
+          <h3>${title}</h3>
+          <div class="meta">
+            <span><i class="fas fa-star"></i> ${rating}</span>
+            <span><i class="fas fa-calendar"></i> ${formatMovieDate(releaseDate)}</span>
+            <span><i class="fas fa-film"></i> ${genres}</span>
+          </div>
+        </div>
+      `;
+      div.addEventListener('click', () => {
+        window.open(`https://www.themoviedb.org/${mediaType}/${item.id}`, '_blank');
+      });
+      container.appendChild(div);
+    }
+    console.log(`Successfully loaded ${filteredResults.length} upcoming items for ${containerId}`);
+    return data.total_pages || 1;
+  } catch (error) {
+    console.error(`Error fetching upcoming ${containerId}:`, error);
+    const container = document.getElementById(containerId);
+    container.innerHTML = `<p>Unable to load upcoming ${mediaType === 'movie' ? 'movies' : 'series'}. Please try again.</p>`;
     return 1;
   }
 }
@@ -738,6 +1224,7 @@ function updatePagination(paginationEl, currentPage, totalPages, loadFunction) {
 // Fetch top 10
 async function fetchTop10() {
   try {
+    console.log('Fetching top 10 content');
     const res = await fetch(`${BASE}/trending/all/week?api_key=${API_KEY}`);
     const data = await res.json();
     const container = document.getElementById("top10");
@@ -751,14 +1238,18 @@ async function fetchTop10() {
       `;
       container.appendChild(item);
     });
+    console.log('Successfully loaded top 10 items');
   } catch (err) {
     console.error("Error fetching Top 10:", err);
+    const container = document.getElementById("top10");
+    container.innerHTML = "<p>Unable to load top 10 content. Please try again.</p>";
   }
 }
 
 // Fetch trending actors
 async function fetchActors() {
   try {
+    console.log('Fetching trending actors');
     const res = await fetch(`${BASE}/person/popular?api_key=${API_KEY}`);
     const data = await res.json();
     const container = document.getElementById("trending-actors");
@@ -777,14 +1268,18 @@ async function fetchActors() {
       card.addEventListener("click", () => showActorModal(actor.id));
       container.appendChild(card);
     });
+    console.log('Successfully loaded trending actors');
   } catch (error) {
     console.error("Error fetching actors:", error);
+    const container = document.getElementById("trending-actors");
+    container.innerHTML = "<p>Unable to load actors. Please try again.</p>";
   }
 }
 
 // Actor modal
 async function showActorModal(id) {
   try {
+    console.log(`Fetching actor details for ID ${id}`);
     const res = await fetch(`${BASE}/person/${id}?api_key=${API_KEY}&append_to_response=movie_credits,tv_credits`);
     const actor = await res.json();
     actorImg.src = actor.profile_path ? IMG_PATH + actor.profile_path : '/images/no-avatar.png';
@@ -804,8 +1299,10 @@ async function showActorModal(id) {
       popularWorks.appendChild(div);
     });
     actorModal.style.display = "block";
+    console.log(`Successfully loaded actor modal for ${actor.name}`);
   } catch (error) {
     console.error("Error fetching actor details:", error);
+    actorModal.innerHTML = "<p>Unable to load actor details. Please try again.</p>";
   }
 }
 
@@ -823,6 +1320,7 @@ window.addEventListener("click", (e) => {
 // Genre functionality for home explore
 async function fetchGenreMovies(genreId) {
   try {
+    console.log(`Fetching genre movies for genre ID ${genreId}`);
     const res = await fetch(`${BASE}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}`);
     const data = await res.json();
     const container = genreMovies.querySelector(".carousel-track");
@@ -846,8 +1344,11 @@ async function fetchGenreMovies(genreId) {
       container.appendChild(item);
     });
     genreMovies.classList.add("active");
+    console.log(`Successfully loaded genre movies for genre ID ${genreId}`);
   } catch (error) {
     console.error("Error fetching genre movies:", error);
+    const container = genreMovies.querySelector(".carousel-track");
+    container.innerHTML = "<p>Unable to load genre movies. Please try again.</p>";
   }
 }
 
@@ -905,51 +1406,440 @@ if (newsletterForm) {
   });
 }
 
-// Fetch news from NewsAPI and GNews
-async function fetchNews() {
+// Fetch news from NewsAPI and GNews for home page
+// Add this to your existing JS file
+
+let lastRefreshTime = null;
+
+// News Page Functions
+function initNewsPage() {
+  console.log('Initializing news page');
+  
+  // Clear any existing intervals
+  clearNewsIntervals();
+  
+  // Fetch initial news data
+  fetchAllNews();
+  
+  // Set up real-time updates
+  newsIntervals.general = setInterval(() => fetchGeneralNews(), 300000); // 5 minutes
+  newsIntervals.moviesTv = setInterval(() => fetchMoviesTvNews(), 300000);
+  newsIntervals.actors = setInterval(() => fetchActorsNews(), 300000);
+  newsIntervals.trailers = setInterval(() => fetchTrailersNews(), 300000);
+  newsIntervals.trending = setInterval(() => fetchTrendingNews(), 300000);
+  
+  // Set up main refresh button
+  const mainRefreshBtn = document.getElementById('main-refresh-btn');
+  if (mainRefreshBtn) {
+    mainRefreshBtn.addEventListener('click', refreshAllNews);
+  }
+  
+  // Set up tab switching
+  setupNewsTabs();
+  
+  // Update last refresh time
+  updateLastRefreshTime();
+}
+
+// Clear news intervals
+function clearNewsIntervals() {
+  Object.values(newsIntervals).forEach(interval => clearInterval(interval));
+  newsIntervals = {};
+}
+
+// Fetch all news categories
+async function fetchAllNews() {
+  await Promise.all([
+    fetchGeneralNews(),
+    fetchMoviesTvNews(),
+    fetchActorsNews(),
+    fetchTrailersNews(),
+    fetchTrendingNews()
+  ]);
+  updateLastRefreshTime();
+}
+
+// Refresh all news
+async function refreshAllNews() {
+  const refreshBtn = document.getElementById('main-refresh-btn');
+  const icon = refreshBtn.querySelector('i');
+  
+  // Add spinning animation
+  icon.classList.add('fa-spin');
+  
   try {
-    const newsRes = await fetch(`https://newsapi.org/v2/top-headlines?category=entertainment&apiKey=${NEWS_API_KEY}`);
-    const newsData = await newsRes.json();
-    const gnewsRes = await fetch(`https://gnews.io/api/v4/top-headlines?category=entertainment&apikey=${GNEWS_API_KEY}`);
-    const gnewsData = await gnewsRes.json();
-    const combinedNews = [...(newsData.articles || []), ...(gnewsData.articles || [])]
-      .filter(article => {
-        const title = (article.title || '').toLowerCase();
-        const description = (article.description || '').toLowerCase();
-        return !title.includes('trailer') && 
-               !title.includes('poster') && 
-               !title.includes('coming soon') && 
-               !title.includes('upcoming') && 
-               !description.includes('trailer') && 
-               !description.includes('poster') && 
-               !description.includes('coming soon') && 
-               !description.includes('upcoming');
-      })
-      .slice(0, 10);
-    const container = document.getElementById("latest-news");
-    container.innerHTML = "";
-    combinedNews.forEach(article => {
-      const item = document.createElement("div");
-      item.classList.add("news-item");
-      item.innerHTML = `
-        <h3>${article.title || 'Untitled'}</h3>
-        <p>${article.description || 'No description'}</p>
-      `;
-      container.appendChild(item);
-    });
-    const seeMore = document.createElement("button");
-    seeMore.classList.add("news-see-more");
-    seeMore.textContent = "See More News";
-    seeMore.addEventListener("click", () => {
-      window.open("https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGxmY21sM0JBUkFQQ3d3d2J5Z3Z3Z0J2YlRFZ0FQQ3d3d2J5Z3Z3Z0J2YlRFZ0FR?hl=en-US", "_blank");
-    });
-    container.appendChild(seeMore);
+    await fetchAllNews();
+    
+    // Show success message
+    showNotification('All news refreshed successfully!');
   } catch (error) {
-    console.error("Error fetching news:", error);
-    const container = document.getElementById("latest-news");
-    container.innerHTML = "<p>Unable to load news at this time.</p>";
+    console.error('Error refreshing news:', error);
+    showNotification('Failed to refresh news. Please try again.', 'error');
+  } finally {
+    // Remove spinning animation
+    icon.classList.remove('fa-spin');
   }
 }
 
+// Fetch General News
+async function fetchGeneralNews() {
+  try {
+    const res = await fetch(`https://newsapi.org/v2/top-headlines?category=entertainment&apiKey=${NEWS_API_KEY}&pageSize=8`);
+    const data = await res.json();
+    newsData.general = data.articles || [];
+    displayGeneralNews();
+  } catch (error) {
+    console.error("Error fetching general news:", error);
+  }
+}
+
+// Fetch Movies & TV News
+async function fetchMoviesTvNews() {
+  try {
+    const [moviesRes, tvRes] = await Promise.all([
+      fetch(`https://newsapi.org/v2/everything?q=movies&apiKey=${NEWS_API_KEY}&pageSize=4`),
+      fetch(`https://gnews.io/api/v4/search?q=tv%20shows&apikey=${GNEWS_API_KEY}&max=4`)
+    ]);
+    
+    const moviesData = await moviesRes.json();
+    const tvData = await tvRes.json();
+    
+    newsData.moviesTv = [
+      ...(moviesData.articles || []),
+      ...(tvData.articles || [])
+    ];
+    
+    displayMoviesTvNews();
+  } catch (error) {
+    console.error("Error fetching movies & TV news:", error);
+  }
+}
+
+// Fetch Actors News
+async function fetchActorsNews() {
+  try {
+    // Get popular actors from TMDB
+    const res = await fetch(`${BASE}/person/popular?api_key=${API_KEY}`);
+    const data = await res.json();
+    newsData.actors = data.results || [];
+    displayActorsNews();
+  } catch (error) {
+    console.error("Error fetching actors news:", error);
+  }
+}
+
+// Fetch Trailers News
+async function fetchTrailersNews() {
+  try {
+    // Get upcoming movies with trailers
+    const today = new Date().toISOString().split('T')[0];
+    const res = await fetch(`${BASE}/movie/upcoming?api_key=${API_KEY}&primary_release_date.gte=${today}`);
+    const data = await res.json();
+    
+    // Filter movies with videos
+    const moviesWithTrailers = [];
+    
+    for (const movie of data.results.slice(0, 6)) {
+      try {
+        const movieRes = await fetch(`${BASE}/movie/${movie.id}?api_key=${API_KEY}&append_to_response=videos`);
+        const movieData = await movieRes.json();
+        
+        if (movieData.videos && movieData.videos.results.length > 0) {
+          moviesWithTrailers.push(movieData);
+        }
+      } catch (error) {
+        console.error(`Error fetching movie details for ${movie.id}:`, error);
+      }
+    }
+    
+    newsData.trailers = moviesWithTrailers;
+    displayTrailersNews();
+  } catch (error) {
+    console.error("Error fetching trailers news:", error);
+  }
+}
+
+// Fetch Trending News
+async function fetchTrendingNews() {
+  try {
+    const res = await fetch(`${BASE}/trending/all/day?api_key=${API_KEY}`);
+    const data = await res.json();
+    newsData.trending = data.results || [];
+    displayTrendingNews();
+  } catch (error) {
+    console.error("Error fetching trending news:", error);
+  }
+}
+
+// Display General News
+function displayGeneralNews() {
+  const container = document.getElementById('all-general-news');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  if (newsData.general.length === 0) {
+    container.innerHTML = '<p>No general news available at this time.</p>';
+    return;
+  }
+  
+  newsData.general.forEach(article => {
+    const card = document.createElement('div');
+    card.className = 'news-card general-card';
+    card.innerHTML = `
+      <div class="news-image" style="background-image: url(${article.urlToImage || 'https://picsum.photos/seed/entertainment/400/250.jpg'})"></div>
+      <div class="news-content">
+        <h3>${article.title}</h3>
+        <p>${article.description || 'No description available'}</p>
+        <div class="news-meta">
+          <span class="news-source">${article.source.name}</span>
+          <span class="news-date">${formatNewsDate(article.publishedAt)}</span>
+        </div>
+        <button class="read-more-btn" data-url="${article.url}">Read More</button>
+      </div>
+    `;
+    
+    card.querySelector('.read-more-btn').addEventListener('click', () => {
+      window.open(article.url, '_blank');
+    });
+    
+    container.appendChild(card);
+  });
+}
+
+// Display Movies & TV News
+function displayMoviesTvNews() {
+  const container = document.getElementById('movies-tv-news');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  if (newsData.moviesTv.length === 0) {
+    container.innerHTML = '<p>No movies or TV news available at this time.</p>';
+    return;
+  }
+  
+  newsData.moviesTv.forEach(article => {
+    const card = document.createElement('div');
+    card.className = 'news-card movie-tv-card';
+    card.innerHTML = `
+      <div class="news-image" style="background-image: url(${article.urlToImage || 'https://picsum.photos/seed/movies-tv/400/250.jpg'})"></div>
+      <div class="news-content">
+        <h3>${article.title}</h3>
+        <p>${article.description || 'No description available'}</p>
+        <div class="news-meta">
+          <span class="news-source">${article.source.name}</span>
+          <span class="news-date">${formatNewsDate(article.publishedAt)}</span>
+        </div>
+        <button class="read-more-btn" data-url="${article.url}">Read More</button>
+      </div>
+    `;
+    
+    card.querySelector('.read-more-btn').addEventListener('click', () => {
+      window.open(article.url, '_blank');
+    });
+    
+    container.appendChild(card);
+  });
+}
+
+// Display Actors News
+function displayActorsNews() {
+  const container = document.getElementById('actors-grid');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  if (newsData.actors.length === 0) {
+    container.innerHTML = '<p>No actors available at this time.</p>';
+    return;
+  }
+  
+  newsData.actors.forEach(actor => {
+    const card = document.createElement('div');
+    card.className = 'actor-card-news';
+    card.innerHTML = `
+      <div class="actor-image" style="background-image: url(${actor.profile_path ? IMG_PATH + actor.profile_path : 'https://randomuser.me/api/portraits/men/1.jpg'})"></div>
+      <div class="actor-info">
+        <h3>${actor.name}</h3>
+        <div class="actor-meta">
+          <span><i class="fas fa-film"></i> ${actor.known_for_department}</span>
+          <span><i class="fas fa-star"></i> ${actor.popularity.toFixed(1)}</span>
+        </div>
+      </div>
+    `;
+    
+    card.addEventListener('click', () => {
+      showActorModal(actor.id);
+    });
+    
+    container.appendChild(card);
+  });
+}
+
+// Display Trailers News
+function displayTrailersNews() {
+  const container = document.getElementById('trailers-grid');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  if (newsData.trailers.length === 0) {
+    container.innerHTML = '<p>No trailers available at this time.</p>';
+    return;
+  }
+  
+  newsData.trailers.forEach(movie => {
+    const trailer = movie.videos.results.find(v => v.type === "Trailer" && v.site === "YouTube") || movie.videos.results[0];
+    
+    const card = document.createElement('div');
+    card.className = 'trailer-card';
+    card.innerHTML = `
+      <div class="trailer-thumbnail" style="background-image: url(${movie.backdrop_path ? IMAGE_BASE + movie.backdrop_path : IMG_PATH + movie.poster_path})">
+        <div class="play-button">
+          <i class="fas fa-play"></i>
+        </div>
+      </div>
+      <div class="trailer-info">
+        <h3>${movie.title || movie.name}</h3>
+        <div class="trailer-meta">
+          <span><i class="fas fa-calendar"></i> ${formatMovieDate(movie.release_date || movie.first_air_date)}</span>
+          <span><i class="fas fa-star"></i> ${movie.vote_average.toFixed(1)}</span>
+        </div>
+      </div>
+    `;
+    
+    card.addEventListener('click', () => {
+      if (trailer) {
+        window.open(`https://www.youtube.com/watch?v=${trailer.key}`, "_blank");
+      } else {
+        window.open(`https://www.themoviedb.org/${movie.media_type}/${movie.id}`, "_blank");
+      }
+    });
+    
+    container.appendChild(card);
+  });
+}
+
+// Display Trending News
+function displayTrendingNews() {
+  const container = document.getElementById('trending-grid');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  if (newsData.trending.length === 0) {
+    container.innerHTML = '<p>No trending content available at this time.</p>';
+    return;
+  }
+  
+  newsData.trending.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'trending-card';
+    card.innerHTML = `
+      <div class="trending-image" style="background-image: url(${item.backdrop_path || item.poster_path ? IMAGE_BASE + (item.backdrop_path || item.poster_path) : 'https://picsum.photos/seed/trending/400/250.jpg'})"></div>
+      <div class="trending-info">
+        <div class="trending-number">#${newsData.trending.indexOf(item) + 1}</div>
+        <h3>${item.title || item.name}</h3>
+        <div class="trending-meta">
+          <span>${item.media_type === 'movie' ? 'Movie' : 'TV Show'}</span>
+          <span><i class="fas fa-star"></i> ${item.vote_average.toFixed(1)}</span>
+        </div>
+      </div>
+    `;
+    
+    card.addEventListener('click', () => {
+      window.open(`https://www.themoviedb.org/${item.media_type}/${item.id}`, "_blank");
+    });
+    
+    container.appendChild(card);
+  });
+}
+
+// Setup news tabs
+function setupNewsTabs() {
+  const tabs = document.querySelectorAll('.news-tab');
+  
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Remove active class from all tabs and contents
+      document.querySelectorAll('.news-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.news-tab-content').forEach(c => c.classList.remove('active'));
+      
+      // Add active class to clicked tab
+      tab.classList.add('active');
+      
+      // Show corresponding content
+      const tabName = tab.dataset.tab;
+      document.getElementById(`${tabName}-tab`).classList.add('active');
+    });
+  });
+}
+
+// Update last refresh time
+function updateLastRefreshTime() {
+  lastRefreshTime = new Date();
+  const refreshTimeElement = document.getElementById('refresh-time');
+  if (refreshTimeElement) {
+    refreshTimeElement.textContent = formatNewsDate(lastRefreshTime.toISOString());
+  }
+}
+
+// Show notification
+function showNotification(message, type = 'success') {
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  // Animate in
+  setTimeout(() => {
+    notification.style.opacity = '1';
+    notification.style.transform = 'translateY(0)';
+  }, 10);
+  
+  // Remove after 3 seconds
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    notification.style.transform = 'translateY(-20px)';
+    
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 300);
+  }, 3000);
+}
+
+// Format date for news display
+function formatNewsDate(dateString) {
+  if (!dateString) return 'Unknown date';
+  
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  
+  return date.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric', 
+    year: 'numeric' 
+  });
+}
+
+// Format date for movie/series display
+function formatMovieDate(dateStr) {
+  if (!dateStr) return 'TBA';
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+};
+
 // Initialize
-showPage('home');
+document.addEventListener('DOMContentLoaded', () => {
+  showPage('home');
+});

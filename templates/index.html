@@ -25,7 +25,7 @@
       <a class="nav-link" href="#" data-page="series"><i class="fas fa-tv"></i><span class="label">Series</span></a>
       <a class="nav-link" href="#" data-page="genres"><i class="fas fa-layer-group"></i><span class="label">Genres</span></a>
       <a class="nav-link" href="#" data-page="mylist"><i class="fas fa-heart"></i><span class="label">My List</span></a>
-      <a class="nav-link" href="#" data-page="news/updates"><i class="fas fa-newspaper"></i><span class="label">News/Updates</span></a>
+      <a class="nav-link" href="#" data-page="news-updates"><i class="fas fa-newspaper"></i><span class="label">News/Updates</span></a>
     </nav>
 
     <div class="bottom-actions">
@@ -48,6 +48,7 @@
         <a class="nav-link" href="#" data-page="series"><i class="fas fa-tv"></i><span class="label">Series</span></a>
         <a class="nav-link" href="#" data-page="genres"><i class="fas fa-layer-group"></i><span class="label">Genres</span></a>
         <a class="nav-link" href="#" data-page="mylist"><i class="fas fa-heart"></i><span class="label">My List</span></a>
+        <a class="nav-link" href="#" data-page="news-updates"><i class="fas fa-newspaper"></i><span class="label">News/Updates</span></a>
       </nav>
       <div class="popup-bottom-actions">
         <a class="nav-link" href="#"><i class="fas fa-user-circle"></i><span class="label">Profile</span></a>
@@ -205,7 +206,7 @@
 
       <!-- ===== Personalized Recommendations ===== -->
       <section class="recommendations-section">
-        <h2>Recommended for You</h2>
+        <h2>Upcoming Releases</h2>
         <div class="carousel">
           <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
           <div class="carousel-track" id="recommendations"></div>
@@ -302,8 +303,6 @@
           <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
         </div>
       </section>
-
-      <!-- Add more fun sections if desired, e.g., Genre-specific carousels -->
     </div>
 
     <!-- Series Page Content -->
@@ -372,43 +371,130 @@
           <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
         </div>
       </section>
-
-      <!-- Add more fun sections if desired -->
     </div>
 
     <!-- Genres Page Content -->
-    <!-- Genres Page Content -->
-<div id="genres-page" class="page genres-page" style="display: none;">
-  <section class="genre-section">
-    <h2>Explore Genres</h2>
-    <div class="type-select">
-      <label><input type="radio" name="media-type" value="movie" checked> Movies</label>
-      <label><input type="radio" name="media-type" value="tv"> Series</label>
+    <div id="genres-page" class="page genres-page" style="display: none;">
+      <section class="genre-section">
+        <h2>Explore Genres</h2>
+        <div class="type-select">
+          <label><input type="radio" name="media-type" value="movie" checked> Movies</label>
+          <label><input type="radio" name="media-type" value="tv"> Series</label>
+        </div>
+        <div class="genre-buttons" id="genre-buttons"></div>
+        <div class="filters">
+          <select id="filter-year">
+            <option value="">Select Year</option>
+            <!-- Populated dynamically -->
+          </select>
+          <select id="filter-country">
+            <option value="">Select Country</option>
+            <!-- Populated dynamically with countries, including Nigeria -->
+          </select>
+          <select id="filter-sort">
+            <option value="popularity.desc">Popular</option>
+            <option value="vote_average.desc">Top Rated</option>
+            <option value="release_date.desc">Newest</option>
+          </select>
+          <button id="apply-filters">Apply Filters</button>
+        </div>
+        <div id="genres-results-container">
+          <p class="prompt-message">Select your preferences and click Apply Filters to explore movies or series.</p>
+          <div class="genres-grid" id="genres-results"></div>
+        </div>
+        <div id="genres-pagination" class="pagination"></div>
+      </section>
     </div>
-    <div class="genre-buttons" id="genre-buttons"></div>
-    <div class="filters">
-      <select id="filter-year">
-        <option value="">Select Year</option>
-        <!-- Populated dynamically -->
-      </select>
-      <select id="filter-country">
-        <option value="">Select Country</option>
-        <!-- Populated dynamically with countries, including Nigeria -->
-      </select>
-      <select id="filter-sort">
-        <option value="popularity.desc">Popular</option>
-        <option value="vote_average.desc">Top Rated</option>
-        <option value="release_date.desc">Newest</option>
-      </select>
-      <button id="apply-filters">Apply Filters</button>
+
+    <!-- News/Updates Page Content -->
+    <!-- News/Updates Page Content -->
+<div id="news-updates-page" class="page news-page" style="display: none;">
+  <!-- News Info Bar -->
+  <div class="news-info-bar">
+    <div class="data-source">
+      <span class="source-indicator">
+        <span class="blink-dot"></span>
+        Getting data from NewsAPI & GNews
+      </span>
+      <span class="last-refresh">Last refresh: <span id="refresh-time">Never</span></span>
     </div>
-    <div id="genres-results-container">
-      <p class="prompt-message">Select your preferences and click Apply Filters to explore movies or series.</p>
-      <div class="genres-grid" id="genres-results"></div>
+    <button id="main-refresh-btn" class="refresh-btn">
+      <i class="fas fa-sync-alt"></i> Refresh All
+    </button>
+  </div>
+
+  <!-- News Tabs -->
+  <div class="news-tabs">
+    <button class="news-tab active" data-tab="all">All News</button>
+    <button class="news-tab" data-tab="movies-tv">Movies & TV</button>
+    <button class="news-tab" data-tab="actors">Actors</button>
+    <button class="news-tab" data-tab="trailers">Trailers</button>
+    <button class="news-tab" data-tab="trending">Trending</button>
+  </div>
+
+  <!-- All News Tab Content -->
+  <div id="all-news-tab" class="news-tab-content active">
+    <section class="news-section">
+      <h2>Latest Entertainment News</h2>
+      <div class="general-news-carousel" id="all-general-news"></div>
+    </section>
+  </div>
+
+  <!-- Movies & TV Tab Content -->
+  <div id="movies-tv-tab" class="news-tab-content">
+    <section class="news-section">
+      <h2>Movies & TV Shows</h2>
+      <div class="movie-news-grid" id="movies-tv-news"></div>
+    </section>
+  </div>
+
+  <!-- Actors Tab Content -->
+  <div id="actors-tab" class="news-tab-content">
+    <section class="news-section">
+      <h2>Trending Actors</h2>
+      <div class="actors-grid" id="actors-grid"></div>
+    </section>
+  </div>
+
+  <!-- Trailers Tab Content -->
+  <div id="trailers-tab" class="news-tab-content">
+    <section class="news-section">
+      <h2>Latest Trailers</h2>
+      <div class="trailers-grid" id="trailers-grid"></div>
+    </section>
+  </div>
+
+  <!-- Trending Tab Content -->
+  <div id="trending-tab" class="news-tab-content">
+    <section class="news-section">
+      <h2>Trending Now</h2>
+      <div class="trending-grid" id="trending-grid"></div>
+    </section>
+  </div>
+
+  <!-- Newsletter -->
+  <section class="newsletter-section">
+    <div class="newsletter-container">
+      <h2>Stay Updated</h2>
+      <p>Subscribe to our newsletter for the latest movie releases and exclusive content.</p>
+      <form class="newsletter-form">
+        <input type="email" placeholder="Enter your email" required>
+        <button type="submit">Subscribe</button>
+      </form>
     </div>
-    <div id="genres-pagination" class="pagination"></div>
   </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 CineVault. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+      <a href="#">Privacy Policy</a>
+    </div>
+  </footer>
 </div>
+
     <!-- Actor Modal -->
     <div class="modal" id="actor-modal">
       <div class="modal-content">
@@ -427,10 +513,8 @@
         </div>
       </div>
     </div>
-
   </main>
 
   <script src="/static/js/index.js"></script>
-  
 </body>
 </html>
