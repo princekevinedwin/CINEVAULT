@@ -543,6 +543,71 @@
   })
   .catch(err => console.error("Error fetching news:", err));
 
+  <div id="news-section" class="movie-news-grid"></div>
+
+
+const newsContainer = document.getElementById("news-section");
+
+async function loadNews() {
+  try {
+    const response = await fetch(
+      `https://newsapi.org/v2/top-headlines?country=us&apiKey=YOUR_API_KEY`
+    );
+
+    if (!response.ok) throw new Error("News API failed");
+
+    const data = await response.json();
+
+    // Handle empty articles
+    if (!data.articles || data.articles.length === 0) {
+      newsContainer.innerHTML = `<p>No news available.</p>`;
+      return;
+    }
+
+    // Map API results into your styled HTML
+    newsContainer.innerHTML = data.articles
+      .slice(0, 6) // show only 6
+      .map(article => {
+        return `
+          <div class="news-card">
+            <div class="news-image" style="background-image: url('${article.urlToImage || "https://via.placeholder.com/300x180"}');"></div>
+            <div class="news-content">
+              <h3>${article.title || "Untitled"}</h3>
+              <p>${article.description || "No description available."}</p>
+              <div class="news-meta">
+                <span>${article.source?.name || "Unknown Source"}</span>
+                <span>${new Date(article.publishedAt).toLocaleDateString()}</span>
+              </div>
+              <a href="${article.url}" target="_blank" class="read-more-btn">Read More</a>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+  } catch (error) {
+    console.error(error);
+
+    // Fallback dummy cards so layout + CSS still works
+    newsContainer.innerHTML = `
+      <div class="news-card">
+        <div class="news-image" style="background-image: url('https://via.placeholder.com/300x180');"></div>
+        <div class="news-content">
+          <h3>Demo Headline</h3>
+          <p>This is a sample news description. Replace with live data once API works.</p>
+          <div class="news-meta">
+            <span>CineVault</span>
+            <span>${new Date().toLocaleDateString()}</span>
+          </div>
+          <a href="#" class="read-more-btn">Read More</a>
+        </div>
+      </div>
+    `;
+  }
+}
+
+loadNews();
+
+
   </script>
 </body>
 </html>
