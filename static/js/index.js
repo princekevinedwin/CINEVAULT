@@ -121,13 +121,16 @@ const trailersGrid = q("trailers-grid");
 const trendingGrid = q("trending-grid");
 const socialMediaGrid = q("social-media");
 
+// Landing page news elements
+const latestNewsContainer = q("latest-news");
+
 // Other elements
 const hamburger = q("hamburger");
 const popupMenu = q("popup-menu");
 const newsletterForm = document.querySelector(".newsletter-form");
 
-// Search elements
-const searchInput = document.getElementById('search-input');
+// Search elements - Updated to use correct ID
+const searchInput = document.getElementById('search');
 const searchSuggestions = document.getElementById('search-suggestions');
 const searchForm = document.getElementById('search-form');
 const searchResultsContainer = document.getElementById('search-results');
@@ -181,6 +184,9 @@ let searchTimeout = null;
 let currentSearchResults = [];
 let lastRefreshTime = null;
 
+// Current page state
+let currentPageName = 'home';
+
 // ===== NAVIGATION =====
 const navLinks = document.querySelectorAll('.nav-link');
 navLinks.forEach(link => {
@@ -193,6 +199,10 @@ navLinks.forEach(link => {
 
 // Show specific page
 function showPage(page) {
+  // Save current page to localStorage
+  localStorage.setItem('currentPage', page);
+  currentPageName = page;
+  
   // Hide all pages
   document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
   
@@ -204,6 +214,10 @@ function showPage(page) {
   navLinks.forEach(l => l.classList.remove('active'));
   const activeLink = document.querySelector(`.nav-link[data-page="${page}"]`);
   if (activeLink) activeLink.classList.add('active');
+
+  navlinks.forEach(l => l.classList.remove('active'));
+  const activeLinks = document.querySelector(`.navmobile[data-page="${page}"]`);
+  if (activeLinks) activeLinks.classList.add('active');
 
   // Page-specific initialization
   const today = new Date().toISOString().split('T')[0];
@@ -252,6 +266,18 @@ function showPage(page) {
     // Search results page is handled by search functionality
   }
 }
+
+  const navlinks = document.querySelectorAll(".navmobile");
+
+  navlinks.forEach(link => {
+    link.addEventListener("click", () => {
+      // remove active from all links
+      navLinks.forEach(l => l.classList.remove("active"));
+      // add active to the clicked link
+      link.classList.add("active");
+    });
+  });
+
 
 // ===== SEARCH FUNCTIONALITY =====
 
@@ -1427,7 +1453,9 @@ function setupRefreshButtons() {
 function updateLastRefreshTime() {
   const refreshTimeElement = q('refresh-time');
   if (refreshTimeElement) {
-    refreshTimeElement.textContent = formatNewsDate((new Date()).toISOString());
+    // Set the last refresh time to now
+    lastRefreshTime = new Date();
+    refreshTimeElement.textContent = formatNewsDate(lastRefreshTime.toISOString());
   }
 }
 
@@ -1673,14 +1701,81 @@ async function fetchSocialMediaNews() {
 
 // Fetch home news (for the landing page)
 async function fetchHomeNews() {
-  await Promise.all([
-    fetchMovieNews(),
-    fetchTVNews(),
-    fetchSocialMediaNews()
-  ]);
+  try {
+    // Fetch from multiple sources for the landing page
+    const [moviesRes, tvRes, entertainmentRes] = await Promise.all([
+      fetch(`https://newsapi.org/v2/everything?q=movies&apiKey=${NEWS_API_KEY}&pageSize=3`),
+      fetch(`https://gnews.io/api/v4/search?q=tv%20shows&apikey=${GNEWS_API_KEY}&max=3`),
+      fetch(`https://newsapi.org/v2/everything?q=entertainment&apiKey=${NEWS_API_KEY}&pageSize=4`)
+    ]);
+    
+    const moviesData = await moviesRes.json();
+    const tvData = await tvRes.json();
+    const entertainmentData = await entertainmentRes.json();
+    
+    // Combine all results
+    const allArticles = [
+      ...(moviesData.articles || []),
+      ...(tvData.articles || []),
+      ...(entertainmentData.articles || [])
+    ];
+    
+    // Remove duplicates based on title
+    const uniqueArticles = [];
+    const titles = new Set();
+    
+    allArticles.forEach(article => {
+      if (!titles.has(article.title)) {
+        titles.add(article.title);
+        uniqueArticles.push(article);
+      }
+    });
+    
+    // Display the latest entertainment news on the landing page
+    displayLatestNews(uniqueArticles.slice(0, 6));
+  } catch (e) { 
+    console.error("Error fetching home news:", e); 
+  }
 }
 
 // ===== NEWS DISPLAY FUNCTIONS =====
+
+// Display Latest Entertainment News on landing page
+function displayLatestNews(articles) {
+  const container = latestNewsContainer || q('latest-news');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  if (articles.length === 0) {
+    container.innerHTML = '<p>No entertainment news available at this time.</p>';
+    return;
+  }
+  
+  articles.forEach(article => {
+    const card = document.createElement('div');
+    card.className = 'news-card latest-news-card';
+    
+    card.innerHTML = `
+      <div class="news-image" style="background-image: url(${article.urlToImage || 'https://picsum.photos/seed/entertainment/400/250.jpg'})"></div>
+      <div class="news-content">
+        <h3>${article.title}</h3>
+        <p>${article.description || 'No description available'}</p>
+        <div class="news-meta">
+          <span class="news-source">${article.source?.name||''}</span>
+          <span class="news-date">${formatNewsDate(article.publishedAt)}</span>
+        </div>
+        <button class="read-more-btn" data-url="${article.url}">Read More</button>
+      </div>
+    `;
+    
+    card.querySelector('.read-more-btn').addEventListener('click', () => {
+      window.open(article.url, '_blank');
+    });
+    
+    container.appendChild(card);
+  });
+}
 
 // Display Movie News
 function displayMovieNews() {
@@ -1993,6 +2088,9 @@ if (newsletterForm) {
 // ===== INITIALIZATION =====
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Get the current page from localStorage or default to 'home'
+  const savedPage = localStorage.getItem('currentPage') || 'home';
+  
   // Prepare initial UI
   populateYearsAndCountries();
   populateGenreButtons('movie');
@@ -2000,6 +2098,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize search functionality
   initSearch();
   
-  // Default show home
-  showPage('home');
+  // Show the saved page
+  showPage(savedPage);
 });

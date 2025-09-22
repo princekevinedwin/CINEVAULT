@@ -72,7 +72,7 @@ html, body { height: 100%; font-family: Inter, ui-sans-serif, system-ui, -apple-
 
 /* Topbar */
 .topbar { width: 100%; display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-bottom: 1rem; }
-.search-input { padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.04); border: none; color: #fff; min-width: 260px; }
+.search-input { padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.04); border: solid 1px grey; color: #fff; min-width: 230px; }
 .btn-signin { background: var(--accent); color: #fff; padding: 10px 14px; border-radius: 8px; border: none; cursor: pointer; font-weight: 700; }
 
 /* ---------- HERO CARD ---------- */
@@ -741,6 +741,37 @@ html, body { height: 100%; font-family: Inter, ui-sans-serif, system-ui, -apple-
   transition: background 0.3s;
 }
 .newsletter-form button:hover { background: #b00610; }
+
+#latest-news {
+  margin-top: 2rem;
+  flex-shrink: 0;
+  overflow-y: auto;
+  text-align: left;
+}
+
+#latest-news::-webkit-scrollbar {
+    height: 8px;
+}
+
+#latest-news .news-card {
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    flex-shrink: 0;
+    width: 450px;
+}
+
+.menu-mobile{
+  display: flex;
+  display: none;
+  left: 1rem;
+}
 
 /* Footer */
 .footer {
@@ -2058,4 +2089,162 @@ html, body { height: 100%; font-family: Inter, ui-sans-serif, system-ui, -apple-
   color: #fff;
   font-size: 0.9rem;
   text-align: center;
+}
+
+/* MENU */
+.menu-class {
+  position: fixed;
+  top: 0;
+  left: -255px; /* hidden off screen */
+  width: 250px;
+  height: 100vh;
+  background: black;
+  border-radius: 12px 0 0 12px;
+  border: solid 1px rgba(53, 8, 8, 0.491);
+  box-shadow: 2px 2px 3px rgb(96, 4, 4);
+  transition: left 0.3s ease;
+  z-index: 4001; /* above overlay */
+}
+
+/* links */
+.menu-class .nav-link {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-radius: 2px;
+  text-decoration: none;
+}
+
+.menu-class a span,
+.menu-class a i {
+  color: white;
+  display: flex;
+  flex-direction: column;
+  margin-left: 1rem;
+}
+
+.menu-class .nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* HAMBURGER */
+.hamburger {
+  font-size: 20px;
+  cursor: pointer;
+  margin-left: 1rem;
+  color: white;
+  z-index: 4002;
+}
+
+/* Hamburger icon (bars) */
+.hamburger::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f0c9"; /* fa-bars */
+}
+
+/* When checked → change to X */
+#menu-toggle:checked + .hamburger::before {
+  content: "\f00d"; /* fa-times */
+}
+
+/* SHOW MENU when checked */
+#menu-toggle:checked ~ .menu-class {
+  left: 0;
+}
+
+/* OVERLAY */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  z-index: 4000;
+}
+
+/* Show overlay when checked */
+#menu-toggle:checked ~ .overlay {
+  display: block;
+}
+
+.menu-class .navmobile.active{
+  border-left: solid 10px var(--accent);
+}
+
+@media (max-width:1023px){
+  .menu-mobile{
+    display: block;
+    padding: 0.5rem 1rem;
+    background: var(--dark);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .menu-mobile img{
+    margin-bottom: -3.5rem;
+    margin-top: 1rem;
+    margin-left: 4rem;
+  }
+
+  #menu-bar{
+    display: block;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    border: none;
+    background: black;
+    cursor: pointer;
+    padding: 0.8rem;
+    border-radius: 1rem;
+    border: solid 1px rgba(255, 255, 255, 0.317);
+    box-shadow: 2px 4px 8px rgb(128, 1, 1);
+    z-index: 2100;
+    transition: transform 0.3s;
+  }
+
+  #menu-bar:hover { transform: scale(1.1); }
+
+  .menu-mobile img{
+    margin-left: 4rem;
+    position: fixed;
+    background: black;
+    z-index: 3000;
+  }
+
+  .menu-mobile{
+    height: 6rem;
+    background: black;
+    border-bottom: solid 1px grey;
+    z-index: 3000;
+    position: fixed;
+    width: 100vw;
+  }
+
+  .search-input{
+    z-index: 5001;
+    position: fixed;
+    margin-left: -15rem;
+    margin-top: 1.5rem;
+  }
+}
+
+@media (max-width:769px){
+  .search-input{
+    margin-top: -2rem;
+  }
+}
+
+@media (max-width:525px){
+  .search-input{
+    margin-top: 4px;
+  }
+
+  .menu-mobile{
+    height: 7.5rem;
+  }
 }

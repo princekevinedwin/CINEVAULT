@@ -13,7 +13,7 @@
 </head>
 <body>
   <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
+  <aside class="sidebar" id="sidebar" fast>
     <div class="brand">
       <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="logo" />
       <span class="brand-name"></span>
@@ -34,29 +34,34 @@
       <a class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i><span class="label">Logout</span></a>
     </div>
 
-    <!-- Hamburger for mobile top popup -->
-    <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
-    <!-- Popup menu for mobile (full sidebar content) -->
-    <div class="popup-menu" id="popup-menu">
-      <div class="popup-brand">
-        <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="logo" />
-        <span class="brand-name">CineVault</span>
-      </div>
-      <nav class="popup-nav">
-        <a class="nav-link" href="#" data-page="home"><i class="fas fa-home"></i><span class="label">Home</span></a>
-        <a class="nav-link" href="#" data-page="movies"><i class="fas fa-film"></i><span class="label">Movies</span></a>
-        <a class="nav-link" href="#" data-page="series"><i class="fas fa-tv"></i><span class="label">Series</span></a>
-        <a class="nav-link" href="#" data-page="genres"><i class="fas fa-layer-group"></i><span class="label">Genres</span></a>
-        <a class="nav-link" href="#" data-page="mylist"><i class="fas fa-heart"></i><span class="label">My List</span></a>
-        <a class="nav-link" href="#" data-page="news-updates"><i class="fas fa-newspaper"></i><span class="label">News/Updates</span></a>
-      </nav>
-      <div class="popup-bottom-actions">
-        <a class="nav-link" href="#"><i class="fas fa-user-circle"></i><span class="label">Profile</span></a>
-        <a class="nav-link" href="#"><i class="fas fa-cog"></i><span class="label">Settings</span></a>
-        <a class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i><span class="label">Logout</span></a>
-      </div>
     </div>
   </aside>
+
+<div class="menu-mobile">
+  <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="logo" />
+
+  <!-- Hidden checkbox -->
+  <input type="checkbox" id="menu-toggle" hidden>
+
+  <!-- Hamburger / Close button -->
+  <label for="menu-toggle" class="hamburger" id="menu-bar"></label>
+
+  <!-- Overlay -->
+  <label for="menu-toggle" class="overlay"></label>
+
+  <!-- Sliding Menu -->
+  <div class="menu-class">
+    <a class="nav-link navmobile" href="#" data-page="home"><i class="fas fa-home"></i><span class="label">Home</span></a>
+    <a class="nav-link navmobile" href="#" data-page="movies"><i class="fas fa-film"></i><span class="label">Movies</span></a>
+    <a class="nav-link navmobile" href="#" data-page="series"><i class="fas fa-tv"></i><span class="label">Series</span></a>
+    <a class="nav-link navmobile" href="#" data-page="genres"><i class="fas fa-layer-group"></i><span class="label">Genres</span></a>
+    <a class="nav-link navmobile" href="#" data-page="mylist"><i class="fas fa-heart"></i><span class="label">My List</span></a>
+    <a class="nav-link navmobile" href="#" data-page="news-updates"><i class="fas fa-newspaper"></i><span class="label">News/Updates</span></a>
+    <a class="nav-link navmobile" href="#"><i class="fas fa-user-circle"></i><span class="label">Profile</span></a>
+    <a class="nav-link navmobile" href="#"><i class="fas fa-cog"></i><span class="label">Settings</span></a>
+    <a class="nav-link navmobile" href="#"><i class="fas fa-sign-out-alt"></i><span class="label">Logout</span></a>
+  </div>
+</div>
 
   <!-- MAIN -->
   <main class="main">
@@ -67,7 +72,6 @@
       </div>
       <div class="right">
         <input id="search" class="search-input" type="search" placeholder="Search movies, actors, genres..." />
-        <button class="btn-signin">Sign In</button>
       </div>
     </header>
 
