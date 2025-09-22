@@ -521,12 +521,30 @@
 
   <script src="/static/js/index.js"></script>
   <script>
-    fetch("/.netlify/functions/getNews")
+    // static/scripts/script.js
+
+// Fetch news from your Vercel backend
+fetch("/api/news")
   .then(res => res.json())
   .then(data => {
-    console.log(data.articles);
-    // render into your #latest-news div here
-  });
+    console.log(data.articles); // ✅ works now, even on Vercel!
+
+    // Example: render news articles
+    const container = document.getElementById("news-container");
+    container.innerHTML = "";
+
+    data.articles.forEach(article => {
+      const card = document.createElement("div");
+      card.classList.add("news-card");
+      card.innerHTML = `
+        <h3>${article.title}</h3>
+        <p>${article.description || ""}</p>
+        <a href="${article.url}" target="_blank">Read more</a>
+      `;
+      container.appendChild(card);
+    });
+  })
+  .catch(err => console.error("Error fetching news:", err));
 
   </script>
 </body>

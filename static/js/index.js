@@ -279,7 +279,6 @@ function showPage(page) {
   });
 
 
-// ===== SEARCH FUNCTIONALITY =====
 
 // Initialize search functionality
 function initSearch() {
