@@ -521,25 +521,24 @@
 
   <script src="/static/js/index.js"></script>
   <script>
-    // Fetch news from your Vercel backend
-fetch("/api/news")
+    fetch("/api/news")
   .then(res => res.json())
   .then(data => {
-    console.log(data.articles); // ✅ Check in browser console first
-
-    // Use the correct container from your HTML
     const container = document.getElementById("all-general-news");
     container.innerHTML = "";
 
     data.articles.forEach(article => {
-      const card = document.createElement("div");
-      card.classList.add("news-card");
-      card.innerHTML = `
-        <h3>${article.title}</h3>
-        <p>${article.description || ""}</p>
-        <a href="${article.url}" target="_blank">Read more</a>
+      const item = document.createElement("div");
+      item.classList.add("news-item");
+      item.innerHTML = `
+        <img src="${article.urlToImage || '/static/images/default-news.jpg'}" alt="news image">
+        <div class="news-content">
+          <h3>${article.title}</h3>
+          <p>${article.description || ""}</p>
+          <a href="${article.url}" target="_blank">Read more</a>
+        </div>
       `;
-      container.appendChild(card);
+      container.appendChild(item);
     });
   })
   .catch(err => console.error("Error fetching news:", err));
