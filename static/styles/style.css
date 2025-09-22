@@ -2236,15 +2236,18 @@ html, body { height: 100%; font-family: Inter, ui-sans-serif, system-ui, -apple-
 @media (max-width:769px){
   .search-input{
     margin-top: -2rem;
-  }
-}
-
-@media (max-width:525px){
-  .search-input{
-    margin-top: 4px;
+    min-width: 150px;
+    margin-left: -12rem;
   }
 
-  .menu-mobile{
-    height: 7.5rem;
+  .menu-mobile img{
+    width:6rem;
+    margin-left: 3rem;
   }
+
+  .hamburger{
+    font-size: 10px;
+    margin-top: 10px;
+  }
+
 }
