@@ -3006,3 +3006,30 @@ html, body { height: 100%; font-family: Inter, ui-sans-serif, system-ui, -apple-
     left: 10px;
   }
 }
+
+@media (max-width: 450px){
+  #starring{
+    font-size: 12px;
+  }
+
+  #genre{
+    font-size: 12px;
+  }
+
+  .hero-overview{
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+
+  .left-meta{
+    display: flex;
+  }
+
+  .hero-meta{
+    margin-bottom: 5px;
+  }
+
+  .theme{
+    font-size: 13px;
+  }
+}
