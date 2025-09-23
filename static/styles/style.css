@@ -1111,8 +1111,8 @@ html, body { height: 100%; font-family: Inter, ui-sans-serif, system-ui, -apple-
   .genres-grid.active {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.9rem;
   padding: 4px;
 }
 }
