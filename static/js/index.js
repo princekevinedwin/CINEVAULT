@@ -2311,6 +2311,45 @@ if (newsletterForm) {
   });
 }
 
+// In index.js, replace the existing displaySearchSuggestions function with this:
+function displaySearchSuggestions(results) {
+  if (!searchSuggestions) return;
+  
+  searchSuggestions.innerHTML = '';
+  
+  results.forEach(item => {
+    const suggestionItem = document.createElement('div');
+    suggestionItem.classList.add('suggestion-item');
+    
+    const title = item.title || item.name || 'Unknown';
+    const type = item.media_type === 'movie' ? 'Movie' : item.media_type === 'tv' ? 'TV Show' : item.media_type === 'person' ? 'Person' : 'Unknown';
+    
+    // Determine image path based on media type
+    let imagePath = 'https://via.placeholder.com/50x75?text=No+Image'; // Fallback placeholder
+    if (item.media_type === 'person' && item.profile_path) {
+      imagePath = `https://image.tmdb.org/t/p/w92${item.profile_path}`; // Small profile thumbnail
+    } else if ((item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path) {
+      imagePath = `https://image.tmdb.org/t/p/w92${item.poster_path}`; // Small poster thumbnail (w92 is efficient)
+    }
+    
+    suggestionItem.innerHTML = `
+      <img src="${imagePath}" alt="${title} poster" class="suggestion-poster">
+      <div class="suggestion-info">
+        <div class="suggestion-title">${title}</div>
+        <div class="suggestion-type">${type}</div>
+      </div>
+    `;
+    
+    // Click to select suggestion (existing logic)
+    suggestionItem.addEventListener('click', () => {
+      if (searchInput) searchInput.value = title;
+      handleSearchSubmit(new Event('submit'));
+    });
+    
+    searchSuggestions.appendChild(suggestionItem);
+  });
+}
+
 // ===== INITIALIZATION =====
 // DOM references
 const refreshBtn = document.getElementById('main-refresh-btn');
@@ -2374,6 +2413,31 @@ document.addEventListener('DOMContentLoaded', () => {
       refreshTime.textContent = formatTimestamp(lastRefreshTimestamp);
     }
   }, 1000);
+});
+
+// In index.js, update the document click listener:
+document.addEventListener('click', (e) => {
+  if (searchInput && searchSuggestions && !searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+    searchSuggestions.innerHTML = ''; // Or keep content and just hide
+    searchSuggestions.classList.remove('active'); // Hide via CSS
+  }
+});
+
+// In index.js, add after the existing document click listener for search
+document.addEventListener('click', (e) => {
+  // Existing search suggestions handler
+  if (searchInput && searchSuggestions && !searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+    searchSuggestions.innerHTML = '';
+    searchSuggestions.classList.remove('active');
+  }
+
+  // New mobile menu handler
+  if (popupMenu && hamburger && popupMenu.classList.contains('active')) {
+    if (!popupMenu.contains(e.target) && !hamburger.contains(e.target)) {
+      popupMenu.classList.remove('active'); // Hide menu
+      hamburger.classList.remove('active'); // Reset hamburger (optional)
+    }
+  }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
