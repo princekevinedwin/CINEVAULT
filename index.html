@@ -26,6 +26,10 @@
       <a class="nav-link" href="#" data-page="genres"><i class="fas fa-layer-group"></i><span class="label">Genres</span></a>
       <a class="nav-link" href="#" data-page="mylist"><i class="fas fa-heart"></i><span class="label">My List</span></a>
       <a class="nav-link" href="#" data-page="news-updates"><i class="fas fa-newspaper"></i><span class="label">News/Updates</span></a>
+      <a href="#" class="nav-link search-tab" data-page="search-results" style="display: none;">
+        <i class="fas fa-search"></i>
+        <span class="label">Search Results</span>
+      </a>
     </nav>
 
     <div class="bottom-actions">
@@ -60,6 +64,9 @@
     <a class="nav-link navmobile" href="#"><i class="fas fa-user-circle"></i><span class="label">Profile</span></a>
     <a class="nav-link navmobile" href="#"><i class="fas fa-cog"></i><span class="label">Settings</span></a>
     <a class="nav-link navmobile" href="#"><i class="fas fa-sign-out-alt"></i><span class="label">Logout</span></a>
+    <a href="#" class="nav-link search-tab" data-page="search-results" style="display: none;">
+    <i class="fas fa-search"></i> Search Results
+    </a>
   </div>
 </div>
 
@@ -71,7 +78,10 @@
         <!-- empty placeholder (can add breadcrumbs/logo) -->
       </div>
       <div class="right">
-        <input id="search" class="search-input" type="search" placeholder="Search movies, actors, genres..." />
+        <form id="search-form">
+          <input type="text" id="search" class="search-input" placeholder="Search movies or series...">
+          <div id="search-suggestions"></div>
+        </form>
       </div>
     </header>
 
@@ -195,6 +205,12 @@
           </div>
         </div>
       </section>
+
+      <!-- Already there, but confirm -->
+      <div id="search-results-page" class="page" style="">
+        <h2 id="search-results-title">Search Results</h2>
+        <div id="search-results"></div>
+      </div>
 
       <!-- ===== Trending Actors ===== -->
       <section class="actors-section">
@@ -520,7 +536,7 @@
   </main>
 
   <script src="/static/js/index.js"></script>
-  <script>
+  <!--<script>
     fetch("/api/news")
   .then(res => res.json())
   .then(data => {
@@ -544,6 +560,6 @@
   .catch(err => console.error("Error fetching news:", err));
 
   
-  </script>
+  </script>-->
 </body>
 </html>
