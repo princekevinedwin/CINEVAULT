@@ -3059,6 +3059,17 @@ html, body { height: 100%; font-family: Inter, ui-sans-serif, system-ui, -apple-
     border: 1px solid var(--accent);
   }
 
+  .modal-content {
+    background: #121212;
+    margin: 30% auto;
+    padding: 0;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
 }
 
 @media (max-width: 450px){
@@ -3095,4 +3106,8 @@ html, body { height: 100%; font-family: Inter, ui-sans-serif, system-ui, -apple-
     cursor: pointer;
     transition: background 0.3s;
     color: var(--muted);
+}
+
+.left-meta{
+  display: flex;
 }

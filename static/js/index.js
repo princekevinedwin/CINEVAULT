@@ -526,12 +526,7 @@ function displaySearchResults(results) {
       `;
     }
     
-    resultItem.addEventListener('click', () => {
-      const url = item.media_type === 'person' 
-        ? `https://www.themoviedb.org/person/${item.id}`
-        : `https://www.themoviedb.org/${item.media_type}/${item.id}`;
-      window.open(url, '_blank');
-    });
+    
     
     searchResultsContainer.appendChild(resultItem);
   });
@@ -661,10 +656,7 @@ async function fetchMovies(endpoint, containerId, limit = 10, isGrid = false) {
         </div>
       `;
       
-      div.addEventListener('click', () => {
-        const type = item.first_air_date ? 'tv' : 'movie';
-        window.open(`https://www.themoviedb.org/${type}/${item.id}`, '_blank');
-      });
+      
       
       container.appendChild(div);
     });
@@ -714,9 +706,6 @@ async function fetchUpcomingMovies(containerId, limit = 10) {
         </div>
       `;
       
-      div.addEventListener('click', () => {
-        window.open(`https://www.themoviedb.org/movie/${item.id}`, '_blank');
-      });
       
       container.appendChild(div);
     });
@@ -755,9 +744,6 @@ async function fetchUpcoming(endpoint, containerId, limit = 10, mediaType = 'mov
         </div>
       `;
       
-      div.addEventListener('click', () => {
-        window.open(`https://www.themoviedb.org/${mediaType}/${item.id}`, '_blank');
-      });
       
       container.appendChild(div);
     });
@@ -807,10 +793,7 @@ async function fetchUpcomingCombined(containerId, limit = 10) {
         </div>
       `;
       
-      div.addEventListener('click', () => {
-        const type = item.media_type || (item.first_air_date ? 'tv' : 'movie');
-        window.open(`https://www.themoviedb.org/${type}/${item.id}`, '_blank');
-      });
+      
       
       container.appendChild(div);
     });
