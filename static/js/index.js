@@ -2258,6 +2258,52 @@ function initSearch() {
 }
 // ===== NEWSLETTER FORM =====
 
+async function performSearch(query) {
+  console.log(`Searching for: ${query}`);
+  try {
+    showPage('search-results');
+    searchResultsTitle.textContent = `Searched results for '${query}'`;
+    searchResultsContainer.innerHTML = '<p>Loading...</p>';
+    
+    const res = await fetch(`${BASE}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&page=1`);
+    const data = await res.json();
+    
+    searchResultsContainer.innerHTML = '';
+    if (data.results && data.results.length > 0) {
+      const filtered = data.results.filter(item => item.media_type === 'movie' || item.media_type === 'tv');
+      if (filtered.length > 0) {
+        displaySearchResults(filtered, query);
+      } else {
+        searchResultsContainer.innerHTML = '<p>No movies or series found for this query.</p>';
+      }
+    } else {
+      searchResultsContainer.innerHTML = '<p>No movies or series found.</p>';
+    }
+  } catch (error) {
+    console.error('Search error:', error);
+    searchResultsContainer.innerHTML = '<p>Error loading results. Please try again.</p>';
+  }
+}
+
+function displaySearchResults(results, query) {
+  // Removed exactMatch/centered logic; always show grid
+  results.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'carousel-item';
+    card.innerHTML = `
+      <img src="${item.poster_path ? IMG_PATH + item.poster_path : 'https://via.placeholder.com/280x420'}" alt="${item.title || item.name}">
+      <div class="overlay">
+        <h3>${item.title || item.name}</h3>
+        <div class="meta">
+          <i class="fas fa-star"></i> ${(item.vote_average || 0).toFixed(1)}
+          <span>${formatMovieDate(item.release_date || item.first_air_date)}</span>
+        </div>
+      </div>
+    `;
+    searchResultsContainer.appendChild(card);
+  });
+}
+
 if (newsletterForm) {
   newsletterForm.addEventListener("submit", (e) => { 
     e.preventDefault(); 
@@ -2266,6 +2312,69 @@ if (newsletterForm) {
 }
 
 // ===== INITIALIZATION =====
+// DOM references
+const refreshBtn = document.getElementById('main-refresh-btn');
+const refreshTime = document.getElementById('refresh-time');
+
+// Format timestamp in WAT (Africa/Lagos)
+function formatTimestamp(date) {
+  return date.toLocaleString('en-US', {
+    timeZone: 'Africa/Lagos',
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true
+  });
+}
+
+// Store refresh timestamp to prevent overrides
+let lastRefreshTimestamp = null;
+
+// Refresh button listener
+if (refreshBtn && refreshTime) {
+  refreshBtn.addEventListener('click', () => {
+    console.log('Refresh clicked at', formatTimestamp(new Date()));
+    lastRefreshTimestamp = new Date(); // Store timestamp
+    refreshTime.textContent = formatTimestamp(lastRefreshTimestamp);
+    // Your existing news refresh logic here (e.g., fetchNewsData, displaySocialMediaNews, etc.)
+    // Example placeholder (replace with your actual fetch calls):
+    // fetchNewsData().then(() => {
+    //   displaySocialMediaNews();
+    //   // Other display functions for all-general-news, actors-grid, etc.
+    // });
+  });
+} else {
+  console.error('Refresh button or time element missing');
+}
+
+// Override any relative time updates
+function disableRelativeTimeUpdates() {
+  // If your code uses an interval to update relative time (e.g., humanizeDateTime)
+  // Clear it for refreshTime specifically
+  const existingInterval = window.__refreshTimeInterval; // Hypothetical global interval
+  if (existingInterval) {
+    clearInterval(existingInterval);
+    console.log('Cleared relative time interval');
+  }
+  // Ensure refreshTime keeps absolute timestamp
+  if (lastRefreshTimestamp && refreshTime) {
+    refreshTime.textContent = formatTimestamp(lastRefreshTimestamp);
+  }
+}
+
+// Run on DOM load to ensure no relative updates override
+document.addEventListener('DOMContentLoaded', () => {
+  // ... existing code ...
+  disableRelativeTimeUpdates();
+  // Re-apply absolute timestamp every second to counter any override
+  setInterval(() => {
+    if (lastRefreshTimestamp && refreshTime) {
+      refreshTime.textContent = formatTimestamp(lastRefreshTimestamp);
+    }
+  }, 1000);
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   // Get the current page from localStorage or default to 'home'

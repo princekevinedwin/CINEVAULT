@@ -4,12 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>CineVault</title>
-
-  <!-- Font Awesome for icons -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-
-  <!-- Main stylesheet -->
   <link rel="stylesheet" href="/static/styles/style.css" />
+  <!-- Add Mermaid for flowcharts -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 </head>
 <body>
   <!-- SIDEBAR -->
@@ -18,7 +16,6 @@
       <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="logo" />
       <span class="brand-name"></span>
     </div>
-
     <nav class="nav">
       <a class="nav-link" href="#" data-page="home"><i class="fas fa-home"></i><span class="label">Home</span></a>
       <a class="nav-link" href="#" data-page="movies"><i class="fas fa-film"></i><span class="label">Movies</span></a>
@@ -26,57 +23,36 @@
       <a class="nav-link" href="#" data-page="genres"><i class="fas fa-layer-group"></i><span class="label">Genres</span></a>
       <a class="nav-link" href="#" data-page="mylist"><i class="fas fa-heart"></i><span class="label">My List</span></a>
       <a class="nav-link" href="#" data-page="news-updates"><i class="fas fa-newspaper"></i><span class="label">News/Updates</span></a>
-      <a href="#" class="nav-link search-tab" data-page="search-results" style="display: none;">
-        <i class="fas fa-search"></i>
-        <span class="label">Search Results</span>
-      </a>
     </nav>
-
     <div class="bottom-actions">
       <a class="nav-link" href="#"><i class="fas fa-user-circle"></i><span class="label">Profile</span></a>
       <a class="nav-link" href="#"><i class="fas fa-cog"></i><span class="label">Settings</span></a>
       <a class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i><span class="label">Logout</span></a>
     </div>
-
-    </div>
   </aside>
 
-<div class="menu-mobile">
-  <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="logo" />
-
-  <!-- Hidden checkbox -->
-  <input type="checkbox" id="menu-toggle" hidden>
-
-  <!-- Hamburger / Close button -->
-  <label for="menu-toggle" class="hamburger" id="menu-bar"></label>
-
-  <!-- Overlay -->
-  <label for="menu-toggle" class="overlay"></label>
-
-  <!-- Sliding Menu -->
-  <div class="menu-class">
-    <a class="nav-link navmobile" href="#" data-page="home"><i class="fas fa-home"></i><span class="label">Home</span></a>
-    <a class="nav-link navmobile" href="#" data-page="movies"><i class="fas fa-film"></i><span class="label">Movies</span></a>
-    <a class="nav-link navmobile" href="#" data-page="series"><i class="fas fa-tv"></i><span class="label">Series</span></a>
-    <a class="nav-link navmobile" href="#" data-page="genres"><i class="fas fa-layer-group"></i><span class="label">Genres</span></a>
-    <a class="nav-link navmobile" href="#" data-page="mylist"><i class="fas fa-heart"></i><span class="label">My List</span></a>
-    <a class="nav-link navmobile" href="#" data-page="news-updates"><i class="fas fa-newspaper"></i><span class="label">News/Updates</span></a>
-    <a class="nav-link navmobile" href="#"><i class="fas fa-user-circle"></i><span class="label">Profile</span></a>
-    <a class="nav-link navmobile" href="#"><i class="fas fa-cog"></i><span class="label">Settings</span></a>
-    <a class="nav-link navmobile" href="#"><i class="fas fa-sign-out-alt"></i><span class="label">Logout</span></a>
-    <a href="#" class="nav-link search-tab" data-page="search-results" style="display: none;">
-    <i class="fas fa-search"></i> Search Results
-    </a>
+  <div class="menu-mobile">
+    <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="logo" />
+    <input type="checkbox" id="menu-toggle" hidden>
+    <label for="menu-toggle" class="hamburger" id="menu-bar"></label>
+    <label for="menu-toggle" class="overlay"></label>
+    <div class="menu-class">
+      <a class="nav-link navmobile" href="#" data-page="home"><i class="fas fa-home"></i><span class="label">Home</span></a>
+      <a class="nav-link navmobile" href="#" data-page="movies"><i class="fas fa-film"></i><span class="label">Movies</span></a>
+      <a class="nav-link navmobile" href="#" data-page="series"><i class="fas fa-tv"></i><span class="label">Series</span></a>
+      <a class="nav-link navmobile" href="#" data-page="genres"><i class="fas fa-layer-group"></i><span class="label">Genres</span></a>
+      <a class="nav-link navmobile" href="#" data-page="mylist"><i class="fas fa-heart"></i><span class="label">My List</span></a>
+      <a class="nav-link navmobile" href="#" data-page="news-updates"><i class="fas fa-newspaper"></i><span class="label">News/Updates</span></a>
+      <a class="nav-link navmobile" href="#"><i class="fas fa-user-circle"></i><span class="label">Profile</span></a>
+      <a class="nav-link navmobile" href="#"><i class="fas fa-cog"></i><span class="label">Settings</span></a>
+      <a class="nav-link navmobile" href="#"><i class="fas fa-sign-out-alt"></i><span class="label">Logout</span></a>
+    </div>
   </div>
-</div>
 
   <!-- MAIN -->
   <main class="main">
-    <!-- Topbar: search + sign in -->
     <header class="topbar">
-      <div class="left">
-        <!-- empty placeholder (can add breadcrumbs/logo) -->
-      </div>
+      <div class="left"></div>
       <div class="right">
         <form id="search-form">
           <input type="text" id="search" class="search-input" placeholder="Search movies or series...">
@@ -87,22 +63,16 @@
 
     <!-- Home Page Content -->
     <div id="home-page" class="page">
-      <!-- HERO (card) -->
       <section class="hero" id="hero">
-        <!-- background handled by JS -->
         <div class="hero-gradient"></div>
-
         <div class="hero-content">
           <div class="hero-top">
             <h1 class="site-title">CineVault</h1>
             <div id="whats-new" class="whats-new">What's New</div>
           </div>
-
           <h2 id="hero-title" class="hero-title">Loading...</h2>
-
           <div class="hero-meta">
             <div class="left-meta">
-              <!-- Rating circle -->
               <div class="rating-container">
                 <svg class="rating-circle" viewBox="0 0 36 36" aria-hidden="true">
                   <path class="bg" d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831" />
@@ -113,43 +83,28 @@
                   <small>IMDb</small>
                 </div>
               </div>
-
-              <!-- Runtime with mini clock -->
               <div class="runtime">
                 <i class="fas fa-clock mini-clock" aria-hidden="true"></i>
                 <span id="runtime">—</span>
               </div>
             </div>
-
             <div class="right-meta">
-              <!-- placeholder for any additional meta e.g. year -->
               <i class="fas fa-calendar-alt" aria-hidden="true"></i>
               <span id="year" class="year"></span>
             </div>
           </div>
-
           <p id="hero-overview" class="hero-overview">Overview will appear here.</p>
-
           <p class="meta-line"><strong class="theme">Starring: </strong><span id="starring">Loading...</span></p>
           <p class="meta-line"><strong class="theme">Genre: </strong><span id="genre">Loading...</span></p>
-
           <div class="hero-cta">
             <button id="watch-trailer" class="btn primary"><i class="fas fa-play"></i> Watch Trailer</button>
             <button id="more-info" class="btn secondary"><i class="fas fa-info-circle"></i> More Info</button>
           </div>
         </div>
-
-        <!-- navigation arrows -->
         <button class="nav-btn prev" id="prev" aria-label="Previous item"><i class="fas fa-chevron-left"></i></button>
         <button class="nav-btn next" id="next" aria-label="Next item"><i class="fas fa-chevron-right"></i></button>
       </section>
-
-      <!-- placeholder below hero -->
-      <section class="below">
-        <!-- put additional content here -->
-      </section>
-
-      <!-- ===== Featured Categories ===== -->
+      <section class="below"></section>
       <section class="featured-section">
         <h2>Popular Movies</h2>
         <div class="carousel">
@@ -158,7 +113,6 @@
           <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
         </div>
       </section>
-
       <section class="featured-section">
         <h2>Popular TV Shows</h2>
         <div class="carousel">
@@ -167,14 +121,12 @@
           <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
         </div>
       </section>
-
       <section class="top-10">
         <h2>Top 10 of the Week</h2>
         <div class="top-10-carousel">
           <div class="top-10-track" id="top10"></div>
         </div>
       </section>
-
       <section class="featured-section">
         <h2>Award Winning Movies</h2>
         <div class="carousel">
@@ -183,8 +135,6 @@
           <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
         </div>
       </section>
-
-      <!-- ===== Genre Explorer ===== -->
       <section class="genre-section">
         <h2>Explore by Genre</h2>
         <div class="genre-buttons">
@@ -205,26 +155,21 @@
           </div>
         </div>
       </section>
-
-      <!-- Already there, but confirm -->
-      <div id="search-results-page" class="page" style="">
-        <h2 id="search-results-title">Search Results</h2>
-        <div id="search-results"></div>
-      </div>
-
-      <!-- ===== Trending Actors ===== -->
       <section class="actors-section">
         <h2>Trending Actors</h2>
-        <div class="actor-carousel" id="trending-actors"></div>
+        <div class="actor-carousel" id="trending-actors">
+          <!-- Example actor card -->
+          <div class="actor-card">
+            <img src="/static/images/placeholder.jpg" alt="Actor name">
+            <h3>Actor Name</h3>
+          </div>
+          <!-- More cards dynamically added -->
+        </div>
       </section>
-
-      <!-- ===== Latest Entertainment News ===== -->
       <section class="news-section">
         <h2>Latest Entertainment News</h2>
         <div class="news-carousel" id="latest-news"></div>
       </section>
-
-      <!-- ===== Personalized Recommendations ===== -->
       <section class="recommendations-section">
         <h2>Upcoming Releases</h2>
         <div class="carousel">
@@ -233,8 +178,6 @@
           <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
         </div>
       </section>
-
-      <!-- ===== Newsletter ===== -->
       <section class="newsletter-section">
         <div class="newsletter-container">
           <h2>Stay Updated</h2>
@@ -243,23 +186,29 @@
             <input type="email" placeholder="Enter your email" required>
             <button type="submit">Subscribe</button>
           </form>
+          <div class="newsletter-popup" id="newsletter-popup">
+            <p>Subscribed successfully!</p>
+            <button class="close" aria-label="Close popup"><i class="fas fa-times"></i></button>
+          </div>
         </div>
       </section>
-
-      <!-- ===== Footer ===== -->
-      <footer class="footer">
-        <p>&copy; 2025 CineVault. All rights reserved.</p>
-        <div class="footer-links">
-          <a href="#">About</a>
-          <a href="#">Contact</a>
-          <a href="#">Privacy Policy</a>
+      <section class="about-section">
+        <div class="about-container">
+          <h2>About CineVault</h2>
+          <p>CineVault is your everyday hub for movies and TV shows. Whatever you are searching for, we got you covered—from African to European to Western movies, we are your sure plug!</p>
+          <p>Our platform makes it easy to find and download content from trusted sources, simplifying your search for high-quality movies and series.</p>
         </div>
-      </footer>
+      </section>
+    </div>
+
+    <!-- Search Results Page -->
+    <div id="search-results-page" class="page" style="display: none;">
+      <h2 id="search-results-title">Searched results for ''</h2>
+      <div id="search-results" class="movie-grid"></div>
     </div>
 
     <!-- Movies Page Content -->
     <div id="movies-page" class="page" style="display: none;">
-      <!-- Mini Hero for Movies -->
       <section class="hero mini-hero" id="movies-hero">
         <div class="hero-gradient"></div>
         <div class="hero-content">
@@ -297,15 +246,11 @@
         <button class="nav-btn prev" id="movies-prev" aria-label="Previous item"><i class="fas fa-chevron-left"></i></button>
         <button class="nav-btn next" id="movies-next" aria-label="Next item"><i class="fas fa-chevron-right"></i></button>
       </section>
-
-      <!-- Popular Movies List with Pagination -->
       <section class="featured-section">
         <h2>Popular Movies</h2>
         <div class="movie-grid" id="movies-list"></div>
         <div id="movies-pagination" class="pagination"></div>
       </section>
-
-      <!-- Fun Sections -->
       <section class="featured-section">
         <h2>Top Rated Movies</h2>
         <div class="carousel">
@@ -314,7 +259,6 @@
           <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
         </div>
       </section>
-
       <section class="featured-section">
         <h2>Upcoming Movies</h2>
         <div class="carousel">
@@ -327,7 +271,6 @@
 
     <!-- Series Page Content -->
     <div id="series-page" class="page" style="display: none;">
-      <!-- Mini Hero for Series -->
       <section class="hero mini-hero" id="series-hero">
         <div class="hero-gradient"></div>
         <div class="hero-content">
@@ -365,15 +308,11 @@
         <button class="nav-btn prev" id="series-prev" aria-label="Previous item"><i class="fas fa-chevron-left"></i></button>
         <button class="nav-btn next" id="series-next" aria-label="Next item"><i class="fas fa-chevron-right"></i></button>
       </section>
-
-      <!-- Popular Series List with Pagination -->
       <section class="featured-section">
         <h2>Popular Series</h2>
         <div class="series-grid" id="series-list"></div>
         <div id="series-pagination" class="pagination"></div>
       </section>
-
-      <!-- Fun Sections -->
       <section class="featured-section">
         <h2>Top Rated Series</h2>
         <div class="carousel">
@@ -382,7 +321,6 @@
           <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
         </div>
       </section>
-
       <section class="featured-section">
         <h2>Airing Soon</h2>
         <div class="carousel">
@@ -405,11 +343,9 @@
         <div class="filters">
           <select id="filter-year">
             <option value="">Select Year</option>
-            <!-- Populated dynamically -->
           </select>
           <select id="filter-country">
             <option value="">Select Country</option>
-            <!-- Populated dynamically with countries, including Nigeria -->
           </select>
           <select id="filter-sort">
             <option value="popularity.desc">Popular</option>
@@ -427,93 +363,71 @@
     </div>
 
     <!-- News/Updates Page Content -->
-    <!-- News/Updates Page Content -->
-<div id="news-updates-page" class="page news-page" style="display: none;">
-  <!-- News Info Bar -->
-  <div class="news-info-bar">
-    <div class="data-source">
-      <span class="source-indicator">
-        <span class="blink-dot"></span>
-        Getting data from NewsAPI & GNews
-      </span>
-      <span class="last-refresh">Last refresh: <span id="refresh-time">Never</span></span>
+    <div id="news-updates-page" class="page news-page" style="display: none;">
+      <div class="news-info-bar">
+        <div class="data-source">
+          <span class="source-indicator">
+            <span class="blink-dot"></span>
+            Getting data from NewsAPI & GNews
+          </span>
+          <span class="last-refresh">Last refresh: <span id="refresh-time">Never</span></span>
+        </div>
+        <button id="main-refresh-btn" class="refresh-btn">
+          <i class="fas fa-sync-alt"></i> Refresh All
+        </button>
+      </div>
+      <div class="news-tabs">
+        <button class="news-tab active" data-tab="all">All News</button>
+        <button class="news-tab" data-tab="movies-tv">Movies & TV</button>
+        <button class="news-tab" data-tab="actors">Actors</button>
+        <button class="news-tab" data-tab="trailers">Trailers</button>
+        <button class="news-tab" data-tab="trending">Trending</button>
+      </div>
+      <div id="all-news-tab" class="news-tab-content active">
+        <section class="news-section">
+          <h2>Latest Entertainment News</h2>
+          <div class="general-news-carousel" id="all-general-news"></div>
+        </section>
+      </div>
+      <div id="movies-tv-tab" class="news-tab-content">
+        <section class="news-section">
+          <h2>Movies & TV Shows</h2>
+          <div class="movie-news-grid" id="movies-tv-news"></div>
+        </section>
+      </div>
+      <div id="actors-tab" class="news-tab-content">
+        <section class="news-section">
+          <h2>Trending Actors</h2>
+          <div class="actors-grid" id="actors-grid"></div>
+        </section>
+      </div>
+      <div id="trailers-tab" class="news-tab-content">
+        <section class="news-section">
+          <h2>Latest Trailers</h2>
+          <div class="trailers-grid" id="trailers-grid"></div>
+        </section>
+      </div>
+      <div id="trending-tab" class="news-tab-content">
+        <section class="news-section">
+          <h2>Trending Now</h2>
+          <div class="trending-grid" id="trending-grid"></div>
+        </section>
+      </div>
+      <section class="newsletter-section">
+        <div class="newsletter-container">
+          <h2>Stay Updated</h2>
+          <p>Subscribe to our newsletter for the latest movie releases and exclusive content.</p>
+          <form class="newsletter-form">
+            <input type="email" placeholder="Enter your email" required>
+            <button type="submit">Subscribe</button>
+          </form>
+          <div class="newsletter-popup" id="newsletter-popup">
+            <p>Subscribed successfully!</p>
+            <button class="close" aria-label="Close popup"><i class="fas fa-times"></i></button>
+          </div>
+        </div>
+      </section>
     </div>
-    <button id="main-refresh-btn" class="refresh-btn">
-      <i class="fas fa-sync-alt"></i> Refresh All
-    </button>
-  </div>
-
-  <!-- News Tabs -->
-  <div class="news-tabs">
-    <button class="news-tab active" data-tab="all">All News</button>
-    <button class="news-tab" data-tab="movies-tv">Movies & TV</button>
-    <button class="news-tab" data-tab="actors">Actors</button>
-    <button class="news-tab" data-tab="trailers">Trailers</button>
-    <button class="news-tab" data-tab="trending">Trending</button>
-  </div>
-
-  <!-- All News Tab Content -->
-  <div id="all-news-tab" class="news-tab-content active">
-    <section class="news-section">
-      <h2>Latest Entertainment News</h2>
-      <div class="general-news-carousel" id="all-general-news"></div>
-    </section>
-  </div>
-
-  <!-- Movies & TV Tab Content -->
-  <div id="movies-tv-tab" class="news-tab-content">
-    <section class="news-section">
-      <h2>Movies & TV Shows</h2>
-      <div class="movie-news-grid" id="movies-tv-news"></div>
-    </section>
-  </div>
-
-  <!-- Actors Tab Content -->
-  <div id="actors-tab" class="news-tab-content">
-    <section class="news-section">
-      <h2>Trending Actors</h2>
-      <div class="actors-grid" id="actors-grid"></div>
-    </section>
-  </div>
-
-  <!-- Trailers Tab Content -->
-  <div id="trailers-tab" class="news-tab-content">
-    <section class="news-section">
-      <h2>Latest Trailers</h2>
-      <div class="trailers-grid" id="trailers-grid"></div>
-    </section>
-  </div>
-
-  <!-- Trending Tab Content -->
-  <div id="trending-tab" class="news-tab-content">
-    <section class="news-section">
-      <h2>Trending Now</h2>
-      <div class="trending-grid" id="trending-grid"></div>
-    </section>
-  </div>
-
-  <!-- Newsletter -->
-  <section class="newsletter-section">
-    <div class="newsletter-container">
-      <h2>Stay Updated</h2>
-      <p>Subscribe to our newsletter for the latest movie releases and exclusive content.</p>
-      <form class="newsletter-form">
-        <input type="email" placeholder="Enter your email" required>
-        <button type="submit">Subscribe</button>
-      </form>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <p>&copy; 2025 CineVault. All rights reserved.</p>
-    <div class="footer-links">
-      <a href="#">About</a>
-      <a href="#">Contact</a>
-      <a href="#">Privacy Policy</a>
-    </div>
-  </footer>
-</div>
 
     <!-- Actor Modal -->
     <div class="modal" id="actor-modal">
@@ -533,33 +447,100 @@
         </div>
       </div>
     </div>
+
+    <!-- Global Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-logo-container">
+          <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="footer-logo">
+          <p><strong>CINEVAULT</strong> is your everyday hub for movies and Tv shows, whatever you are searching for, we got you covered, from african, to european, to western movies, we are your sure plug!!</p>
+        </div>
+        <div class="quicklinks">
+          <h3>Quicklinks</h3>
+          <div class="quick-list">
+            <a href="#" data-page="home">Home</a>
+            <a href="#" data-page="movies">Movies</a>
+            <a href="#" data-page="series">Series</a>
+            <a href="#" data-page="genres">Genres</a>
+            <a href="#" data-page="mylist">My List</a>
+            <a href="#" data-page="news-updates">News/Updates</a>
+            <a href="#" data-page="profile">Profile</a>
+            <a href="#" data-page="settings">Settings</a>
+            <a href="#" data-page="logout">Logout</a>
+            <a href="#">About</a>
+            <a href="#">Privacy Policy</a>
+          </div>
+        </div>
+        <div class="footer-social">
+          <h3>Follow Us</h3>
+          <a href="https://x.com/cinevault" target="_blank" aria-label="Follow CineVault on Twitter"><i class="fab fa-twitter"></i> Twitter</a>
+          <a href="https://instagram.com/cinevault" target="_blank" aria-label="Follow CineVault on Instagram"><i class="fab fa-instagram"></i> Instagram</a>
+          <a href="https://facebook.com/cinevault" target="_blank" aria-label="Follow CineVault on Facebook"><i class="fab fa-facebook"></i> Facebook</a>
+          <a href="https://tiktok.com/cinevault" target="_blank" aria-label="Follow CineVault on Tiktok"><i class="fab fa-tiktok"></i> Tiktok</a>
+          <a href="https://discord.com/cinevault" target="_blank" aria-label="Follow CineVault on Discord"><i class="fab fa-discord"></i> Discord</a>
+          <a href="https://linkedin.com/cinevault" target="_blank" aria-label="Follow CineVault on Linked-In"><i class="fab fa-linkedin"></i> Linked-In</a>
+        </div>
+        <div class="footer-contact">
+          <h3>Contact</h3>
+          <a href="mailto:support@cinevault.com"><i class="fas fa-envelope"></i>support@cinevault.com</a>
+          <a href="tel:+234-814-655-8248"><i class="fas fa-phone"></i>+234-814-655-8248</a>
+          <a href="tel:+234-811-434-4781"><i class="fas fa-phone"></i>+234-811-434-4781</a>
+        </div>
+      </div>
+      <p class="footer-copyright">&copy; 2025 CineVault. All rights reserved.</p>
+    </footer>
   </main>
 
   <script src="/static/js/index.js"></script>
-  <!--<script>
-    fetch("/api/news")
-  .then(res => res.json())
-  .then(data => {
-    const container = document.getElementById("all-general-news");
-    container.innerHTML = "";
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+  // Initialize Mermaid
+  mermaid.initialize({ startOnLoad: true });
 
-    data.articles.forEach(article => {
-      const item = document.createElement("div");
-      item.classList.add("news-item");
-      item.innerHTML = `
-        <img src="${article.urlToImage || '/static/images/default-news.jpg'}" alt="news image">
-        <div class="news-content">
-          <h3>${article.title}</h3>
-          <p>${article.description || ""}</p>
-          <a href="${article.url}" target="_blank">Read more</a>
-        </div>
-      `;
-      container.appendChild(item);
+  // Navigation logic
+  const navLinks = document.querySelectorAll('.nav-link');
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const page = link.getAttribute('data-page');
+      if (page) {
+        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+        document.querySelector(`#${page}-page`).style.display = 'block';
+      }
     });
-  })
-  .catch(err => console.error("Error fetching news:", err));
+  });
 
-  
-  </script>-->
+  // Newsletter form submission
+  const newsletterForm = document.querySelector('.newsletter-form');
+  const newsletterPopup = document.querySelector('#newsletter-popup');
+
+  if (newsletterForm && newsletterPopup) {
+    newsletterForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      newsletterPopup.style.display = 'block';
+      setTimeout(() => {
+        newsletterPopup.classList.add('fade-out');
+        setTimeout(() => {
+          newsletterPopup.style.display = 'none';
+          newsletterPopup.classList.remove('fade-out');
+          newsletterForm.reset();
+        }, 300); // Match fadeOut animation duration
+      }, 3000); // Show popup for 3 seconds
+    });
+
+    // Close button for popup
+    const closeButton = newsletterPopup.querySelector('.close');
+    if (closeButton) {
+      closeButton.addEventListener('click', () => {
+        newsletterPopup.classList.add('fade-out');
+        setTimeout(() => {
+          newsletterPopup.style.display = 'none';
+          newsletterPopup.classList.remove('fade-out');
+        }, 300);
+      });
+    }
+  }
+});
+  </script>
 </body>
 </html>
