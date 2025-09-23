@@ -2702,8 +2702,10 @@ html, body { height: 100%; font-family: Inter, ui-sans-serif, system-ui, -apple-
 }
 
 .about-section{
-  background-image: url(/static/images/question-mark-background-4s7u0763pabo39ff.jpg);
+  background-image: url(/static/images/red-question-mark-background-black-question-marks-which-lying-table-3d-render_120871-641.jpg);
   background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 @media (max-width: 1024px) {
