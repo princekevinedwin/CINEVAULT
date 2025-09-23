@@ -136,6 +136,78 @@ const searchForm = document.getElementById('search-form');
 const searchResultsContainer = document.getElementById('search-results');
 const searchResultsTitle = document.getElementById('search-results-title');
 
+// In DOM references, add:
+const searchIcon = document.createElement('i'); // Or add to HTML if preferred
+searchIcon.className = 'fas fa-search mobile-search-icon';
+searchInput.parentNode.insertBefore(searchIcon, searchInput); // Insert icon before input
+
+// Mobile search toggle
+searchIcon.addEventListener('click', () => {
+  searchInput.style.display = searchInput.style.display === 'block' ? 'none' : 'block';
+  if (searchInput.style.display === 'block') searchInput.focus();
+});
+
+// In handleSearchInput, truncate overview in hero
+function updateHeroContent(item) { // Assuming this is your hero update function (adapt if named differently)
+  // ... existing code ...
+  let overviewText = item.overview || 'No overview available.';
+  if (overviewText.length > 100) {
+    overviewText = overviewText.substring(0, 100) + '...';
+  }
+  overviewEl.textContent = overviewText;
+  // Repeat for movies/series heroes if separate
+}
+
+// In DOM references, add for hero video
+const heroVideoContainer = document.createElement('div');
+heroVideoContainer.id = 'hero-video-container';
+heroVideoContainer.style.display = 'none';
+hero.appendChild(heroVideoContainer);
+
+const exitBtn = document.createElement('button');
+exitBtn.className = 'exit-trailer-btn';
+exitBtn.innerHTML = '<i class="fas fa-times"></i> Exit';
+hero.appendChild(exitBtn);
+exitBtn.style.display = 'none';
+
+// On watch trailer click
+watchTrailerBtn.addEventListener('click', async () => {
+  const item = items[currentIndex]; // Assuming current hero item
+  try {
+    const res = await fetch(`${BASE}/${item.media_type}/${item.id}/videos?api_key=${API_KEY}`);
+    const data = await res.json();
+    const trailer = data.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+    if (trailer) {
+      hero.style.backgroundImage = 'none'; // Hide bg
+      heroVideoContainer.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${trailer.key}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+      heroVideoContainer.style.display = 'block';
+      exitBtn.style.display = 'block';
+      // Hide other hero content
+      heroContent.style.display = 'none';
+      prevBtn.style.display = 'none';
+      nextBtn.style.display = 'none';
+    }
+  } catch (error) {
+    console.error('Error loading trailer:', error);
+  }
+});
+
+// Exit button
+exitBtn.addEventListener('click', () => {
+  heroVideoContainer.innerHTML = '';
+  heroVideoContainer.style.display = 'none';
+  exitBtn.style.display = 'none';
+  heroContent.style.display = 'block';
+  prevBtn.style.display = 'block';
+  nextBtn.style.display = 'block';
+  // Revert bg (call your update function)
+  updateHeroContent(items[currentIndex]);
+});
+
+// Repeat similar logic for movies/series heroes if separate buttons
+
+
+
 // ===== STATE MANAGEMENT =====
 // Home page state
 let items = []; // Home hero items
@@ -463,6 +535,12 @@ function displaySearchResults(results) {
     
     searchResultsContainer.appendChild(resultItem);
   });
+}
+
+
+// In initSearch, add form submit listener if not already
+if (searchForm) {
+  searchForm.addEventListener('submit', handleSearchSubmit);
 }
 
 // ===== DATA FETCHING FUNCTIONS =====
@@ -838,11 +916,6 @@ async function displayItem(index) {
   const videos = details?.videos?.results || [];
   const trailer = videos.find(v => v.type === "Trailer" && v.site === "YouTube") || videos.find(v => v.site === "YouTube");
   
-  if (watchTrailerBtn) {
-    if (trailer) watchTrailerBtn.onclick = () => window.open(`https://www.youtube.com/watch?v=${trailer.key}`, "_blank");
-    else watchTrailerBtn.onclick = () => alert("Trailer not available");
-  }
-  
   if (moreInfoBtn) moreInfoBtn.onclick = () => window.open(`https://www.themoviedb.org/${it.media_type}/${it.id}`, "_blank");
 }
 
@@ -1206,14 +1279,25 @@ function populateYearsAndCountries() {
   }
   
   // Basic countries list
-  const countries = [
-    { code: 'US', name: 'United States' }, { code: 'GB', name: 'United Kingdom' }, { code: 'IN', name: 'India' },
-    { code: 'NG', name: 'Nigeria' }, { code: 'ZA', name: 'South Africa' }, { code: 'GH', name: 'Ghana' },
-    { code: 'KE', name: 'Kenya' }, { code: 'EG', name: 'Egypt' }, { code: 'MA', name: 'Morocco' },
-    { code: 'CA', name: 'Canada' }, { code: 'AU', name: 'Australia' }, { code: 'RU', name: 'Russia' },
-    { code: 'TR', name: 'Turkey' }, { code: 'SA', name: 'Saudi Arabia' }, { code: 'TH', name: 'Thailand' },
-    { code: 'ID', name: 'Indonesia' }, { code: 'NZ', name: 'New Zealand' }
-  ];
+const countries = [
+  { code: 'US', name: 'United States' }, { code: 'GB', name: 'United Kingdom' }, { code: 'IN', name: 'India' },
+  { code: 'NG', name: 'Nigeria' }, { code: 'ZA', name: 'South Africa' }, { code: 'GH', name: 'Ghana' },
+  { code: 'KE', name: 'Kenya' }, { code: 'EG', name: 'Egypt' }, { code: 'MA', name: 'Morocco' },
+  { code: 'CA', name: 'Canada' }, { code: 'AU', name: 'Australia' }, { code: 'RU', name: 'Russia' },
+  { code: 'TR', name: 'Turkey' }, { code: 'SA', name: 'Saudi Arabia' }, { code: 'TH', name: 'Thailand' },
+  { code: 'ID', name: 'Indonesia' }, { code: 'NZ', name: 'New Zealand' },
+  { code: 'BR', name: 'Brazil' }, { code: 'AR', name: 'Argentina' }, { code: 'CL', name: 'Chile' },
+  { code: 'MX', name: 'Mexico' }, { code: 'CO', name: 'Colombia' }, { code: 'PE', name: 'Peru' },
+  { code: 'CN', name: 'China' }, { code: 'JP', name: 'Japan' }, { code: 'KR', name: 'South Korea' },
+  { code: 'PK', name: 'Pakistan' }, { code: 'BD', name: 'Bangladesh' }, { code: 'VN', name: 'Vietnam' },
+  { code: 'FR', name: 'France' }, { code: 'DE', name: 'Germany' }, { code: 'IT', name: 'Italy' },
+  { code: 'ES', name: 'Spain' }, { code: 'PT', name: 'Portugal' }, { code: 'NL', name: 'Netherlands' },
+  { code: 'SE', name: 'Sweden' }, { code: 'NO', name: 'Norway' }, { code: 'DK', name: 'Denmark' },
+  { code: 'CH', name: 'Switzerland' }, { code: 'BE', name: 'Belgium' }, { code: 'PL', name: 'Poland' },
+  { code: 'AE', name: 'United Arab Emirates' }, { code: 'QA', name: 'Qatar' }, { code: 'KW', name: 'Kuwait' },
+  { code: 'IL', name: 'Israel' }, { code: 'IR', name: 'Iran' }, { code: 'IQ', name: 'Iraq' }
+];
+
   
   filterCountry.innerHTML = '<option value="">All Countries</option>';
   countries.forEach(c => { 
@@ -2075,6 +2159,103 @@ function displaySocialMediaNews() {
   });
 }
 
+// Ensure heroContent is defined (for later trailer fix, but relevant here if searching affects hero)
+const heroContent = document.querySelector('.hero-content'); // Add this near other DOM refs
+
+// Complete fetchSearchSuggestions (already there, but confirm)
+async function fetchSearchSuggestions(query) {
+  try {
+    const res = await fetch(`${BASE}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&page=1`);
+    const data = await res.json();
+    if (data.results && data.results.length > 0) {
+      displaySearchSuggestions(data.results.slice(0, 5));
+    } else {
+      searchSuggestions.innerHTML = '<div class="suggestion-item">No results found</div>';
+    }
+  } catch (error) {
+    console.error('Error fetching suggestions:', error);
+  }
+}
+
+// Suggestion click already calls performSearch
+
+// Handle enter/submit (ensure this fires)
+function handleSearchSubmit(e) {
+  e.preventDefault(); // Prevent form reload
+  const query = searchInput.value.trim();
+  if (query) {
+    performSearch(query);
+    searchSuggestions.innerHTML = ''; // Clear suggestions
+  }
+}
+
+// performSearch (add console for debug)
+async function performSearch(query) {
+  console.log(`Searching for: ${query}`); // Debug
+  try {
+    showPage('search-results');
+    searchResultsTitle.textContent = `Searched results for '${query}'`;
+    searchResultsContainer.innerHTML = '<p>Loading...</p>';
+    
+    const res = await fetch(`${BASE}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&page=1`);
+    const data = await res.json();
+    
+    searchResultsContainer.innerHTML = '';
+    if (data.results && data.results.length > 0) {
+      displaySearchResults(data.results, query); // Pass query for enhancements
+    } else {
+      searchResultsContainer.innerHTML = '<p>No results found.</p>';
+    }
+  } catch (error) {
+    console.error('Search error:', error);
+  }
+}
+
+// Enhanced displaySearchResults: Show centered poster if single exact match, else grid
+function displaySearchResults(results, query) {
+  const exactMatch = results.find(item => (item.title || item.name).toLowerCase() === query.toLowerCase());
+  if (exactMatch && results.length === 1) {
+    // Centered single poster/logo
+    const centeredDiv = document.createElement('div');
+    centeredDiv.className = 'centered-poster';
+    centeredDiv.innerHTML = `
+      <img src="${exactMatch.poster_path ? IMG_PATH + exactMatch.poster_path : 'https://via.placeholder.com/280x420'}" alt="${exactMatch.title || exactMatch.name}" style="max-width: 50%; display: block; margin: 0 auto;">
+      <h3 style="text-align: center;">${exactMatch.title || exactMatch.name}</h3>
+    `;
+    searchResultsContainer.appendChild(centeredDiv);
+  } else {
+    // Grid of cards
+    results.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'carousel-item'; // For hover compatibility
+      card.innerHTML = `
+        <img src="${item.poster_path ? IMG_PATH + item.poster_path : 'https://via.placeholder.com/280x420'}" alt="${item.title || item.name}">
+        <div class="overlay">
+          <h3>${item.title || item.name}</h3>
+          <div class="meta">
+            <i class="fas fa-star"></i> ${(item.vote_average || 0).toFixed(1)}
+            <span>${formatMovieDate(item.release_date || item.first_air_date)}</span>
+          </div>
+        </div>
+      `;
+      searchResultsContainer.appendChild(card);
+    });
+  }
+}
+
+// Confirm initSearch has:
+function initSearch() {
+  // ... existing
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.trim();
+    if (query.length > 2) {
+      fetchSearchSuggestions(query);
+    } else {
+      searchSuggestions.innerHTML = '';
+    }
+  });
+  searchForm.addEventListener('submit', handleSearchSubmit);
+}
 // ===== NEWSLETTER FORM =====
 
 if (newsletterForm) {
