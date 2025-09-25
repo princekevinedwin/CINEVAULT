@@ -294,6 +294,849 @@ function showPage(page) {
   // Page-specific initialization
   const today = new Date().toISOString().split('T')[0];
 
+// Update the showPage function for the home page
+if (page === 'home') {
+  console.log('Loading home page content');
+  fetchTrending();
+  fetchMovies(`${BASE}/movie/popular?api_key=${API_KEY}`, 'popular-movies', 10, false, 'movie');
+  fetchMovies(`${BASE}/tv/popular?api_key=${API_KEY}`, 'popular-tv', 10, false, 'tv');
+  fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'award-winning', 10, false, 'movie');
+  fetchUpcomingCombined('recommendations', 10);
+  fetchTop10();
+  fetchActors();
+  fetchHomeNews();
+  loadMovieTrivia();
+  loadThisDayInHistory();
+  loadDirectorSpotlight();
+} else if (page === 'movies') {
+    console.log('Loading movies page content');
+    fetchMoviesTrending();
+    loadMovies(moviesCurrentPage);
+    fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'movies-top-rated', 10, false, 'movie');
+    fetchUpcomingMovies('movies-upcoming', 10);
+  } else if (page === 'series') {
+    console.log('Loading series page content');
+    fetchSeriesTrending();
+    loadSeries(seriesCurrentPage);
+    fetchMovies(`${BASE}/discover/tv?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'series-top-rated', 10, false, 'tv');
+    fetchUpcoming(`${BASE}/discover/tv?api_key=${API_KEY}&sort_by=first_air_date.asc&first_air_date.gte=${today}&first_air_date.lte=2026-12-31`, 'series-airing', 10, 'tv');
+  } else if (page === 'genres') {
+    console.log('Loading genres page content');
+    selectedType = 'movie';
+    selectedGenre = null;
+    selectedYear = '';
+    selectedCountry = '';
+    selectedSort = 'popularity.desc';
+    const radio = document.querySelector('input[name="media-type"][value="movie"]');
+    if (radio) radio.checked = true;
+    populateYearsAndCountries();
+    populateGenreButtons('movie');
+    if (genresResults) genresResults.classList.remove('active');
+    if (promptMessage) promptMessage.style.display = 'block';
+    if (genresResults) genresResults.innerHTML = '';
+    if (genresPagination) genresPagination.innerHTML = '';
+  } else if (page === 'news-updates') {
+    console.log('Loading news page content');
+    setTimeout(() => initNewsPage(), 100);
+  } else if (page === 'mylist') {
+    console.log('Loading my list page');
+    showMyListPage();
+  
+  } else if (page === 'search-results') {
+    // Search results page is handled by search functionality
+  }
+   else if (page === 'search-results') {
+  // Search results page is handled by search functionality
+  // Add back button to search results page
+  const searchResultsPage = document.getElementById('search-results-page');
+  if (searchResultsPage) {
+    // Check if back button already exists
+    if (!searchResultsPage.querySelector('.search-back-btn')) {
+      const backBtn = document.createElement('button');
+      backBtn.className = 'search-back-btn';
+      backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
+      backBtn.addEventListener('click', () => {
+        const previousPage = localStorage.getItem('currentPage') || 'home';
+        showPage(previousPage);
+      });
+      searchResultsPage.insertBefore(backBtn, searchResultsPage.firstChild);
+    }
+  }
+} else if (page === 'home') {
+  console.log('Loading home page content');
+  fetchTrending();
+  fetchMovies(`${BASE}/movie/popular?api_key=${API_KEY}`, 'popular-movies', 10, false, 'movie');
+  fetchMovies(`${BASE}/tv/popular?api_key=${API_KEY}`, 'popular-tv', 10, false, 'tv');
+  fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'award-winning', 10, false, 'movie');
+  fetchUpcomingCombined('recommendations', 10);
+  fetchTop10();
+  fetchActors();
+  fetchHomeNews();
+  loadMovieTrivia();
+}else if (page === 'home') {
+  console.log('Loading home page content');
+  fetchTrending();
+  fetchMovies(`${BASE}/movie/popular?api_key=${API_KEY}`, 'popular-movies', 10, false, 'movie');
+  fetchMovies(`${BASE}/tv/popular?api_key=${API_KEY}`, 'popular-tv', 10, false, 'tv');
+  fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'award-winning', 10, false, 'movie');
+  fetchUpcomingCombined('recommendations', 10);
+  fetchTop10();
+  fetchActors();
+  fetchHomeNews();
+  loadMovieTrivia();
+  loadThisDayInHistory();
+}else // Add to your home page initialization
+if (page === 'home') {
+  console.log('Loading home page content');
+  fetchTrending();
+  fetchMovies(`${BASE}/movie/popular?api_key=${API_KEY}`, 'popular-movies', 10, false, 'movie');
+  fetchMovies(`${BASE}/tv/popular?api_key=${API_KEY}`, 'popular-tv', 10, false, 'tv');
+  fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'award-winning', 10, false, 'movie');
+  fetchUpcomingCombined('recommendations', 10);
+  fetchTop10();
+  fetchActors();
+  fetchHomeNews();
+  loadMovieTrivia();
+  loadThisDayInHistory();
+  loadDirectorSpotlight();
+}
+
+}
+
+  const navlinks = document.querySelectorAll(".navmobile");
+
+  navlinks.forEach(link => {
+    link.addEventListener("click", () => {
+      // remove active from all links
+      navLinks.forEach(l => l.classList.remove("active"));
+      // add active to the clicked link
+      link.classList.add("active");
+    });
+  });
+
+// Director names to fetch from TMDB
+const directorNames = [
+  "Christopher Nolan",
+  "Steven Spielberg",
+  "Martin Scorsese",
+  "Quentin Tarantino",
+  "Greta Gerwig",
+  "Stanley Kubrick",
+  "Alfred Hitchcock",
+  "Akira Kurosawa"
+];
+
+// Directors array that will be populated from TMDB
+let directors = [];
+
+// Function to fetch director data from TMDB
+async function fetchDirectorData(directorName) {
+  try {
+    // Search for the director
+    const searchResponse = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${API_KEY}&query=${encodeURIComponent(directorName)}`);
+    const searchData = await searchResponse.json();
+    
+    if (searchData.results && searchData.results.length > 0) {
+      const director = searchData.results[0];
+      
+      // Get detailed information including biography and images
+      const detailsResponse = await fetch(`https://api.themoviedb.org/3/person/${director.id}?api_key=${API_KEY}`);
+      const detailsData = await detailsResponse.json();
+      
+      // Get movie credits to find notable films
+      const creditsResponse = await fetch(`https://api.themoviedb.org/3/person/${director.id}/movie_credits?api_key=${API_KEY}`);
+      const creditsData = await creditsResponse.json();
+      
+      // Extract notable films (directed by this person)
+      const notableFilms = creditsData.crew
+        .filter(person => person.job === "Director" && person.poster_path)
+        .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+        .slice(0, 5)
+        .map(movie => movie.title);
+      
+      return {
+        id: director.id,
+        name: director.name,
+        bio: detailsData.biography || "Biography not available.",
+        image: detailsData.profile_path ? `https://image.tmdb.org/t/p/w500${detailsData.profile_path}` : null,
+        notableFilms: notableFilms.length > 0 ? notableFilms : ["Film data not available"]
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error(`Error fetching data for ${directorName}:`, error);
+    return null;
+  }
+}
+
+// Function to initialize directors with data from TMDB
+async function initializeDirectors() {
+  directors = [];
+  
+  // Fetch data for each director
+  for (const name of directorNames) {
+    const directorData = await fetchDirectorData(name);
+    
+    if (directorData) {
+      directors.push(directorData);
+    } else {
+      // Fallback if director not found
+      directors.push({
+        name: name,
+        bio: "Biography not available.",
+        image: `https://picsum.photos/seed/${name.replace(/\s+/g, '')}/500/500.jpg`,
+        notableFilms: ["Film data not available"]
+      });
+    }
+  }
+  
+  console.log("Directors data loaded:", directors);
+  
+  // After loading directors, initialize the spotlight section if on home page
+  if (document.querySelector('#home-page') && document.querySelector('#home-page').style.display !== 'none') {
+    loadDirectorSpotlight();
+  }
+}
+
+// Function to show next director
+let currentDirectorIndex = 0;
+let directorAutoTimer = null;
+
+function showNextDirector() {
+  const imageEl = document.querySelector('.spotlight-image');
+  const portraitEl = document.querySelector('.director-portrait');
+  const nameEl = document.querySelector('.spotlight-name');
+  const bioEl = document.querySelector('.spotlight-bio');
+  const filmsListEl = document.querySelector('.films-list');
+  
+  if (!imageEl || !portraitEl || !nameEl || !bioEl || !filmsListEl || directors.length === 0) return;
+  
+  // Get next director
+  const director = directors[currentDirectorIndex];
+  currentDirectorIndex = (currentDirectorIndex + 1) % directors.length;
+  
+  // Add animation
+  const spotlightCard = document.querySelector('.spotlight-card');
+  if (spotlightCard) {
+    spotlightCard.classList.remove('active');
+  }
+  
+  setTimeout(() => {
+    // Use a fallback image if the director image fails to load
+    const testImg = new Image();
+    testImg.onload = function() {
+      imageEl.style.backgroundImage = `url(${director.image})`;
+      portraitEl.style.backgroundImage = `url(${director.image})`;
+    };
+    testImg.onerror = function() {
+      // Use a fallback if the image fails to load
+      const fallbackUrl = `https://picsum.photos/seed/${director.name.replace(/\s+/g, '')}/500/500.jpg`;
+      imageEl.style.backgroundImage = `url(${fallbackUrl})`;
+      portraitEl.style.backgroundImage = `url(${fallbackUrl})`;
+    };
+    testImg.src = director.image;
+    
+    nameEl.textContent = director.name;
+    bioEl.textContent = director.bio;
+    
+    // Clear and populate films list
+    filmsListEl.innerHTML = '';
+    director.notableFilms.forEach(film => {
+      const li = document.createElement('li');
+      li.textContent = film;
+      filmsListEl.appendChild(li);
+    });
+    
+    if (spotlightCard) {
+      spotlightCard.classList.add('active');
+    }
+  }, 300);
+}
+
+// Function to show previous director
+function showPrevDirector() {
+  const imageEl = document.querySelector('.spotlight-image');
+  const portraitEl = document.querySelector('.director-portrait');
+  const nameEl = document.querySelector('.spotlight-name');
+  const bioEl = document.querySelector('.spotlight-bio');
+  const filmsListEl = document.querySelector('.films-list');
+  
+  if (!imageEl || !portraitEl || !nameEl || !bioEl || !filmsListEl || directors.length === 0) return;
+  
+  // Get previous director
+  currentDirectorIndex = (currentDirectorIndex - 1 + directors.length) % directors.length;
+  const director = directors[currentDirectorIndex];
+  
+  // Add animation
+  const spotlightCard = document.querySelector('.spotlight-card');
+  if (spotlightCard) {
+    spotlightCard.classList.remove('active');
+  }
+  
+  setTimeout(() => {
+    // Use a fallback image if the director image fails to load
+    const testImg = new Image();
+    testImg.onload = function() {
+      imageEl.style.backgroundImage = `url(${director.image})`;
+      portraitEl.style.backgroundImage = `url(${director.image})`;
+    };
+    testImg.onerror = function() {
+      // Use a fallback if the image fails to load
+      const fallbackUrl = `https://picsum.photos/seed/${director.name.replace(/\s+/g, '')}/500/500.jpg`;
+      imageEl.style.backgroundImage = `url(${fallbackUrl})`;
+      portraitEl.style.backgroundImage = `url(${fallbackUrl})`;
+    };
+    testImg.src = director.image;
+    
+    nameEl.textContent = director.name;
+    bioEl.textContent = director.bio;
+    
+    // Clear and populate films list
+    filmsListEl.innerHTML = '';
+    director.notableFilms.forEach(film => {
+      const li = document.createElement('li');
+      li.textContent = film;
+      filmsListEl.appendChild(li);
+    });
+    
+    if (spotlightCard) {
+      spotlightCard.classList.add('active');
+    }
+  }, 300);
+}
+
+// Function to start auto-rotation of directors
+function startDirectorAuto() {
+  stopDirectorAuto();
+  if (directors.length > 0) {
+    directorAutoTimer = setInterval(() => {
+      showNextDirector();
+    }, 10000); // Change every 10 seconds
+  }
+}
+
+// Function to stop auto-rotation
+function stopDirectorAuto() {
+  if (directorAutoTimer) {
+    clearInterval(directorAutoTimer);
+    directorAutoTimer = null;
+  }
+}
+
+// Update the loadDirectorSpotlight function
+function loadDirectorSpotlight() {
+  // Check if directors data is loaded
+  if (directors.length === 0) {
+    console.log("Directors data not loaded yet, trying again in 500ms");
+    // Data not loaded yet, try again later
+    setTimeout(loadDirectorSpotlight, 500);
+    return;
+  }
+  
+  // Check if spotlight section already exists
+  let spotlightSection = document.querySelector('.spotlight-section');
+  if (!spotlightSection) {
+    spotlightSection = document.createElement('section');
+    spotlightSection.className = 'spotlight-section';
+    spotlightSection.innerHTML = `
+      <h2>Director Spotlight</h2>
+      <div class="spotlight-container">
+        <div class="spotlight-card">
+          <div class="spotlight-image"></div>
+          <div class="spotlight-info">
+            <div class="director-portrait-container">
+              <div class="director-portrait"></div>
+            </div>
+            <h3 class="spotlight-name"></h3>
+            <p class="spotlight-bio"></p>
+            <div class="spotlight-films">
+              <h4>Notable Films:</h4>
+              <ul class="films-list"></ul>
+            </div>
+            <div class="spotlight-controls">
+              <button class="spotlight-prev-btn"><i class="fas fa-chevron-left"></i></button>
+              <button class="spotlight-next-btn">Next Director<i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Insert after the history section
+    const historySection = document.querySelector('.history-section');
+    if (historySection && historySection.nextSibling) {
+      historySection.parentNode.insertBefore(spotlightSection, historySection.nextSibling);
+    } else {
+      document.querySelector('#home-page').appendChild(spotlightSection);
+    }
+  }
+  
+  // Load first director
+  showNextDirector();
+  
+  // Add event listeners to navigation buttons
+  const nextBtn = spotlightSection.querySelector('.spotlight-next-btn');
+  const prevBtn = spotlightSection.querySelector('.spotlight-prev-btn');
+  
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      showNextDirector();
+      startDirectorAuto(); // Reset timer on manual navigation
+    });
+  }
+  
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      showPrevDirector();
+      startDirectorAuto(); // Reset timer on manual navigation
+    });
+  }
+  
+  // Start auto-rotation
+  startDirectorAuto();
+}
+
+// Function to fetch movie data from TMDB
+async function fetchMovieData(movieTitle) {
+  try {
+    const response = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(movieTitle)}`);
+    const data = await response.json();
+    
+    if (data.results && data.results.length > 0) {
+      const movie = data.results[0];
+      
+      // Fetch additional details including images
+      const detailsResponse = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${API_KEY}`);
+      const detailsData = await detailsResponse.json();
+      
+      return {
+        id: movie.id,
+        title: movie.title,
+        poster: detailsData.poster_path ? `https://image.tmdb.org/t/p/w500${detailsData.poster_path}` : null,
+        backdrop: detailsData.backdrop_path ? `https://image.tmdb.org/t/p/w500${detailsData.backdrop_path}` : null,
+        release_date: movie.release_date,
+        overview: movie.overview
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error(`Error fetching data for ${movieTitle}:`, error);
+    return null;
+  }
+}
+
+// Function to fetch person data from TMDB
+async function fetchPersonData(personName) {
+  try {
+    const response = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${API_KEY}&query=${encodeURIComponent(personName)}`);
+    const data = await response.json();
+    
+    if (data.results && data.results.length > 0) {
+      const person = data.results[0];
+      
+      // Fetch additional details including images
+      const detailsResponse = await fetch(`https://api.themoviedb.org/3/person/${person.id}?api_key=${API_KEY}`);
+      const detailsData = await detailsResponse.json();
+      
+      return {
+        id: person.id,
+        name: person.name,
+        profile: detailsData.profile_path ? `https://image.tmdb.org/t/p/w500${detailsData.profile_path}` : null,
+        biography: detailsData.biography
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error(`Error fetching data for ${personName}:`, error);
+    return null;
+  }
+}
+
+// Movie trivia data with movie titles that we'll fetch from TMDB
+const triviaData = [
+  {
+    question: "Which movie holds the record for the most Oscar wins?",
+    answer: "Ben-Hur, Titanic, and The Lord of the Rings: The Return of the King all hold the record with 11 Oscars each.",
+    movieTitle: "The Lord of the Rings: The Return of the King"
+  },
+  {
+    question: "What was the first movie to feature a sound dialogue?",
+    answer: "The Jazz Singer (1927) was the first feature-length motion picture with synchronized dialogue.",
+    movieTitle: "The Jazz Singer"
+  },
+  {
+    question: "Which actor has appeared in the most movies?",
+    answer: "Christopher Lee appeared in over 280 films throughout his career.",
+    personName: "Christopher Lee"
+  },
+  {
+    question: "What is the highest-grossing film of all time?",
+    answer: "Avatar (2009) is the highest-grossing film of all time with over $2.8 billion worldwide.",
+    movieTitle: "Avatar"
+  },
+  {
+    question: "Which movie was the first to be rated PG-13?",
+    answer: "Red Dawn (1984) was the first film to receive the PG-13 rating.",
+    movieTitle: "Red Dawn"
+  },
+  {
+    question: "Which movie had the largest budget ever?",
+    answer: "Avengers: Endgame (2019) had a budget of $356 million, making it one of the most expensive films ever made.",
+    movieTitle: "Avengers: Endgame"
+  },
+  {
+    question: "Which director has won the most Academy Awards?",
+    answer: "John Ford has won the most Academy Awards for Best Director with four wins.",
+    personName: "John Ford"
+  },
+  {
+    question: "What was the first feature-length animated film?",
+    answer: "Snow White and the Seven Dwarfs (1937) was the first feature-length animated film.",
+    movieTitle: "Snow White and the Seven Dwarfs"
+  }
+];
+
+// Movie trivia that will be populated from TMDB
+let movieTrivia = [];
+
+// Function to initialize movie trivia with data from TMDB
+async function initializeMovieTrivia() {
+  movieTrivia = [];
+  
+  for (const trivia of triviaData) {
+    let image = null;
+    
+    if (trivia.movieTitle) {
+      const movieData = await fetchMovieData(trivia.movieTitle);
+      image = movieData ? movieData.poster : null;
+    } else if (trivia.personName) {
+      const personData = await fetchPersonData(trivia.personName);
+      image = personData ? personData.profile : null;
+    }
+    
+    movieTrivia.push({
+      question: trivia.question,
+      answer: trivia.answer,
+      image: image || `https://picsum.photos/seed/trivia${trivia.question.substring(0, 10).replace(/\s+/g, '')}/500/500.jpg`
+    });
+  }
+  
+  console.log("Movie trivia data loaded:", movieTrivia);
+  
+  // After loading trivia, initialize the trivia section if on home page
+  if (document.querySelector('#home-page') && document.querySelector('#home-page').style.display !== 'none') {
+    loadMovieTrivia();
+  }
+}
+
+// This Day in Movie History data with movie titles that we'll fetch from TMDB
+const historyData = [
+  {
+    date: "May 25",
+    year: "1977",
+    event: "Star Wars: Episode IV - A New Hope was released in theaters",
+    significance: "This film revolutionized the science fiction genre and special effects in cinema",
+    movieTitle: "Star Wars"
+  },
+  {
+    date: "July 15",
+    year: "2003",
+    event: "Pirates of the Caribbean: The Curse of the Black Pearl was released",
+    significance: "Launched one of the most successful film franchises in history",
+    movieTitle: "Pirates of the Caribbean: The Curse of the Black Pearl"
+  },
+  {
+    date: "December 18",
+    year: "2009",
+    event: "Avatar premiered in London",
+    significance: "Became the highest-grossing film of all time with over $2.8 billion worldwide",
+    movieTitle: "Avatar"
+  },
+  {
+    date: "April 3",
+    year: "1996",
+    event: "Fargo was released in the United States",
+    significance: "The Coen Brothers' dark comedy won two Oscars and became a cult classic",
+    movieTitle: "Fargo"
+  },
+  {
+    date: "October 1",
+    year: "1993",
+    event: "Jurassic Park premiered",
+    significance: "Revolutionized CGI effects and became a landmark in visual effects history",
+    movieTitle: "Jurassic Park"
+  },
+  {
+    date: "May 16",
+    year: "1929",
+    event: "First Academy Awards ceremony was held",
+    significance: "The first Oscars honored films released in 1927-1928 and lasted only 15 minutes",
+    movieTitle: "Wings" // First Best Picture winner
+  },
+  {
+    date: "December 26",
+    year: "1940",
+    event: "The Philadelphia Story premiered",
+    significance: "Cary Grant, Katharine Hepburn, and James Stewart starred in this classic comedy",
+    movieTitle: "The Philadelphia Story"
+  },
+  {
+    date: "September 30",
+    year: "1960",
+    event: "The Flintstones premiered on ABC",
+    significance: "The first prime-time animated series on American television",
+    movieTitle: "The Flintstones" // Not a movie, but we'll try to find a poster
+  }
+];
+
+// This Day in Movie History that will be populated from TMDB
+let thisDayInHistory = [];
+
+// Function to initialize This Day in Movie History with data from TMDB
+async function initializeThisDayInHistory() {
+  thisDayInHistory = [];
+  
+  for (const history of historyData) {
+    let image = null;
+    
+    if (history.movieTitle) {
+      const movieData = await fetchMovieData(history.movieTitle);
+      image = movieData ? movieData.poster : null;
+    }
+    
+    thisDayInHistory.push({
+      date: history.date,
+      year: history.year,
+      event: history.event,
+      significance: history.significance,
+      image: image || `https://picsum.photos/seed/history${history.event.substring(0, 10).replace(/\s+/g, '')}/500/500.jpg`
+    });
+  }
+  
+  console.log("This Day in Movie History data loaded:", thisDayInHistory);
+  
+  // After loading history, initialize the history section if on home page
+  if (document.querySelector('#home-page') && document.querySelector('#home-page').style.display !== 'none') {
+    loadThisDayInHistory();
+  }
+}
+
+// Function to initialize all data from TMDB
+async function initializeAllData() {
+  console.log("Initializing all data from TMDB...");
+  
+  await Promise.all([
+    initializeDirectors(),
+    initializeMovieTrivia(),
+    initializeThisDayInHistory()
+  ]);
+  
+  console.log("All data initialized successfully");
+}
+
+// Function to show next trivia
+let currentTriviaIndex = 0;
+
+function showNextTrivia() {
+  const questionEl = document.querySelector('.trivia-question');
+  const answerEl = document.querySelector('.trivia-answer');
+  const imageEl = document.querySelector('.trivia-image');
+  
+  if (!questionEl || !answerEl || !imageEl || movieTrivia.length === 0) return;
+  
+  // Get random trivia
+  const randomIndex = Math.floor(Math.random() * movieTrivia.length);
+  const trivia = movieTrivia[randomIndex];
+  
+  // Add animation
+  const triviaCard = document.querySelector('.trivia-card');
+  if (triviaCard) {
+    triviaCard.classList.remove('active');
+  }
+  
+  setTimeout(() => {
+    questionEl.textContent = trivia.question;
+    answerEl.textContent = '';
+    
+    // Use a fallback image if the trivia image fails to load
+    const testImg = new Image();
+    testImg.onload = function() {
+      imageEl.style.backgroundImage = `url(${trivia.image})`;
+    };
+    testImg.onerror = function() {
+      // Use a fallback if the image fails to load
+      imageEl.style.backgroundImage = `url(https://picsum.photos/seed/trivia${randomIndex}/500/500.jpg)`;
+    };
+    testImg.src = trivia.image;
+    
+    if (triviaCard) {
+      triviaCard.classList.add('active');
+    }
+    
+    // Show answer after a delay
+    setTimeout(() => {
+      answerEl.textContent = trivia.answer;
+    }, 1000);
+  }, 300);
+}
+
+// Update the loadMovieTrivia function
+function loadMovieTrivia() {
+  // Check if movieTrivia data is loaded
+  if (movieTrivia.length === 0) {
+    console.log("Movie trivia data not loaded yet, trying again in 500ms");
+    // Data not loaded yet, try again later
+    setTimeout(loadMovieTrivia, 500);
+    return;
+  }
+  
+  // Check if trivia section already exists
+  let triviaSection = document.querySelector('.trivia-section');
+  if (!triviaSection) {
+    triviaSection = document.createElement('section');
+    triviaSection.className = 'trivia-section';
+    triviaSection.innerHTML = `
+      <h2>Movie Trivia</h2>
+      <div class="trivia-container">
+        <div class="trivia-card">
+          <div class="trivia-image"></div>
+          <div class="trivia-content">
+            <div class="trivia-question">Loading trivia...</div>
+            <div class="trivia-answer"></div>
+            <button class="trivia-next-btn">Next Trivia</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Insert after the news section
+    const newsSection = document.querySelector('.news-section');
+    if (newsSection && newsSection.nextSibling) {
+      newsSection.parentNode.insertBefore(triviaSection, newsSection.nextSibling);
+    } else {
+      document.querySelector('#home-page').appendChild(triviaSection);
+    }
+  }
+  
+  // Load first trivia
+  showNextTrivia();
+  
+  // Add event listener to next button
+  const nextBtn = triviaSection.querySelector('.trivia-next-btn');
+  if (nextBtn) {
+    nextBtn.addEventListener('click', showNextTrivia);
+  }
+}
+
+// Function to show random history event
+function showRandomHistoryEvent() {
+  const dateEl = document.querySelector('.history-date');
+  const eventEl = document.querySelector('.history-event');
+  const significanceEl = document.querySelector('.history-significance');
+  const imageEl = document.querySelector('.history-image');
+  
+  if (!dateEl || !eventEl || !significanceEl || !imageEl || thisDayInHistory.length === 0) return;
+  
+  // Get random history event
+  const randomIndex = Math.floor(Math.random() * thisDayInHistory.length);
+  const history = thisDayInHistory[randomIndex];
+  
+  // Add animation
+  const historyCard = document.querySelector('.history-card');
+  if (historyCard) {
+    historyCard.classList.remove('active');
+  }
+  
+  setTimeout(() => {
+    dateEl.innerHTML = `<i class="fas fa-calendar-alt"></i> ${history.date}, ${history.year}`;
+    eventEl.innerHTML = `<i class="fas fa-film"></i> ${history.event}`;
+    significanceEl.innerHTML = `<i class="fas fa-star"></i> ${history.significance}`;
+    
+    // Use a fallback image if the history image fails to load
+    const testImg = new Image();
+    testImg.onload = function() {
+      imageEl.style.backgroundImage = `url(${history.image})`;
+    };
+    testImg.onerror = function() {
+      // Use a fallback if the image fails to load
+      imageEl.style.backgroundImage = `url(https://picsum.photos/seed/history${randomIndex}/500/500.jpg)`;
+    };
+    testImg.src = history.image;
+    
+    if (historyCard) {
+      historyCard.classList.add('active');
+    }
+  }, 300);
+}
+
+// Update the loadThisDayInHistory function
+function loadThisDayInHistory() {
+  // Check if thisDayInHistory data is loaded
+  if (thisDayInHistory.length === 0) {
+    console.log("This Day in Movie History data not loaded yet, trying again in 500ms");
+    // Data not loaded yet, try again later
+    setTimeout(loadThisDayInHistory, 500);
+    return;
+  }
+  
+  // Check if history section already exists
+  let historySection = document.querySelector('.history-section');
+  if (!historySection) {
+    historySection = document.createElement('section');
+    historySection.className = 'history-section';
+    historySection.innerHTML = `
+      <h2>This Day in Movie History</h2>
+      <div class="history-container">
+        <div class="history-card">
+          <div class="history-content">
+            <div class="history-date">Loading...</div>
+            <div class="history-event"></div>
+            <div class="history-significance"></div>
+          </div>
+          <div class="history-image"></div>
+        </div>
+      </div>
+    `;
+    
+    // Insert after the trivia section
+    const triviaSection = document.querySelector('.trivia-section');
+    if (triviaSection && triviaSection.nextSibling) {
+      triviaSection.parentNode.insertBefore(historySection, triviaSection.nextSibling);
+    } else {
+      document.querySelector('#home-page').appendChild(historySection);
+    }
+  }
+  
+  // Load a random history event
+  showRandomHistoryEvent();
+}
+
+// Update the showPage function to initialize the data when the home page is loaded
+// Update the showPage function to include the search results page handling
+function showPage(page) {
+  // Save current page to localStorage
+  localStorage.setItem('currentPage', page);
+  currentPageName = page;
+  
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+  
+  // Show selected page
+  const activePage = q(`${page}-page`);
+  if (activePage) activePage.style.display = 'block';
+
+  // Update active nav link
+  navLinks.forEach(l => l.classList.remove('active'));
+  const activeLink = document.querySelector(`.nav-link[data-page="${page}"]`);
+  if (activeLink) activeLink.classList.add('active');
+
+  navlinks.forEach(l => l.classList.remove('active'));
+  const activeLinks = document.querySelector(`.navmobile[data-page="${page}"]`);
+  if (activeLinks) activeLinks.classList.add('active');
+
+  // Page-specific initialization
+  const today = new Date().toISOString().split('T')[0];
+
   if (page === 'home') {
     console.log('Loading home page content');
     fetchTrending();
@@ -304,6 +1147,15 @@ function showPage(page) {
     fetchTop10();
     fetchActors();
     fetchHomeNews();
+    
+    // Initialize the special sections if they haven't been initialized yet
+    if (directors.length === 0 || movieTrivia.length === 0 || thisDayInHistory.length === 0) {
+      initializeAllData();
+    } else {
+      loadMovieTrivia();
+      loadThisDayInHistory();
+      loadDirectorSpotlight();
+    }
   } else if (page === 'movies') {
     console.log('Loading movies page content');
     fetchMoviesTrending();
@@ -338,40 +1190,24 @@ function showPage(page) {
     console.log('Loading my list page');
     showMyListPage();
   } else if (page === 'search-results') {
-    // Search results page is handled by search functionality
-  }
-   else if (page === 'search-results') {
-  // Search results page is handled by search functionality
-  // Add back button to search results page
-  const searchResultsPage = document.getElementById('search-results-page');
-  if (searchResultsPage) {
-    // Check if back button already exists
-    if (!searchResultsPage.querySelector('.search-back-btn')) {
-      const backBtn = document.createElement('button');
-      backBtn.className = 'search-back-btn';
-      backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
-      backBtn.addEventListener('click', () => {
-        const previousPage = localStorage.getItem('currentPage') || 'home';
-        showPage(previousPage);
+    // Add event listener to back button when search results page is shown
+    const searchBackBtn = document.querySelector('.search-back-btn');
+    if (searchBackBtn) {
+      // Remove any existing event listeners to avoid duplicates
+      searchBackBtn.replaceWith(searchBackBtn.cloneNode(true));
+      const newSearchBackBtn = document.querySelector('.search-back-btn');
+      
+      // Add the event listener
+      newSearchBackBtn.addEventListener('click', () => {
+        // Get the previous page from localStorage
+        const pageBeforeSearch = localStorage.getItem('pageBeforeSearch') || 'home';
+        
+        // Navigate back to the previous page
+        showPage(pageBeforeSearch);
       });
-      searchResultsPage.insertBefore(backBtn, searchResultsPage.firstChild);
     }
   }
 }
-}
-
-  const navlinks = document.querySelectorAll(".navmobile");
-
-  navlinks.forEach(link => {
-    link.addEventListener("click", () => {
-      // remove active from all links
-      navLinks.forEach(l => l.classList.remove("active"));
-      // add active to the clicked link
-      link.classList.add("active");
-    });
-  });
-
-
 
 // Initialize search functionality
 function initSearch() {
@@ -477,6 +1313,10 @@ function handleSearchSubmit(e) {
   const query = searchInput ? searchInput.value.trim() : '';
   
   if (query.length === 0) return;
+  
+  // Store the current page (before search) in localStorage
+  const previousPage = localStorage.getItem('currentPage') || 'home';
+  localStorage.setItem('pageBeforeSearch', previousPage);
   
   // Hide suggestions
   if (searchSuggestions) searchSuggestions.innerHTML = '';
@@ -913,7 +1753,7 @@ async function fetchActors() {
 }
 
 // Function to show details page
-// Replace your existing showDetailsPage function with this enhanced version
+// Update the showDetailsPage function to save genre_ids
 async function showDetailsPage(mediaId, mediaType) {
   console.log('showDetailsPage called with:', mediaId, mediaType);
   
@@ -941,8 +1781,19 @@ async function showDetailsPage(mediaId, mediaType) {
       return;
     }
 
+    // Remove any existing back button
+    const existingBackBtn = document.getElementById('details-back-btn');
+    if (existingBackBtn) {
+      existingBackBtn.remove();
+    }
+
     // Populate the details page
     content.innerHTML = `
+      <!-- Back button at the top -->
+      <button id="details-back-btn" class="details-back-btn">
+        <i class="fas fa-arrow-left"></i> Back
+      </button>
+      
       <!-- Top Section: Poster and Title -->
       <div class="details-top">
         <div class="details-poster">
@@ -989,6 +1840,7 @@ async function showDetailsPage(mediaId, mediaType) {
     const rating = document.getElementById('details-rating');
     const runtime = document.getElementById('details-runtime');
     const overview = document.getElementById('details-overview');
+    const backBtn = document.getElementById('details-back-btn');
 
     // Set background
     if (details.backdrop_path) {
@@ -1080,7 +1932,7 @@ async function showDetailsPage(mediaId, mediaType) {
       const videos = details.videos?.results || [];
       const trailer = videos.find(v => v.type === 'Trailer' && v.site === 'YouTube');
       if (trailer) {
-        window.open(`https://www.youtube.com/watch?v=${trailer.key}`, '_blank');
+        openTrailerModal(trailer.key);
       } else {
         showNotification('Trailer not available', 'error');
       }
@@ -1097,8 +1949,13 @@ async function showDetailsPage(mediaId, mediaType) {
       favoriteBtn.classList.toggle('favorited');
       if (favoriteBtn.classList.contains('favorited')) {
         favoriteBtn.innerHTML = '<i class="fas fa-heart"></i> Favorited';
-        // Save to localStorage
-        saveToFavorites(details);
+        // Save to localStorage (include genre_ids)
+        const favoriteItem = {
+          ...details,
+          media_type: mediaType,
+          genre_ids: details.genres?.map(genre => genre.id) || []
+        };
+        saveToFavorites(favoriteItem);
         showNotification('Added to favorites!', 'success');
       } else {
         favoriteBtn.innerHTML = '<i class="fas fa-heart"></i> Favorite';
@@ -1125,30 +1982,9 @@ async function showDetailsPage(mediaId, mediaType) {
     };
 
     // Add back button
-    let backBtn = document.getElementById('details-back-btn');
-    if (!backBtn) {
-      const headerDiv = document.createElement('div');
-      headerDiv.className = 'details-header';
-      backBtn = document.createElement('button');
-      backBtn.id = 'details-back-btn';
-      backBtn.className = 'details-back-btn';
-      backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
-      headerDiv.appendChild(backBtn);
-      
-      // Insert at the beginning of details-content
-      const detailsContent = document.querySelector('.details-content');
-      if (detailsContent) {
-        detailsContent.insertBefore(headerDiv, detailsContent.firstChild);
-      }
-    }
-    
-    // Add event listener to back button
     backBtn.onclick = () => {
       // Remove the back button when leaving
-      const headerDiv = backBtn.parentElement;
-      if (headerDiv) {
-        headerDiv.remove();
-      }
+      backBtn.remove();
       // Go back to previous page
       const previousPage = localStorage.getItem('currentPage') || 'home';
       showPage(previousPage);
@@ -1200,7 +2036,7 @@ function removeFromFavorites(itemId) {
 }
 
 // Function to show the My List page
-// Replace your existing showMyListPage function with this:
+
 function showMyListPage() {
   const mylistPage = document.getElementById('mylist-page');
   const emptyMessage = document.getElementById('mylist-empty');
@@ -1218,8 +2054,15 @@ function showMyListPage() {
   mylistPage.style.display = 'block';
   
   if (favorites.length === 0) {
-    // Show empty message
+    // Show empty message with fun animation
     emptyMessage.style.display = 'block';
+    emptyMessage.innerHTML = `
+      <div class="empty-favorites">
+        <h2>No favorites added yet</h2>
+        <p>Start adding your favorite movies and series to see them here!</p>
+        <div class="empty-icon">🍿</div>
+      </div>
+    `;
     content.style.display = 'none';
   } else {
     // Show content
@@ -1234,7 +2077,10 @@ function showMyListPage() {
       const favoriteItem = document.createElement('div');
       favoriteItem.className = 'favorite-item';
       favoriteItem.dataset.id = item.id;
-      favoriteItem.dataset.type = item.media_type;
+      
+      // Ensure media_type is set
+      const mediaType = item.media_type || (item.title ? 'movie' : 'tv');
+      favoriteItem.dataset.type = mediaType;
       
       const poster = item.poster_path ? IMG_PATH + item.poster_path : '/images/no-poster.png';
       const title = item.title || item.name;
@@ -1242,11 +2088,19 @@ function showMyListPage() {
                   item.first_air_date ? item.first_air_date.split('-')[0] : 'N/A';
       const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
       
+      // Create media type tag
+      const mediaTypeTag = mediaType === 'movie' 
+        ? '<span class="media-type-tag movie-tag">Movie</span>' 
+        : '<span class="media-type-tag series-tag">Series</span>';
+      
       favoriteItem.innerHTML = `
         <button class="favorite-delete" data-index="${index}">
           <i class="fas fa-trash"></i>
         </button>
-        <img src="${poster}" alt="${title}">
+        <div class="favorite-poster-container">
+          <img src="${poster}" alt="${title}">
+          ${mediaTypeTag}
+        </div>
         <div class="favorite-info">
           <div class="favorite-title">${title}</div>
           <div class="favorite-meta">
@@ -1261,8 +2115,12 @@ function showMyListPage() {
         // If delete button was clicked, don't show details
         if (e.target.closest('.favorite-delete')) return;
         
-        // Show details page directly
-        showDetailsPage(item.id, item.media_type);
+        // Get media ID and type
+        const mediaId = parseInt(favoriteItem.dataset.id);
+        const mediaType = favoriteItem.dataset.type;
+        
+        // Show details page
+        showDetailsPage(mediaId, mediaType);
       });
       
       // Add click event to delete button
@@ -1277,46 +2135,115 @@ function showMyListPage() {
       favoritesGrid.appendChild(favoriteItem);
     });
     
-    // Show recommendations based on the first favorite's genres
+    // Show recommendations based on genres from user's favorites
     if (favorites.length > 0) {
-      const firstFavorite = favorites[0];
+      // Collect all unique genre IDs from favorites
+      const allGenres = new Set();
+      favorites.forEach(fav => {
+        if (fav.genre_ids && Array.isArray(fav.genre_ids)) {
+          fav.genre_ids.forEach(genreId => allGenres.add(genreId));
+        }
+      });
       
-      // Fetch recommendations
-      fetch(`${BASE}/discover/${firstFavorite.media_type}?api_key=${API_KEY}&sort_by=popularity.desc&page=1`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.results && data.results.length > 0) {
-            // Clear recommendations track
-            recommendationsTrack.innerHTML = '';
+      // Convert to array and take first 3 genres to avoid too broad results
+      const genreIds = Array.from(allGenres).slice(0, 3);
+      
+      if (genreIds.length > 0) {
+        // Fetch content that matches these genres (both movies and TV)
+        const genreString = genreIds.join(',');
+        
+        // Fetch movie recommendations
+        const moviePromise = fetch(`${BASE}/discover/movie?api_key=${API_KEY}&with_genres=${genreString}&sort_by=popularity.desc&page=1`)
+          .then(res => res.json())
+          .then(data => data.results || [])
+          .catch(error => {
+            console.error('Error fetching movie recommendations:', error);
+            return [];
+          });
+        
+        // Fetch TV recommendations
+        const tvPromise = fetch(`${BASE}/discover/tv?api_key=${API_KEY}&with_genres=${genreString}&sort_by=popularity.desc&page=1`)
+          .then(res => res.json())
+          .then(data => data.results || [])
+          .catch(error => {
+            console.error('Error fetching TV recommendations:', error);
+            return [];
+          });
+        
+        // Combine both movie and TV results
+        Promise.all([moviePromise, tvPromise])
+          .then(([movies, tvShows]) => {
+            // Combine and shuffle results
+            const allRecommendations = [...movies, ...tvShows]
+              .filter(item => item.poster_path) // Only include items with posters
+              .sort(() => Math.random() - 0.5) // Shuffle to mix movies and TV
+              .slice(0, 10); // Limit to 10 items
             
-            // Add recommendations (limit to 10)
-            data.results.slice(0, 10).forEach(item => {
-              const div = document.createElement('div');
-              div.className = 'carousel-item';
-              div.dataset.id = item.id;
-              div.dataset.type = firstFavorite.media_type;
+            // Clear recommendations track
+            if (recommendationsTrack) {
+              recommendationsTrack.innerHTML = '';
               
-              const title = item.title || item.name;
-              const poster = item.poster_path ? IMG_PATH + item.poster_path : '/images/no-poster.png';
+              if (allRecommendations.length === 0) {
+                recommendationsTrack.innerHTML = '<p>No recommendations available for your favorite genres.</p>';
+                return;
+              }
               
-              div.innerHTML = `
-                <img src="${poster}" alt="${title}">
-                <div class="overlay">
-                  <h3>${title}</h3>
-                  <div class="meta">
-                    <span><i class="fas fa-star"></i> ${(item.vote_average || 0).toFixed(1)}</span>
-                    <span><i class="fas fa-calendar"></i> ${item.release_date ? item.release_date.split('-')[0] : item.first_air_date ? item.first_air_date.split('-')[0] : 'N/A'}</span>
+              allRecommendations.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'carousel-item';
+                div.dataset.id = item.id;
+                div.dataset.type = item.title ? 'movie' : 'tv'; // Determine media type
+                
+                const title = item.title || item.name;
+                const poster = item.poster_path ? IMG_PATH + item.poster_path : '/images/no-poster.png';
+                const date = item.release_date || item.first_air_date;
+                const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+                
+                // Create media type tag
+                const mediaTypeTag = div.dataset.type === 'movie' 
+                  ? '<span class="media-type-tag movie-tag">Movie</span>' 
+                  : '<span class="media-type-tag series-tag">Series</span>';
+                
+                div.innerHTML = `
+                  <div class="carousel-poster-container">
+                    <img src="${poster}" alt="${title}">
+                    ${mediaTypeTag}
                   </div>
-                </div>
-              `;
-              
-              recommendationsTrack.appendChild(div);
-            });
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching recommendations:', error);
-        });
+                  <div class="overlay">
+                    <h3>${title}</h3>
+                    <div class="meta">
+                      <span><i class="fas fa-star"></i> ${rating}</span>
+                      <span><i class="fas fa-calendar"></i> ${formatMovieDate(date)}</span>
+                    </div>
+                  </div>
+                `;
+                
+                // Add click event to recommendation item
+                div.addEventListener('click', () => {
+                  showDetailsPage(item.id, div.dataset.type);
+                });
+                
+                recommendationsTrack.appendChild(div);
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error processing recommendations:', error);
+            if (recommendationsTrack) {
+              recommendationsTrack.innerHTML = '<p>Unable to load recommendations. Please try again later.</p>';
+            }
+          });
+      } else {
+        // No genre information found in favorites
+        if (recommendationsTrack) {
+          recommendationsTrack.innerHTML = '<p>No genre information available in your favorites. Add more items to get recommendations.</p>';
+        }
+      }
+    } else {
+      // If no favorites, show message
+      if (recommendationsTrack) {
+        recommendationsTrack.innerHTML = '<p>Add favorites to see personalized recommendations.</p>';
+      }
     }
   }
   
@@ -1333,18 +2260,27 @@ function showMyListPage() {
 }
 
 // Update the saveToFavorites function
+// Update the saveToFavorites function
 function saveToFavorites(item) {
   let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
   
   // Check if already in favorites
   const existingIndex = favorites.findIndex(fav => fav.id === item.id);
   if (existingIndex === -1) {
-    favorites.push(item);
+    // Ensure we have media_type
+    if (!item.media_type) {
+      item.media_type = item.title ? 'movie' : 'tv';
+    }
+    
+    // Make a copy of the item to avoid modifying the original
+    const favoriteItem = { ...item };
+    
+    // Save to localStorage
+    favorites.push(favoriteItem);
     localStorage.setItem('favorites', JSON.stringify(favorites));
     console.log('Added to favorites:', item.title || item.name);
   }
 }
-
 // Update the removeFromFavorites function
 function removeFromFavorites(itemId) {
   let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
@@ -1401,6 +2337,55 @@ async function displayItem(index) {
   const trailer = videos.find(v => v.type === "Trailer" && v.site === "YouTube") || videos.find(v => v.site === "YouTube");
   
   if (moreInfoBtn) moreInfoBtn.onclick = () => window.open(`https://www.themoviedb.org/${it.media_type}/${it.id}`, "_blank");
+}
+
+// Create trailer modal
+function createTrailerModal() {
+  const modal = document.createElement('div');
+  modal.id = 'trailer-modal';
+  modal.className = 'modal';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div id="trailer-modal-body"></div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  
+  // Close modal when clicking on X
+  const closeBtn = modal.querySelector('.close');
+  closeBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+    document.getElementById('trailer-modal-body').innerHTML = '';
+  });
+  
+  // Close modal when clicking outside
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.style.display = 'none';
+      document.getElementById('trailer-modal-body').innerHTML = '';
+    }
+  });
+}
+
+// Function to open trailer modal
+function openTrailerModal(trailerKey) {
+  let modal = document.getElementById('trailer-modal');
+  
+  // Create modal if it doesn't exist
+  if (!modal) {
+    createTrailerModal();
+    modal = document.getElementById('trailer-modal');
+  }
+  
+  const modalBody = document.getElementById('trailer-modal-body');
+  
+  if (modalBody) {
+    modalBody.innerHTML = `
+      <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${trailerKey}?autoplay=1" frameborder="0" allowfullscreen></iframe>
+    `;
+    modal.style.display = 'block';
+  }
 }
 
 // Display item for movies hero
@@ -2622,6 +3607,7 @@ function displayActorsNews() {
 }
 
 // Display Trailers News
+// Update the displayTrailersNews function
 function displayTrailersNews() {
   const container = trailersGrid || q('trailers-grid');
   if (!container) return;
@@ -2656,7 +3642,8 @@ function displayTrailersNews() {
     
     card.addEventListener('click', () => {
       if (trailer) {
-        window.open(`https://www.youtube.com/watch?v=${trailer.key}`, "_blank");
+        // Open modal instead of going to YouTube
+        openTrailerModal(trailer.key);
       } else {
         window.open(`https://www.themoviedb.org/movie/${movie.id}`, "_blank");
       }
@@ -2770,28 +3757,6 @@ function handleSearchSubmit(e) {
   }
 }
 
-// performSearch (add console for debug)
-async function performSearch(query) {
-  console.log(`Searching for: ${query}`); // Debug
-  try {
-    showPage('search-results');
-    searchResultsTitle.textContent = `Searched results for '${query}'`;
-    searchResultsContainer.innerHTML = '<p>Loading...</p>';
-    
-    const res = await fetch(`${BASE}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&page=1`);
-    const data = await res.json();
-    
-    searchResultsContainer.innerHTML = '';
-    if (data.results && data.results.length > 0) {
-      displaySearchResults(data.results, query); // Pass query for enhancements
-    } else {
-      searchResultsContainer.innerHTML = '<p>No results found.</p>';
-    }
-  } catch (error) {
-    console.error('Search error:', error);
-  }
-}
-
 // Enhanced displaySearchResults: Show centered poster if single exact match, else grid
 function displaySearchResults(results, query) {
   const exactMatch = results.find(item => (item.title || item.name).toLowerCase() === query.toLowerCase());
@@ -2825,21 +3790,31 @@ function displaySearchResults(results, query) {
 }
 
 // Confirm initSearch has:
+// In your initSearch function, disable browser autocomplete
 function initSearch() {
-  // ... existing
-  searchInput.addEventListener('input', () => {
-    const query = searchInput.value.trim();
-    if (query.length > 2) {
-      fetchSearchSuggestions(query);
-    } else {
+  if (!searchInput) return;
+  
+  // Disable browser autocomplete
+  searchInput.setAttribute('autocomplete', 'off');
+  
+  // Add event listener for input changes
+  searchInput.addEventListener('input', handleSearchInput);
+  
+  // Add event listener for form submission
+  if (searchForm) {
+    searchForm.addEventListener('submit', handleSearchSubmit);
+  }
+  
+  // Add event listener to hide suggestions when clicking outside
+  document.addEventListener('click', (e) => {
+    if (searchInput && searchSuggestions && !searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
       searchSuggestions.innerHTML = '';
+      searchSuggestions.classList.remove('active');
     }
   });
-  searchForm.addEventListener('submit', handleSearchSubmit);
 }
-// ===== NEWSLETTER FORM =====
 
-// Replace your existing performSearch function with this:
+// Update the performSearch function
 async function performSearch(query) {
   console.log(`Searching for: ${query}`);
   try {
@@ -2852,7 +3827,7 @@ async function performSearch(query) {
     
     searchResultsContainer.innerHTML = '';
     
-    // Add back button
+    // Add back button at the top of results
     const backBtn = document.createElement('button');
     backBtn.className = 'search-back-btn';
     backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
@@ -2951,6 +3926,106 @@ if (newsletterForm) {
     newsletterForm.reset();
   });
 }
+
+// For movies hero
+const moviesHeroVideoContainer = document.createElement('div');
+moviesHeroVideoContainer.id = 'movies-hero-video-container';
+moviesHeroVideoContainer.style.display = 'none';
+moviesHero.appendChild(moviesHeroVideoContainer);
+
+const moviesExitBtn = document.createElement('button');
+moviesExitBtn.className = 'exit-trailer-btn';
+moviesExitBtn.innerHTML = '<i class="fas fa-times"></i> Exit';
+moviesHero.appendChild(moviesExitBtn);
+moviesExitBtn.style.display = 'none';
+
+// For series hero
+const seriesHeroVideoContainer = document.createElement('div');
+seriesHeroVideoContainer.id = 'series-hero-video-container';
+seriesHeroVideoContainer.style.display = 'none';
+seriesHero.appendChild(seriesHeroVideoContainer);
+
+const seriesExitBtn = document.createElement('button');
+seriesExitBtn.className = 'exit-trailer-btn';
+seriesExitBtn.innerHTML = '<i class="fas fa-times"></i> Exit';
+seriesHero.appendChild(seriesExitBtn);
+seriesExitBtn.style.display = 'none';
+
+// Movies trailer button
+if (moviesWatchTrailerBtn) {
+  moviesWatchTrailerBtn.addEventListener('click', async () => {
+    const item = moviesItems[moviesCurrentIndex];
+    try {
+      const res = await fetch(`${BASE}/${item.media_type}/${item.id}/videos?api_key=${API_KEY}`);
+      const data = await res.json();
+      const trailer = data.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+      if (trailer) {
+        moviesHero.style.backgroundImage = 'none';
+        moviesHeroVideoContainer.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${trailer.key}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+        moviesHeroVideoContainer.style.display = 'block';
+        moviesExitBtn.style.display = 'block';
+        // Hide other hero content
+        const moviesHeroContent = moviesHero.querySelector('.hero-content');
+        if (moviesHeroContent) moviesHeroContent.style.display = 'none';
+        moviesPrevBtn.style.display = 'none';
+        moviesNextBtn.style.display = 'none';
+      }
+    } catch (error) {
+      console.error('Error loading trailer:', error);
+    }
+  });
+}
+
+// Series trailer button
+if (seriesWatchTrailerBtn) {
+  seriesWatchTrailerBtn.addEventListener('click', async () => {
+    const item = seriesItems[seriesCurrentIndex];
+    try {
+      const res = await fetch(`${BASE}/${item.media_type}/${item.id}/videos?api_key=${API_KEY}`);
+      const data = await res.json();
+      const trailer = data.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+      if (trailer) {
+        seriesHero.style.backgroundImage = 'none';
+        seriesHeroVideoContainer.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${trailer.key}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+        seriesHeroVideoContainer.style.display = 'block';
+        seriesExitBtn.style.display = 'block';
+        // Hide other hero content
+        const seriesHeroContent = seriesHero.querySelector('.hero-content');
+        if (seriesHeroContent) seriesHeroContent.style.display = 'none';
+        seriesPrevBtn.style.display = 'none';
+        seriesNextBtn.style.display = 'none';
+      }
+    } catch (error) {
+      console.error('Error loading trailer:', error);
+    }
+  });
+}
+
+// Movies exit button
+moviesExitBtn.addEventListener('click', () => {
+  moviesHeroVideoContainer.innerHTML = '';
+  moviesHeroVideoContainer.style.display = 'none';
+  moviesExitBtn.style.display = 'none';
+  const moviesHeroContent = moviesHero.querySelector('.hero-content');
+  if (moviesHeroContent) moviesHeroContent.style.display = 'block';
+  moviesPrevBtn.style.display = 'block';
+  moviesNextBtn.style.display = 'block';
+  // Revert bg
+  displayMoviesItem(moviesCurrentIndex);
+});
+
+// Series exit button
+seriesExitBtn.addEventListener('click', () => {
+  seriesHeroVideoContainer.innerHTML = '';
+  seriesHeroVideoContainer.style.display = 'none';
+  seriesExitBtn.style.display = 'none';
+  const seriesHeroContent = seriesHero.querySelector('.hero-content');
+  if (seriesHeroContent) seriesHeroContent.style.display = 'block';
+  seriesPrevBtn.style.display = 'block';
+  seriesNextBtn.style.display = 'block';
+  // Revert bg
+  displaySeriesItem(seriesCurrentIndex);
+});
 
 // In index.js, replace the existing displaySearchSuggestions function with this:
 function displaySearchResults(results, query) {
@@ -3144,6 +4219,21 @@ document.addEventListener('click', (e) => {
   
   if (menuToggle && menuClass && menuToggle.checked && !menuClass.contains(e.target) && !menuToggle.contains(e.target)) {
     menuToggle.checked = false;
+  }
+});
+
+// 2. Add event listener to the back button
+document.addEventListener('DOMContentLoaded', () => {
+  // Add event listener to search back button
+  const searchBackBtn = document.querySelector('.search-back-btn');
+  if (searchBackBtn) {
+    searchBackBtn.addEventListener('click', () => {
+      // Get the previous page from localStorage
+      const pageBeforeSearch = localStorage.getItem('pageBeforeSearch') || 'home';
+      
+      // Navigate back to the previous page
+      showPage(pageBeforeSearch);
+    });
   }
 });
 

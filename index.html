@@ -183,6 +183,7 @@
           <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
         </div>
       </section>
+      
       <section class="newsletter-section">
         <div class="newsletter-container">
           <h2>Stay Updated</h2>
@@ -208,7 +209,10 @@
 
     <!-- Search Results Page -->
     <div id="search-results-page" class="page" style="display: none;">
-      <h2 id="search-results-title">Searched results for ''</h2>
+      <div class="search-results-header">
+        <button class="search-back-btn"><i class="fas fa-arrow-left"></i> Back</button>
+        <h2 id="search-results-title">Searched results for ''</h2>
+      </div>
       <div id="search-results" class="movie-grid"></div>
     </div>
 
@@ -360,7 +364,7 @@
           <button id="apply-filters">Apply Filters</button>
         </div>
         <div id="genres-results-container">
-          <p class="prompt-message">Select your preferences and click Apply Filters to explore movies or series.</p>
+          <p class="prompt-message"> Select your preferences and click Apply Filters to explore movies or series! </p>
           <div class="genres-grid" id="genres-results"></div>
         </div>
         <div id="genres-pagination" class="pagination"></div>
@@ -453,95 +457,101 @@
       </div>
     </div>
 
-          <!-- Details Page -->
-
-      <!-- Add this at the top of details-content -->
-      <div class="details-header">
-        <button id="details-back-btn" class="details-back-btn">
-          <i class="fas fa-arrow-left"></i> Back
-        </button>
-      </div>
-      <div id="details-page" class="page" style="display: none;">
-        <div class="details-container">
-          <!-- Blurred Background -->
-          <div class="details-background" id="details-background"></div>
+    <!-- Details Page -->
+    <div id="details-page" class="page" style="display: none;">
+      <div class="details-container">
+        <!-- Blurred Background -->
+        <div class="details-background" id="details-background"></div>
+        
+        <!-- Content -->
+        <div class="details-content">
+          <!-- Top Section: Poster and Title -->
+          <div class="details-top">
+            <div class="details-genres" id="details-genres"></div>
+            <div class="details-poster">
+              <img id="details-poster-img" src="" alt="">
+            </div>
+            <div class="details-title-section">
+              <h1 id="details-title"></h1>
+              <div class="details-meta">
+                <span id="details-year"><i class="fas fa-calendar"></i> </span>
+                <span id="details-rating"><i class="fas fa-star"></i> </span>
+                <span id="details-runtime"><i class="fas fa-clock"></i> </span>
+              </div>
+            </div>
+          </div>
           
-          <!-- Content -->
-          <div class="details-content">
-            <!-- Top Section: Poster and Title -->
-            <div class="details-top">
-              <div class="details-genres" id="details-genres"></div>
-              <div class="details-poster">
-                <img id="details-poster-img" src="" alt="">
-              </div>
-              <div class="details-title-section">
-                <h1 id="details-title"></h1>
-                <div class="details-meta">
-                  <span id="details-year"><i class="fas fa-calendar"></i> </span>
-                  <span id="details-rating"><i class="fas fa-star"></i> </span>
-                  <span id="details-runtime"><i class="fas fa-clock"></i> </span>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Buttons -->
-            <div class="details-buttons">
-              <button id="details-trailer-btn" class="details-btn"><i class="fas fa-play"></i> Trailer</button>
-              <button id="details-download-btn" class="details-btn"><i class="fas fa-download"></i> Download</button>
-              <button id="details-favorite-btn" class="details-btn"><i class="fas fa-heart"></i> Favorite</button>
-              <button id="details-recommended-btn" class="details-btn"><i class="fas fa-thumbs-up"></i> Recommended</button>
-            </div>
-            
-            <!-- Summary -->
-            <div class="details-summary">
-              <h2>Summary</h2>
-              <p id="details-overview"></p>
-            </div>
-            
-            <!-- Review Input -->
-            <div class="details-review">
-              <h2>Review</h2>
-              <textarea id="review-input" placeholder="Write your review here..."></textarea>
-              <button id="submit-review-btn" class="details-btn">Submit Review</button>
-            </div>
+          <!-- Buttons -->
+          <div class="details-buttons">
+            <button id="details-trailer-btn" class="details-btn"><i class="fas fa-play"></i> Trailer</button>
+            <button id="details-download-btn" class="details-btn"><i class="fas fa-download"></i> Download</button>
+            <button id="details-favorite-btn" class="details-btn"><i class="fas fa-heart"></i> Favorite</button>
+            <button id="details-recommended-btn" class="details-btn"><i class="fas fa-thumbs-up"></i> Recommended</button>
+          </div>
+          
+          <!-- Summary -->
+          <div class="details-summary">
+            <h2>Summary</h2>
+            <p id="details-overview"></p>
+          </div>
+          
+          <!-- Review Input -->
+          <div class="details-review">
+            <h2>Review</h2>
+            <textarea id="review-input" placeholder="Write your review here..."></textarea>
+            <button id="submit-review-btn" class="details-btn">Submit Review</button>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- My List Page -->
-      <div id="mylist-page" class="page" style="display: none;">
-        <div class="mylist-container">
-          <h1>My List</h1>
-          
-          <!-- Empty state message -->
-          <div id="mylist-empty" class="mylist-empty">
+    <!-- My List Page -->
+    <div id="mylist-page" class="page" style="display: none;">
+      <div class="mylist-container">
+        <h1>My List</h1>
+        
+        <!-- Empty state message -->
+        <div id="mylist-empty" class="mylist-empty">
+          <div class="empty-favorites">
             <h2>No favorites added yet</h2>
             <p>Start adding your favorite movies and series to see them here!</p>
+            <div class="empty-icon"></div>
+          </div>
+        </div>
+        
+        <!-- Favorites list -->
+        <div id="mylist-content" class="mylist-content" style="display: none;">
+          <!-- Recommendations section -->
+          <div id="mylist-recommendations" class="mylist-recommendations">
+            <h2>Recommended from Favorites</h2>
+            <div class="carousel">
+              <div class="carousel-track" id="mylist-recommendations-track"></div>
+            </div>
           </div>
           
-          <!-- Favorites list -->
-          <div id="mylist-content" class="mylist-content" style="display: none;">
-            <!-- Recommendations section -->
-            <div id="mylist-recommendations" class="mylist-recommendations">
-              <h2>Recommended for You</h2>
-              <div class="carousel">
-                <div class="carousel-track" id="mylist-recommendations-track"></div>
-              </div>
+          <!-- Favorites grid -->
+          <div class="mylist-favorites">
+            <div class="mylist-header">
+              <h2>Your Favorites</h2>
+              <button id="clear-all-favorites" class="details-btn">
+                <i class="fas fa-trash-alt"></i> Clear All
+              </button>
             </div>
-            
-            <!-- Favorites grid -->
-            <div class="mylist-favorites">
-              <div class="mylist-header">
-                <h2>Your Favorites</h2>
-                <button id="clear-all-favorites" class="details-btn">
-                  <i class="fas fa-trash-alt"></i> Clear All
-                </button>
-              </div>
-              <div id="favorites-grid" class="favorites-grid"></div>
-            </div>
+            <div id="favorites-grid" class="favorites-grid"></div>
           </div>
         </div>
       </div>
+    </div>
+    <!-- Search Results Page -->
+    
+
+    <!-- Trailer Modal -->
+    <div id="trailer-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="trailer-modal-body"></div>
+      </div>
+    </div>
 
     <!-- Global Footer -->
     <footer class="footer">
