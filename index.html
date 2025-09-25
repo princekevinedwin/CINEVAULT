@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>CineVault</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="/static/styles/style.css" />
+  <link rel="stylesheet" href="/CINEVAULT/static/styles/style.css" />
   <!-- Add Mermaid for flowcharts -->
   <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 </head>
@@ -13,7 +13,7 @@
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar" fast>
     <div class="brand">
-      <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="logo" />
+      <img src="/CINEVAULT/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="logo" />
       <span class="brand-name"></span>
     </div>
     <nav class="nav">
@@ -32,7 +32,7 @@
   </aside>
 
   <div class="menu-mobile">
-    <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="logo" />
+    <img src="/CINEVAULT/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="logo" />
     <input type="checkbox" id="menu-toggle" hidden>
     <label for="menu-toggle" class="hamburger" id="menu-bar"></label>
     <label for="menu-toggle" class=""></label>
@@ -62,7 +62,7 @@
       </div>
       <div class="mobile-logo">
         <div class="mobile-head"></div>
-        <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="">
+        <img src="/CINEVAULT/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="">
       </div>
     </header>
 
@@ -141,7 +141,7 @@
         </div>
       </section>
       <section class="genre-section">
-        <h2>Explore by Genre</h2>
+        <h2 id="first-genre">Explore by Genre</h2>
         <div class="genre-buttons">
           <button class="genre-btn active" data-genre="28">Action</button>
           <button class="genre-btn" data-genre="35">Comedy</button>
@@ -453,11 +453,101 @@
       </div>
     </div>
 
+          <!-- Details Page -->
+
+      <!-- Add this at the top of details-content -->
+      <div class="details-header">
+        <button id="details-back-btn" class="details-back-btn">
+          <i class="fas fa-arrow-left"></i> Back
+        </button>
+      </div>
+      <div id="details-page" class="page" style="display: none;">
+        <div class="details-container">
+          <!-- Blurred Background -->
+          <div class="details-background" id="details-background"></div>
+          
+          <!-- Content -->
+          <div class="details-content">
+            <!-- Top Section: Poster and Title -->
+            <div class="details-top">
+              <div class="details-genres" id="details-genres"></div>
+              <div class="details-poster">
+                <img id="details-poster-img" src="" alt="">
+              </div>
+              <div class="details-title-section">
+                <h1 id="details-title"></h1>
+                <div class="details-meta">
+                  <span id="details-year"><i class="fas fa-calendar"></i> </span>
+                  <span id="details-rating"><i class="fas fa-star"></i> </span>
+                  <span id="details-runtime"><i class="fas fa-clock"></i> </span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Buttons -->
+            <div class="details-buttons">
+              <button id="details-trailer-btn" class="details-btn"><i class="fas fa-play"></i> Trailer</button>
+              <button id="details-download-btn" class="details-btn"><i class="fas fa-download"></i> Download</button>
+              <button id="details-favorite-btn" class="details-btn"><i class="fas fa-heart"></i> Favorite</button>
+              <button id="details-recommended-btn" class="details-btn"><i class="fas fa-thumbs-up"></i> Recommended</button>
+            </div>
+            
+            <!-- Summary -->
+            <div class="details-summary">
+              <h2>Summary</h2>
+              <p id="details-overview"></p>
+            </div>
+            
+            <!-- Review Input -->
+            <div class="details-review">
+              <h2>Review</h2>
+              <textarea id="review-input" placeholder="Write your review here..."></textarea>
+              <button id="submit-review-btn" class="details-btn">Submit Review</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- My List Page -->
+      <div id="mylist-page" class="page" style="display: none;">
+        <div class="mylist-container">
+          <h1>My List</h1>
+          
+          <!-- Empty state message -->
+          <div id="mylist-empty" class="mylist-empty">
+            <h2>No favorites added yet</h2>
+            <p>Start adding your favorite movies and series to see them here!</p>
+          </div>
+          
+          <!-- Favorites list -->
+          <div id="mylist-content" class="mylist-content" style="display: none;">
+            <!-- Recommendations section -->
+            <div id="mylist-recommendations" class="mylist-recommendations">
+              <h2>Recommended for You</h2>
+              <div class="carousel">
+                <div class="carousel-track" id="mylist-recommendations-track"></div>
+              </div>
+            </div>
+            
+            <!-- Favorites grid -->
+            <div class="mylist-favorites">
+              <div class="mylist-header">
+                <h2>Your Favorites</h2>
+                <button id="clear-all-favorites" class="details-btn">
+                  <i class="fas fa-trash-alt"></i> Clear All
+                </button>
+              </div>
+              <div id="favorites-grid" class="favorites-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     <!-- Global Footer -->
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-logo-container">
-          <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="footer-logo">
+          <img src="/CINEVAULT/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="footer-logo">
           <p><strong>CINEVAULT</strong> is your everyday hub for movies and Tv shows, whatever you are searching for, we got you covered, from african, to european, to western movies, we are your sure plug!!</p>
         </div>
         <div class="quicklinks">
@@ -496,7 +586,7 @@
     </footer>
   </main>
 
-  <script src="/static/js/index.js"></script>
+  <script src="/CINEVAULT/static/js/index.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
   // Initialize Mermaid
@@ -515,37 +605,7 @@
     });
   });
 
-  // Newsletter form submission
-  const newsletterForm = document.querySelector('.newsletter-form');
-  const newsletterPopup = document.querySelector('#newsletter-popup');
-
-  if (newsletterForm && newsletterPopup) {
-    newsletterForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      newsletterPopup.style.display = 'block';
-      setTimeout(() => {
-        newsletterPopup.classList.add('fade-out');
-        setTimeout(() => {
-          newsletterPopup.style.display = 'none';
-          newsletterPopup.classList.remove('fade-out');
-          newsletterForm.reset();
-        }, 300); // Match fadeOut animation duration
-      }, 3000); // Show popup for 3 seconds
     });
-
-    // Close button for popup
-    const closeButton = newsletterPopup.querySelector('.close');
-    if (closeButton) {
-      closeButton.addEventListener('click', () => {
-        newsletterPopup.classList.add('fade-out');
-        setTimeout(() => {
-          newsletterPopup.style.display = 'none';
-          newsletterPopup.classList.remove('fade-out');
-        }, 300);
-      });
-    }
-  }
-});
   </script>
 </body>
 </html>

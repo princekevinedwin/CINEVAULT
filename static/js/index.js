@@ -297,9 +297,9 @@ function showPage(page) {
   if (page === 'home') {
     console.log('Loading home page content');
     fetchTrending();
-    fetchMovies(`${BASE}/movie/popular?api_key=${API_KEY}`, 'popular-movies');
-    fetchMovies(`${BASE}/tv/popular?api_key=${API_KEY}`, 'popular-tv');
-    fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'award-winning');
+    fetchMovies(`${BASE}/movie/popular?api_key=${API_KEY}`, 'popular-movies', 10, false, 'movie');
+    fetchMovies(`${BASE}/tv/popular?api_key=${API_KEY}`, 'popular-tv', 10, false, 'tv');
+    fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'award-winning', 10, false, 'movie');
     fetchUpcomingCombined('recommendations', 10);
     fetchTop10();
     fetchActors();
@@ -308,13 +308,13 @@ function showPage(page) {
     console.log('Loading movies page content');
     fetchMoviesTrending();
     loadMovies(moviesCurrentPage);
-    fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'movies-top-rated', 10);
+    fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'movies-top-rated', 10, false, 'movie');
     fetchUpcomingMovies('movies-upcoming', 10);
   } else if (page === 'series') {
     console.log('Loading series page content');
     fetchSeriesTrending();
     loadSeries(seriesCurrentPage);
-    fetchMovies(`${BASE}/discover/tv?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'series-top-rated', 10);
+    fetchMovies(`${BASE}/discover/tv?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'series-top-rated', 10, false, 'tv');
     fetchUpcoming(`${BASE}/discover/tv?api_key=${API_KEY}&sort_by=first_air_date.asc&first_air_date.gte=${today}&first_air_date.lte=2026-12-31`, 'series-airing', 10, 'tv');
   } else if (page === 'genres') {
     console.log('Loading genres page content');
@@ -334,6 +334,9 @@ function showPage(page) {
   } else if (page === 'news-updates') {
     console.log('Loading news page content');
     setTimeout(() => initNewsPage(), 100);
+  } else if (page === 'mylist') {
+    console.log('Loading my list page');
+    showMyListPage();
   } else if (page === 'search-results') {
     // Search results page is handled by search functionality
   }
@@ -603,9 +606,9 @@ async function fetchDetails(id, mediaType) {
 }
 
 // Generic fetch for movies/series for carousels or grids
-async function fetchMovies(endpoint, containerId, limit = 10, isGrid = false) {
+async function fetchMovies(endpoint, containerId, limit = 10, isGrid = false, mediaType = 'movie') {
   try {
-    console.log(`Fetching data for ${containerId} from ${endpoint}`);
+    console.log(`Fetching data for ${containerId} from ${endpoint} with mediaType: ${mediaType}`);
     const res = await fetch(endpoint);
     const data = await res.json();
     
@@ -640,6 +643,11 @@ async function fetchMovies(endpoint, containerId, limit = 10, isGrid = false) {
     filteredResults.forEach(item => {
       const div = document.createElement('div');
       div.classList.add(isGrid ? 'grid-item' : 'carousel-item');
+      
+      // Add data attributes
+      div.dataset.id = item.id;
+      div.dataset.type = mediaType; // Use the passed mediaType
+      
       const title = item.title || item.name || 'Untitled';
       const year = (item.release_date || item.first_air_date || '').split('-')[0] || '—';
       const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
@@ -656,8 +664,6 @@ async function fetchMovies(endpoint, containerId, limit = 10, isGrid = false) {
         </div>
       `;
       
-      
-      
       container.appendChild(div);
     });
 
@@ -672,31 +678,37 @@ async function fetchMovies(endpoint, containerId, limit = 10, isGrid = false) {
 }
 
 // Fetch upcoming movies specifically (fixed to show only future releases)
-async function fetchUpcomingMovies(containerId, limit = 10) {
+async function fetchUpcomingCombined(containerId, limit = 10) {
   try {
     const today = new Date().toISOString().split('T')[0];
-    const res = await fetch(`${BASE}/movie/upcoming?api_key=${API_KEY}`);
-    const data = await res.json();
+    const [moviesRes, tvRes] = await Promise.all([
+      fetch(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=primary_release_date.asc&primary_release_date.gte=${today}`),
+      fetch(`${BASE}/discover/tv?api_key=${API_KEY}&sort_by=first_air_date.asc&first_air_date.gte=${today}`)
+    ]);
+    
+    const moviesData = await moviesRes.json();
+    const tvData = await tvRes.json();
+
+    let combined = [...(moviesData.results || []), ...(tvData.results || [])];
+    combined = combined.filter(item => (item.release_date || item.first_air_date) && item.poster_path);
+    combined.sort((a, b) => new Date(a.release_date || a.first_air_date) - new Date(b.release_date || b.first_air_date));
+    combined = combined.slice(0, limit);
+
     const container = q(containerId);
-    if (!container) return 1;
+    if (!container) return;
     
     container.innerHTML = '';
-    
-    // Filter movies that are actually upcoming (release date is in the future)
-    let results = (data.results || []).filter(movie => {
-      return movie.release_date && movie.release_date > today && movie.poster_path;
-    }).slice(0, limit);
-    
-    if (results.length === 0) {
-      container.innerHTML = '<p>No upcoming movies available at this time.</p>';
-      return 1;
-    }
-    
-    results.forEach(item => {
+
+    combined.forEach(item => {
       const div = document.createElement('div');
       div.classList.add('carousel-item');
-      const title = item.title || 'Untitled';
-      const date = item.release_date || 'TBA';
+      
+      // Add data attributes
+      div.dataset.id = item.id;
+      div.dataset.type = item.media_type || (item.title ? 'movie' : 'tv'); // Determine media type
+      
+      const title = item.title || item.name || 'Untitled';
+      const date = item.release_date || item.first_air_date || 'TBA';
       
       div.innerHTML = `
         <img src="${item.poster_path ? IMG_PATH + item.poster_path : '/images/no-poster.png'}" alt="${title}">
@@ -706,16 +718,14 @@ async function fetchUpcomingMovies(containerId, limit = 10) {
         </div>
       `;
       
-      
       container.appendChild(div);
     });
     
-    return data.total_pages || 1;
+    console.log(`Loaded ${combined.length} upcoming (combined) into ${containerId}`);
   } catch (err) {
-    console.error(`Error fetching upcoming movies for ${containerId}:`, err);
-    const container = q(containerId);
-    if (container) container.innerHTML = `<p>Unable to load upcoming movies. Please try again.</p>`;
-    return 1;
+    console.error("Error fetching combined upcoming:", err);
+    const c = q(containerId);
+    if (c) c.innerHTML = '<p>Unable to load upcoming releases.</p>';
   }
 }
 
@@ -730,9 +740,15 @@ async function fetchUpcoming(endpoint, containerId, limit = 10, mediaType = 'mov
     container.innerHTML = '';
     let results = (data.results || []).filter(r => r.poster_path).slice(0, limit);
     
+    // ====== UPDATE THIS SECTION ======
     results.forEach(item => {
       const div = document.createElement('div');
       div.classList.add('carousel-item');
+      
+      // Add data attributes
+      div.dataset.id = item.id;
+      div.dataset.type = mediaType;
+      
       const title = item.title || item.name || 'Untitled';
       const date = item.release_date || item.first_air_date || 'TBA';
       
@@ -744,9 +760,9 @@ async function fetchUpcoming(endpoint, containerId, limit = 10, mediaType = 'mov
         </div>
       `;
       
-      
       container.appendChild(div);
     });
+    // ====== END OF UPDATED SECTION ======
     
     return data.total_pages || 1;
   } catch (err) {
@@ -815,11 +831,20 @@ async function fetchTop10() {
     if (!container) return;
     
     container.innerHTML = "";
-    (data.results || []).slice(0, 10).forEach((movie, idx) => {
-      const item = document.createElement("div");
-      item.classList.add("top-10-item");
-      item.innerHTML = `<span class="top-10-number">${idx+1}</span><img src="${movie.poster_path ? IMG_PATH + movie.poster_path : '/images/no-poster.png'}" alt="${movie.title || movie.name}">`;
-      container.appendChild(item);
+    
+    (data.results || []).slice(0, 10).forEach((item, idx) => {
+      const div = document.createElement("div");
+      div.classList.add("top-10-item");
+      
+      // Add data attributes
+      div.dataset.id = item.id;
+      div.dataset.type = item.media_type; // This already has media_type
+      
+      // Make the entire item clickable
+      div.style.cursor = "pointer";
+      
+      div.innerHTML = `<span class="top-10-number">${idx+1}</span><img src="${item.poster_path ? IMG_PATH + item.poster_path : '/images/no-poster.png'}" alt="${item.title || item.name}">`;
+      container.appendChild(div);
     });
   } catch (err) {
     console.error("Error fetching Top 10:", err);
@@ -837,10 +862,15 @@ async function fetchActors() {
     if (!container) return;
     
     container.innerHTML = "";
+    
     (data.results || []).slice(0, 10).forEach(actor => {
       const card = document.createElement("div");
       card.classList.add("actor-card");
+      
+      // Add data attributes
       card.dataset.id = actor.id;
+      card.dataset.type = 'person'; // Actors are of type 'person'
+      
       card.innerHTML = `<img src="${actor.profile_path ? IMG_PATH + actor.profile_path : '/images/no-avatar.png'}" alt="${actor.name}"><p>${actor.name}</p>`;
       card.addEventListener("click", () => showActorModal(actor.id));
       container.appendChild(card);
@@ -850,6 +880,436 @@ async function fetchActors() {
     const container = q("trending-actors");
     if (container) container.innerHTML = "<p>Unable to load actors. Please try again.</p>";
   }
+}
+
+// Function to show details page
+// Replace your existing showDetailsPage function with this enhanced version
+async function showDetailsPage(mediaId, mediaType) {
+  // Show loading state
+  const detailsPage = document.getElementById('details-page');
+  const background = document.getElementById('details-background');
+  const content = document.querySelector('.details-content');
+  
+  // Hide all pages and show details page
+  document.querySelectorAll('.page').forEach(page => {
+    page.style.display = 'none';
+  });
+  detailsPage.style.display = 'block';
+  
+  // Show loading
+  content.innerHTML = '<div class="details-loading"></div>';
+  background.style.backgroundImage = '';
+  
+  try {
+    // Fetch the details
+    const details = await fetchDetails(mediaId, mediaType);
+    if (!details) {
+      content.innerHTML = '<p>Unable to load details. Please try again.</p>';
+      return;
+    }
+
+    // Populate the details page
+    // Update the details-top section HTML
+content.innerHTML = `
+  <!-- Top Section: Poster and Title -->
+  <div class="details-top">
+    <div class="details-poster">
+      <img id="details-poster-img" src="" alt="">
+    </div>
+    <div class="details-title-section">
+      <h1 id="details-title"></h1>
+      <div class="details-meta">
+        <span id="details-year"><i class="fas fa-calendar"></i> </span>
+        <span id="details-rating"><i class="fas fa-star"></i> </span>
+        <span id="details-runtime"><i class="fas fa-clock"></i> </span>
+      </div>
+      <div class="details-genres" id="details-genres"></div>
+      <div class="details-actors" id="details-actors"></div>
+    </div>
+  </div>
+  
+  <!-- Buttons -->
+  <div class="details-buttons">
+    <button id="details-trailer-btn" class="details-btn"><i class="fas fa-play"></i> Trailer</button>
+    <button id="details-download-btn" class="details-btn"><i class="fas fa-download"></i> Download</button>
+    <button id="details-favorite-btn" class="details-btn"><i class="fas fa-heart"></i> Favorite</button>
+    <button id="details-recommended-btn" class="details-btn"><i class="fas fa-thumbs-up"></i> Recommended</button>
+  </div>
+  
+  <!-- Summary -->
+  <div class="details-summary">
+    <h2>Summary</h2>
+    <p id="details-overview"></p>
+  </div>
+  
+  <!-- Review Input -->
+  <div class="details-review">
+    <h2>Review</h2>
+    <textarea id="review-input" placeholder="Write your review here..."></textarea>
+    <button id="submit-review-btn" class="details-btn">Submit Review</button>
+  </div>
+`;
+
+    // Get elements
+    const posterImg = document.getElementById('details-poster-img');
+    const title = document.getElementById('details-title');
+    const year = document.getElementById('details-year');
+    const rating = document.getElementById('details-rating');
+    const runtime = document.getElementById('details-runtime');
+    const overview = document.getElementById('details-overview');
+
+    // Set background
+    if (details.backdrop_path) {
+      background.style.backgroundImage = `url(${IMAGE_BASE}${details.backdrop_path})`;
+    } else if (details.poster_path) {
+      background.style.backgroundImage = `url(${IMG_PATH}${details.poster_path})`;
+    } else {
+      background.style.backgroundImage = 'linear-gradient(135deg, #1a1a1a, #2d2d2d)';
+    }
+
+    // Set poster
+    posterImg.src = details.poster_path ? `${IMG_PATH}${details.poster_path}` : '/images/no-poster.png';
+
+    // Set title
+    title.textContent = details.title || details.name;
+
+    // Set year
+    const releaseYear = details.release_date ? details.release_date.split('-')[0] : 
+                       details.first_air_date ? details.first_air_date.split('-')[0] : 'N/A';
+    year.innerHTML = `<i class="fas fa-calendar"></i> ${releaseYear}`;
+
+    // Set rating
+    const voteAverage = details.vote_average ? details.vote_average.toFixed(1) : 'N/A';
+    rating.innerHTML = `<i class="fas fa-star"></i> ${voteAverage}`;
+
+    // Set runtime
+    let runtimeText = 'N/A';
+    if (details.runtime) {
+      runtimeText = `${details.runtime} min`;
+    } else if (details.episode_run_time && details.episode_run_time.length > 0) {
+      runtimeText = `${details.episode_run_time[0]} min/ep`;
+    }
+    runtime.innerHTML = `<i class="fas fa-clock"></i> ${runtimeText}`;
+
+    // Set overview
+    overview.textContent = details.overview || 'No overview available.';
+
+    // Check if already favorited
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    const isFavorited = favorites.some(item => item.id === details.id);
+
+    // Set up button event listeners
+    const trailerBtn = document.getElementById('details-trailer-btn');
+    const downloadBtn = document.getElementById('details-download-btn');
+    const favoriteBtn = document.getElementById('details-favorite-btn');
+    const recommendedBtn = document.getElementById('details-recommended-btn');
+    const submitReviewBtn = document.getElementById('submit-review-btn');
+
+    // Set favorite button state
+    if (isFavorited) {
+      favoriteBtn.classList.add('favorited');
+      favoriteBtn.innerHTML = '<i class="fas fa-heart"></i> Favorited';
+    }
+
+    // Trailer button
+    trailerBtn.onclick = () => {
+      const videos = details.videos?.results || [];
+      const trailer = videos.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+      if (trailer) {
+        window.open(`https://www.youtube.com/watch?v=${trailer.key}`, '_blank');
+      } else {
+        showNotification('Trailer not available', 'error');
+      }
+    };
+
+    // Download button (placeholder)
+    downloadBtn.onclick = () => {
+      showNotification('Download feature coming soon!', 'info');
+    };
+
+    // Favorite button
+    favoriteBtn.onclick = () => {
+      // Toggle favorite state
+      favoriteBtn.classList.toggle('favorited');
+      if (favoriteBtn.classList.contains('favorited')) {
+        favoriteBtn.innerHTML = '<i class="fas fa-heart"></i> Favorited';
+        // Save to localStorage
+        saveToFavorites(details);
+        showNotification('Added to favorites!', 'success');
+      } else {
+        favoriteBtn.innerHTML = '<i class="fas fa-heart"></i> Favorite';
+        // Remove from localStorage
+        removeFromFavorites(details.id);
+        showNotification('Removed from favorites', 'info');
+      }
+    };
+
+    // Recommended button (placeholder)
+    recommendedBtn.onclick = () => {
+      showNotification('Recommended feature coming soon!', 'info');
+    };
+
+    // Submit review button (placeholder)
+    submitReviewBtn.onclick = () => {
+      const reviewText = document.getElementById('review-input').value;
+      if (reviewText.trim()) {
+        showNotification('Review submitted successfully!', 'success');
+        document.getElementById('review-input').value = '';
+      } else {
+        showNotification('Please write a review before submitting.', 'error');
+      }
+    };
+
+    // Add this to your showDetailsPage function after setting up other buttons
+  // Create back button if it doesn't exist
+  let backBtn = document.getElementById('details-back-btn');
+  if (!backBtn) {
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'details-header';
+    backBtn = document.createElement('button');
+    backBtn.id = 'details-back-btn';
+    backBtn.className = 'details-back-btn';
+    backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
+    headerDiv.appendChild(backBtn);
+    
+    // Insert at the beginning of details-content
+    const detailsContent = document.querySelector('.details-content');
+    if (detailsContent) {
+      detailsContent.insertBefore(headerDiv, detailsContent.firstChild);
+    }
+  }
+  
+  // Add event listener to back button
+  backBtn.onclick = () => {
+    // Remove the back button when leaving
+    const headerDiv = backBtn.parentElement;
+    if (headerDiv) {
+      headerDiv.remove();
+    }
+    // Go back to previous page
+    const previousPage = localStorage.getItem('currentPage') || 'home';
+    showPage(previousPage);
+  };
+    // Add this after setting the other elements in showDetailsPage
+
+// Set genres
+const genres = details.genres || [];
+const genresContainer = document.getElementById('details-genres');
+if (genresContainer) {
+  genresContainer.innerHTML = genres.map(genre => 
+    `<span class="genre-tag">${genre.name}</span>`
+  ).join('');
+}
+
+// Set actors
+const cast = details.credits?.cast || [];
+const actorsContainer = document.getElementById('details-actors');
+if (actorsContainer && cast.length > 0) {
+  const topCast = cast.slice(0, 5); // Show top 5 actors
+  actorsContainer.innerHTML = `
+    <div class="actors-label">Starring:</div>
+    <div class="actors-list">
+      ${topCast.map(actor => 
+        `<span class="actor-name" data-id="${actor.id}">${actor.name}</span>`
+      ).join('')}
+    </div>
+  `;
+  
+  // Add click event to actor names
+  actorsContainer.querySelectorAll('.actor-name').forEach(actorEl => {
+    actorEl.addEventListener('click', () => {
+      const actorId = parseInt(actorEl.dataset.id);
+      showActorModal(actorId);
+    });
+  });
+}
+
+  } catch (error) {
+    console.error('Error loading details:', error);
+    content.innerHTML = '<p>Error loading details. Please try again.</p>';
+  }
+}
+
+// Add click event to carousel and grid items
+document.addEventListener('click', (e) => {
+  // Check if the clicked element is a carousel or grid item
+  const item = e.target.closest('.carousel-item, .grid-item');
+  if (item) {
+    // Get media id and type from data attributes
+    const mediaId = item.dataset.id;
+    const mediaType = item.dataset.type;
+    if (mediaId && mediaType) {
+      showDetailsPage(mediaId, mediaType);
+    }
+  }
+});
+
+// Helper functions for favorites
+function saveToFavorites(item) {
+  let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  favorites.push(item);
+  localStorage.setItem('favorites', JSON.stringify(favorites));
+  console.log('Added to favorites:', item.title || item.name);
+}
+
+function removeFromFavorites(itemId) {
+  let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  favorites = favorites.filter(item => item.id !== itemId);
+  localStorage.setItem('favorites', JSON.stringify(favorites));
+  console.log('Removed from favorites');
+}
+
+// Function to show the My List page
+// Function to show the My List page
+function showMyListPage() {
+  const mylistPage = document.getElementById('mylist-page');
+  const emptyMessage = document.getElementById('mylist-empty');
+  const content = document.getElementById('mylist-content');
+  const favoritesGrid = document.getElementById('favorites-grid');
+  const recommendationsTrack = document.getElementById('mylist-recommendations-track');
+  
+  // Get favorites from localStorage
+  const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  
+  // Hide all pages and show mylist page
+  document.querySelectorAll('.page').forEach(page => {
+    page.style.display = 'none';
+  });
+  mylistPage.style.display = 'block';
+  
+  if (favorites.length === 0) {
+    // Show empty message
+    emptyMessage.style.display = 'block';
+    content.style.display = 'none';
+  } else {
+    // Show content
+    emptyMessage.style.display = 'none';
+    content.style.display = 'block';
+    
+    // Clear favorites grid
+    favoritesGrid.innerHTML = '';
+    
+    // Populate favorites grid
+    favorites.forEach((item, index) => {
+      const favoriteItem = document.createElement('div');
+      favoriteItem.className = 'favorite-item';
+      favoriteItem.dataset.id = item.id;
+      favoriteItem.dataset.type = item.media_type;
+      
+      const poster = item.poster_path ? IMG_PATH + item.poster_path : '/images/no-poster.png';
+      const title = item.title || item.name;
+      const year = item.release_date ? item.release_date.split('-')[0] : 
+                  item.first_air_date ? item.first_air_date.split('-')[0] : 'N/A';
+      const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+      
+      favoriteItem.innerHTML = `
+        <button class="favorite-delete" data-index="${index}">
+          <i class="fas fa-trash"></i>
+        </button>
+        <img src="${poster}" alt="${title}">
+        <div class="favorite-info">
+          <div class="favorite-title">${title}</div>
+          <div class="favorite-meta">
+            <span>${year}</span>
+            <span><i class="fas fa-star"></i> ${rating}</span>
+          </div>
+        </div>
+      `;
+      
+      // Add click event to favorite item (to show details)
+      favoriteItem.addEventListener('click', (e) => {
+        // If delete button was clicked, don't show details
+        if (e.target.closest('.favorite-delete')) return;
+        
+        showDetailsPage(item.id, item.media_type);
+      });
+      
+      // Add click event to delete button
+      const deleteBtn = favoriteItem.querySelector('.favorite-delete');
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeFromFavorites(item.id);
+        // Refresh the page
+        showMyListPage();
+      });
+      
+      favoritesGrid.appendChild(favoriteItem);
+    });
+    
+    // Show recommendations based on the first favorite's genres
+    if (favorites.length > 0) {
+      const firstFavorite = favorites[0];
+      
+      // Fetch recommendations
+      fetch(`${BASE}/discover/${firstFavorite.media_type}?api_key=${API_KEY}&sort_by=popularity.desc&page=1`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.results && data.results.length > 0) {
+            // Clear recommendations track
+            recommendationsTrack.innerHTML = '';
+            
+            // Add recommendations (limit to 10)
+            data.results.slice(0, 10).forEach(item => {
+              const div = document.createElement('div');
+              div.className = 'carousel-item';
+              div.dataset.id = item.id;
+              div.dataset.type = firstFavorite.media_type;
+              
+              const title = item.title || item.name;
+              const poster = item.poster_path ? IMG_PATH + item.poster_path : '/images/no-poster.png';
+              
+              div.innerHTML = `
+                <img src="${poster}" alt="${title}">
+                <div class="overlay">
+                  <h3>${title}</h3>
+                  <div class="meta">
+                    <span><i class="fas fa-star"></i> ${(item.vote_average || 0).toFixed(1)}</span>
+                    <span><i class="fas fa-calendar"></i> ${item.release_date ? item.release_date.split('-')[0] : item.first_air_date ? item.first_air_date.split('-')[0] : 'N/A'}</span>
+                  </div>
+                </div>
+              `;
+              
+              recommendationsTrack.appendChild(div);
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching recommendations:', error);
+        });
+    }
+  }
+  
+  // Add event listener to clear all button
+  const clearAllBtn = document.getElementById('clear-all-favorites');
+  if (clearAllBtn) {
+    clearAllBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to remove all favorites?')) {
+        localStorage.removeItem('favorites');
+        showMyListPage();
+      }
+    });
+  }
+}
+
+// Update the saveToFavorites function
+function saveToFavorites(item) {
+  let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  
+  // Check if already in favorites
+  const existingIndex = favorites.findIndex(fav => fav.id === item.id);
+  if (existingIndex === -1) {
+    favorites.push(item);
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    console.log('Added to favorites:', item.title || item.name);
+  }
+}
+
+// Update the removeFromFavorites function
+function removeFromFavorites(itemId) {
+  let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  favorites = favorites.filter(item => item.id !== itemId);
+  localStorage.setItem('favorites', JSON.stringify(favorites));
+  console.log('Removed from favorites');
 }
 
 // ===== DISPLAY FUNCTIONS =====
@@ -1200,42 +1660,138 @@ async function loadMovies(page) {
 // Load paginated series
 async function loadSeries(page) {
   seriesCurrentPage = page;
-  const totalPages = await fetchMovies(`${BASE}/tv/popular?api_key=${API_KEY}&page=${page}`, "series-list", 20, true);
+  const totalPages = await fetchMovies(`${BASE}/tv/popular?api_key=${API_KEY}&page=${page}`, "series-list", 20, true, 'tv'); // Add 'tv' as media type
   seriesTotalPages = totalPages;
   updatePagination(seriesPagination, seriesCurrentPage, seriesTotalPages, loadSeries);
 }
 
 // ===== ACTOR MODAL =====
 
-async function showActorModal(id) {
+// Replace your existing showActorModal function with this enhanced version
+async function showActorModal(actorId) {
   try {
-    const res = await fetch(`${BASE}/person/${id}?api_key=${API_KEY}&append_to_response=movie_credits,tv_credits`);
+    const res = await fetch(`${BASE}/person/${actorId}?api_key=${API_KEY}&append_to_response=movie_credits,tv_credits,images`);
     const actor = await res.json();
     
-    if (actorImg) actorImg.src = actor.profile_path ? IMG_PATH + actor.profile_path : '/images/no-avatar.png';
-    if (actorName) actorName.textContent = actor.name || "Unknown";
-    if (actorBio) actorBio.textContent = actor.biography || "No biography available.";
-    if (movieCount) movieCount.textContent = actor.movie_credits?.cast?.length || 0;
-    if (tvCount) tvCount.textContent = actor.tv_credits?.cast?.length || 0;
-    if (awardsCount) awardsCount.textContent = actor.popularity ? Math.round(actor.popularity / 10) : 0;
+    // Create modal if it doesn't exist
+    let actorModal = document.getElementById('actor-modal');
+    if (!actorModal) {
+      actorModal = document.createElement('div');
+      actorModal.id = 'actor-modal';
+      actorModal.className = 'actor-modal';
+      document.body.appendChild(actorModal);
+    }
     
-    if (popularWorks) {
-      popularWorks.innerHTML = "";
-      const works = [...(actor.movie_credits?.cast || []), ...(actor.tv_credits?.cast || [])]
-        .sort((a,b) => (b.popularity||0) - (a.popularity||0)).slice(0,5);
+    // Set modal content
+    actorModal.innerHTML = `
+      <div class="actor-modal-content">
+        <div class="actor-modal-header" style="background-image: url(${actor.images?.profiles[0]?.file_path ? IMAGE_BASE + actor.images.profiles[0].file_path : ''})">
+          <button class="actor-modal-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="actor-modal-body">
+          <div class="actor-modal-info">
+            <div class="actor-modal-poster">
+              <img src="${actor.profile_path ? IMG_PATH + actor.profile_path : '/images/no-avatar.png'}" alt="${actor.name}">
+            </div>
+            <div class="actor-modal-details">
+              <h2 class="actor-modal-name">${actor.name}</h2>
+              <div class="actor-modal-meta">
+                <div class="actor-meta-item">
+                  <i class="fas fa-film"></i>
+                  <span>${actor.movie_credits?.cast?.length || 0} Movies</span>
+                </div>
+                <div class="actor-meta-item">
+                  <i class="fas fa-tv"></i>
+                  <span>${actor.tv_credits?.cast?.length || 0} TV Shows</span>
+                </div>
+                <div class="actor-meta-item">
+                  <i class="fas fa-star"></i>
+                  <span>Popularity: ${Math.round(actor.popularity)}</span>
+                </div>
+                <div class="actor-meta-item">
+                  <i class="fas fa-birthday-cake"></i>
+                  <span>${actor.birthday ? new Date(actor.birthday).toLocaleDateString() : 'Unknown'}</span>
+                </div>
+              </div>
+              <div class="actor-modal-bio">
+                ${actor.biography || 'No biography available.'}
+              </div>
+            </div>
+          </div>
+          
+          <div class="actor-modal-works">
+            <h3>Known For</h3>
+            <div class="actor-works-grid" id="actor-works-grid">
+              <!-- Works will be populated here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Populate known works
+    const worksGrid = document.getElementById('actor-works-grid');
+    if (worksGrid) {
+      // Combine movie and TV credits, sort by popularity, and take top 10
+      const allWorks = [
+        ...(actor.movie_credits?.cast || []).map(movie => ({...movie, media_type: 'movie'})),
+        ...(actor.tv_credits?.cast || []).map(tv => ({...tv, media_type: 'tv'}))
+      ];
       
-      works.forEach(work => {
-        const div = document.createElement("div");
-        div.classList.add("popular-work");
-        div.textContent = work.title || work.name || "Untitled";
-        popularWorks.appendChild(div);
+      const knownWorks = allWorks
+        .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+        .slice(0, 10);
+      
+      worksGrid.innerHTML = knownWorks.map(work => {
+        const title = work.title || work.name;
+        const poster = work.poster_path ? IMG_PATH + work.poster_path : '/images/no-poster.png';
+        const character = work.character ? `as ${work.character}` : '';
+        
+        return `
+          <div class="actor-work-item" data-id="${work.id}" data-type="${work.media_type}">
+            <img src="${poster}" alt="${title}">
+            <div class="actor-work-title">
+              ${title}
+              ${character ? `<small>${character}</small>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      // Add click events to work items
+      worksGrid.querySelectorAll('.actor-work-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const workId = parseInt(item.dataset.id);
+          const workType = item.dataset.type;
+          
+          // Close actor modal
+          actorModal.style.display = 'none';
+          
+          // Show details page for the selected work
+          showDetailsPage(workId, workType);
+        });
       });
     }
     
-    if (actorModal) actorModal.style.display = "block";
+    // Show modal
+    actorModal.style.display = 'block';
+    
+    // Add close event
+    const closeBtn = actorModal.querySelector('.actor-modal-close');
+    closeBtn.addEventListener('click', () => {
+      actorModal.style.display = 'none';
+    });
+    
+    // Close on background click
+    actorModal.addEventListener('click', (e) => {
+      if (e.target === actorModal) {
+        actorModal.style.display = 'none';
+      }
+    });
+    
   } catch (error) {
     console.error("Error fetching actor details:", error);
-    if (actorModal) actorModal.innerHTML = "<p>Unable to load actor details. Please try again.</p>";
+    showNotification('Unable to load actor details. Please try again.', 'error');
   }
 }
 
@@ -1341,6 +1897,7 @@ if (applyFiltersBtn) applyFiltersBtn.addEventListener('click', () => {
   }
 });
 
+// Fix the loadGenres function
 async function loadGenres(page) {
   currentPage = page;
   let endpoint = `${BASE}/discover/${selectedType}?api_key=${API_KEY}&page=${page}&sort_by=${selectedSort}`;
@@ -1350,7 +1907,7 @@ async function loadGenres(page) {
   if (selectedCountry) endpoint += `&with_origin_country=${selectedCountry}`;
   
   try {
-    const totalPages = await fetchMovies(endpoint, 'genres-results', 20, true);
+    const totalPages = await fetchMovies(endpoint, 'genres-results', 20, true, selectedType); // Pass selectedType
     totalPagesGlobal = totalPages;
     updatePagination(genresPagination, currentPage, totalPagesGlobal, loadGenres);
   } catch (err) {
@@ -2287,49 +2844,134 @@ function displaySearchResults(results, query) {
   });
 }
 
+const newsletterPopup = document.querySelector('#newsletter-popup');
+
+// Replace the existing newsletter form handler
 if (newsletterForm) {
   newsletterForm.addEventListener("submit", (e) => { 
     e.preventDefault(); 
-    alert("Subscribed successfully!"); 
+    
+    // Create a success popup
+    const popup = document.createElement('div');
+    popup.className = 'newsletter-popup';
+    popup.innerHTML = `
+      <div class="popup-content">
+        <div class="popup-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h3>Subscription Successful!</h3>
+        <p>Thank you for subscribing to our newsletter.</p>
+        <button class="popup-close-btn">Close</button>
+      </div>
+    `;
+    
+    // Add popup to the page
+    document.body.appendChild(popup);
+    
+    // Show popup with animation
+    setTimeout(() => {
+      popup.classList.add('show');
+    }, 10);
+    
+    // Add close button functionality
+    const closeBtn = popup.querySelector('.popup-close-btn');
+    closeBtn.addEventListener('click', () => {
+      popup.classList.remove('show');
+      setTimeout(() => {
+        document.body.removeChild(popup);
+      }, 300);
+    });
+    
+    // Auto close after 3 seconds
+    setTimeout(() => {
+      if (document.body.contains(popup)) {
+        popup.classList.remove('show');
+        setTimeout(() => {
+          if (document.body.contains(popup)) {
+            document.body.removeChild(popup);
+          }
+        }, 300);
+      }
+    }, 3000);
+    
+    // Reset form
+    newsletterForm.reset();
   });
 }
 
 // In index.js, replace the existing displaySearchSuggestions function with this:
-function displaySearchSuggestions(results) {
-  if (!searchSuggestions) return;
+function displaySearchResults(results, query) {
+  if (!searchResultsContainer) return;
   
-  searchSuggestions.innerHTML = '';
+  searchResultsContainer.innerHTML = '';
+  
+  if (results.length === 0) {
+    searchResultsContainer.innerHTML = '<p>No results found.</p>';
+    return;
+  }
   
   results.forEach(item => {
-    const suggestionItem = document.createElement('div');
-    suggestionItem.classList.add('suggestion-item');
+    const resultItem = document.createElement('div');
+    resultItem.classList.add('search-result-item');
     
     const title = item.title || item.name || 'Unknown';
-    const type = item.media_type === 'movie' ? 'Movie' : item.media_type === 'tv' ? 'TV Show' : item.media_type === 'person' ? 'Person' : 'Unknown';
+    const type = item.media_type === 'movie' ? 'Movie' : 
+             item.media_type === 'tv' ? 'TV Show' : 
+             item.media_type === 'person' ? 'Person' : 'Unknown';
+    const date = item.release_date || item.first_air_date || 'N/A';
+    const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+    const description = item.overview || 'No description available.';
     
     // Determine image path based on media type
-    let imagePath = 'https://via.placeholder.com/50x75?text=No+Image'; // Fallback placeholder
+    let imagePath = 'https://via.placeholder.com/300x450?text=No+Image'; // Fallback placeholder
     if (item.media_type === 'person' && item.profile_path) {
-      imagePath = `https://image.tmdb.org/t/p/w92${item.profile_path}`; // Small profile thumbnail
+      imagePath = `https://image.tmdb.org/t/p/w185${item.profile_path}`; // Medium profile thumbnail
     } else if ((item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path) {
-      imagePath = `https://image.tmdb.org/t/p/w92${item.poster_path}`; // Small poster thumbnail (w92 is efficient)
+      imagePath = `https://image.tmdb.org/t/p/w185${item.poster_path}`; // Medium poster thumbnail (w185 is good for search results)
     }
     
-    suggestionItem.innerHTML = `
-      <img src="${imagePath}" alt="${title} poster" class="suggestion-poster">
-      <div class="suggestion-info">
-        <div class="suggestion-title">${title}</div>
-        <div class="suggestion-type">${type}</div>
-      </div>
-    `;
+    // Add data attributes for click events
+    resultItem.dataset.id = item.id;
+    resultItem.dataset.type = item.media_type;
     
-    // Click to select suggestion (existing logic)
-    suggestionItem.addEventListener('click', () => {
-      if (searchInput) searchInput.value = title;
-      handleSearchSubmit(new Event('submit'));
+    // Different display for people vs movies/tv
+    if (item.media_type === 'person') {
+      resultItem.innerHTML = `
+        <div class="result-person">
+          <div class="result-image" style="background-image: url(${imagePath})"></div>
+          <div class="result-info">
+            <h3>${title}</h3>
+            <div class="result-meta">
+              <span>${type}</span>
+              <span>Popularity: ${Math.round(item.popularity)}</span>
+            </div>
+            <p>${description}</p>
+          </div>
+        </div>
+      `;
+    } else {
+      resultItem.innerHTML = `
+        <div class="result-media">
+          <div class="result-image" style="background-image: url(${imagePath})"></div>
+          <div class="result-info">
+            <h3>${title}</h3>
+            <div class="result-meta">
+              <span>${type}</span>
+              <span>${date}</span>
+              <span><i class="fas fa-star"></i> ${rating}</span>
+            </div>
+            <p>${description}</p>
+          </div>
+        </div>
+      `;
+    }
+    
+    // Add click event to open details
+    resultItem.addEventListener('click', () => {
+      showDetailsPage(item.id, item.media_type);
     });
     
-    searchSuggestions.appendChild(suggestionItem);
+    searchResultsContainer.appendChild(resultItem);
   });
 }
 
@@ -2436,4 +3078,18 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Show the saved page
   showPage(savedPage);
+});
+
+// Add click event to carousel and grid items
+document.addEventListener('click', (e) => {
+  // Check if the clicked element is a carousel or grid item
+  const item = e.target.closest('.carousel-item, .grid-item, .top-10-item, .favorite-item, .actor-work-item');
+  if (item) {
+    // Get media id and type from data attributes
+    const mediaId = item.dataset.id;
+    const mediaType = item.dataset.type;
+    if (mediaId && mediaType) {
+      showDetailsPage(mediaId, mediaType);
+    }
+  }
 });
