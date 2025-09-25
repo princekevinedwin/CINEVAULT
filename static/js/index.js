@@ -340,6 +340,24 @@ function showPage(page) {
   } else if (page === 'search-results') {
     // Search results page is handled by search functionality
   }
+   else if (page === 'search-results') {
+  // Search results page is handled by search functionality
+  // Add back button to search results page
+  const searchResultsPage = document.getElementById('search-results-page');
+  if (searchResultsPage) {
+    // Check if back button already exists
+    if (!searchResultsPage.querySelector('.search-back-btn')) {
+      const backBtn = document.createElement('button');
+      backBtn.className = 'search-back-btn';
+      backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
+      backBtn.addEventListener('click', () => {
+        const previousPage = localStorage.getItem('currentPage') || 'home';
+        showPage(previousPage);
+      });
+      searchResultsPage.insertBefore(backBtn, searchResultsPage.firstChild);
+    }
+  }
+}
 }
 
   const navlinks = document.querySelectorAll(".navmobile");
@@ -412,6 +430,7 @@ async function fetchSearchSuggestions(query) {
 }
 
 // Display search suggestions
+// Replace your existing displaySearchSuggestions function with this:
 function displaySearchSuggestions(results) {
   if (!searchSuggestions) return;
   
@@ -422,9 +441,20 @@ function displaySearchSuggestions(results) {
     suggestionItem.classList.add('suggestion-item');
     
     const title = item.title || item.name || 'Unknown';
-    const type = item.media_type === 'movie' ? 'Movie' : item.media_type === 'tv' ? 'TV Show' : item.media_type === 'person' ? 'Person' : 'Unknown';
+    const type = item.media_type === 'movie' ? 'Movie' : 
+             item.media_type === 'tv' ? 'TV Show' : 
+             item.media_type === 'person' ? 'Person' : 'Unknown';
+    
+    // Determine image path
+    let imagePath = '/images/no-poster.png'; // Fallback image
+    if (item.media_type === 'person' && item.profile_path) {
+      imagePath = IMG_PATH + item.profile_path;
+    } else if ((item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path) {
+      imagePath = IMG_PATH + item.poster_path;
+    }
     
     suggestionItem.innerHTML = `
+      <img class="suggestion-poster" src="${imagePath}" alt="${title}">
       <div class="suggestion-info">
         <div class="suggestion-title">${title}</div>
         <div class="suggestion-type">${type}</div>
@@ -885,6 +915,8 @@ async function fetchActors() {
 // Function to show details page
 // Replace your existing showDetailsPage function with this enhanced version
 async function showDetailsPage(mediaId, mediaType) {
+  console.log('showDetailsPage called with:', mediaId, mediaType);
+  
   // Show loading state
   const detailsPage = document.getElementById('details-page');
   const background = document.getElementById('details-background');
@@ -903,52 +935,52 @@ async function showDetailsPage(mediaId, mediaType) {
   try {
     // Fetch the details
     const details = await fetchDetails(mediaId, mediaType);
+    console.log('Fetched details:', details);
     if (!details) {
       content.innerHTML = '<p>Unable to load details. Please try again.</p>';
       return;
     }
 
     // Populate the details page
-    // Update the details-top section HTML
-content.innerHTML = `
-  <!-- Top Section: Poster and Title -->
-  <div class="details-top">
-    <div class="details-poster">
-      <img id="details-poster-img" src="" alt="">
-    </div>
-    <div class="details-title-section">
-      <h1 id="details-title"></h1>
-      <div class="details-meta">
-        <span id="details-year"><i class="fas fa-calendar"></i> </span>
-        <span id="details-rating"><i class="fas fa-star"></i> </span>
-        <span id="details-runtime"><i class="fas fa-clock"></i> </span>
+    content.innerHTML = `
+      <!-- Top Section: Poster and Title -->
+      <div class="details-top">
+        <div class="details-poster">
+          <img id="details-poster-img" src="" alt="">
+        </div>
+        <div class="details-title-section">
+          <h1 id="details-title"></h1>
+          <div class="details-meta">
+            <span id="details-year"><i class="fas fa-calendar"></i> </span>
+            <span id="details-rating"><i class="fas fa-star"></i> </span>
+            <span id="details-runtime"><i class="fas fa-clock"></i> </span>
+          </div>
+          <div class="details-genres" id="details-genres"></div>
+          <div class="details-actors" id="details-actors"></div>
+        </div>
       </div>
-      <div class="details-genres" id="details-genres"></div>
-      <div class="details-actors" id="details-actors"></div>
-    </div>
-  </div>
-  
-  <!-- Buttons -->
-  <div class="details-buttons">
-    <button id="details-trailer-btn" class="details-btn"><i class="fas fa-play"></i> Trailer</button>
-    <button id="details-download-btn" class="details-btn"><i class="fas fa-download"></i> Download</button>
-    <button id="details-favorite-btn" class="details-btn"><i class="fas fa-heart"></i> Favorite</button>
-    <button id="details-recommended-btn" class="details-btn"><i class="fas fa-thumbs-up"></i> Recommended</button>
-  </div>
-  
-  <!-- Summary -->
-  <div class="details-summary">
-    <h2>Summary</h2>
-    <p id="details-overview"></p>
-  </div>
-  
-  <!-- Review Input -->
-  <div class="details-review">
-    <h2>Review</h2>
-    <textarea id="review-input" placeholder="Write your review here..."></textarea>
-    <button id="submit-review-btn" class="details-btn">Submit Review</button>
-  </div>
-`;
+      
+      <!-- Buttons -->
+      <div class="details-buttons">
+        <button id="details-trailer-btn" class="details-btn"><i class="fas fa-play"></i> Trailer</button>
+        <button id="details-download-btn" class="details-btn"><i class="fas fa-download"></i> Download</button>
+        <button id="details-favorite-btn" class="details-btn"><i class="fas fa-heart"></i> Favorite</button>
+        <button id="details-recommended-btn" class="details-btn"><i class="fas fa-thumbs-up"></i> Recommended</button>
+      </div>
+      
+      <!-- Summary -->
+      <div class="details-summary">
+        <h2>Summary</h2>
+        <p id="details-overview"></p>
+      </div>
+      
+      <!-- Review Input -->
+      <div class="details-review">
+        <h2>Review</h2>
+        <textarea id="review-input" placeholder="Write your review here..."></textarea>
+        <button id="submit-review-btn" class="details-btn">Submit Review</button>
+      </div>
+    `;
 
     // Get elements
     const posterImg = document.getElementById('details-poster-img');
@@ -993,6 +1025,38 @@ content.innerHTML = `
 
     // Set overview
     overview.textContent = details.overview || 'No overview available.';
+
+    // Set genres
+    const genres = details.genres || [];
+    const genresContainer = document.getElementById('details-genres');
+    if (genresContainer) {
+      genresContainer.innerHTML = genres.map(genre => 
+        `<span class="genre-tag">${genre.name}</span>`
+      ).join('');
+    }
+
+    // Set actors
+    const cast = details.credits?.cast || [];
+    const actorsContainer = document.getElementById('details-actors');
+    if (actorsContainer && cast.length > 0) {
+      const topCast = cast.slice(0, 5); // Show top 5 actors
+      actorsContainer.innerHTML = `
+        <div class="actors-label">Starring:</div>
+        <div class="actors-list">
+          ${topCast.map(actor => 
+            `<span class="actor-name" data-id="${actor.id}">${actor.name}</span>`
+          ).join('')}
+        </div>
+      `;
+      
+      // Add click event to actor names
+      actorsContainer.querySelectorAll('.actor-name').forEach(actorEl => {
+        actorEl.addEventListener('click', () => {
+          const actorId = parseInt(actorEl.dataset.id);
+          showActorModal(actorId);
+        });
+      });
+    }
 
     // Check if already favorited
     const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
@@ -1060,69 +1124,35 @@ content.innerHTML = `
       }
     };
 
-    // Add this to your showDetailsPage function after setting up other buttons
-  // Create back button if it doesn't exist
-  let backBtn = document.getElementById('details-back-btn');
-  if (!backBtn) {
-    const headerDiv = document.createElement('div');
-    headerDiv.className = 'details-header';
-    backBtn = document.createElement('button');
-    backBtn.id = 'details-back-btn';
-    backBtn.className = 'details-back-btn';
-    backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
-    headerDiv.appendChild(backBtn);
+    // Add back button
+    let backBtn = document.getElementById('details-back-btn');
+    if (!backBtn) {
+      const headerDiv = document.createElement('div');
+      headerDiv.className = 'details-header';
+      backBtn = document.createElement('button');
+      backBtn.id = 'details-back-btn';
+      backBtn.className = 'details-back-btn';
+      backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
+      headerDiv.appendChild(backBtn);
+      
+      // Insert at the beginning of details-content
+      const detailsContent = document.querySelector('.details-content');
+      if (detailsContent) {
+        detailsContent.insertBefore(headerDiv, detailsContent.firstChild);
+      }
+    }
     
-    // Insert at the beginning of details-content
-    const detailsContent = document.querySelector('.details-content');
-    if (detailsContent) {
-      detailsContent.insertBefore(headerDiv, detailsContent.firstChild);
-    }
-  }
-  
-  // Add event listener to back button
-  backBtn.onclick = () => {
-    // Remove the back button when leaving
-    const headerDiv = backBtn.parentElement;
-    if (headerDiv) {
-      headerDiv.remove();
-    }
-    // Go back to previous page
-    const previousPage = localStorage.getItem('currentPage') || 'home';
-    showPage(previousPage);
-  };
-    // Add this after setting the other elements in showDetailsPage
-
-// Set genres
-const genres = details.genres || [];
-const genresContainer = document.getElementById('details-genres');
-if (genresContainer) {
-  genresContainer.innerHTML = genres.map(genre => 
-    `<span class="genre-tag">${genre.name}</span>`
-  ).join('');
-}
-
-// Set actors
-const cast = details.credits?.cast || [];
-const actorsContainer = document.getElementById('details-actors');
-if (actorsContainer && cast.length > 0) {
-  const topCast = cast.slice(0, 5); // Show top 5 actors
-  actorsContainer.innerHTML = `
-    <div class="actors-label">Starring:</div>
-    <div class="actors-list">
-      ${topCast.map(actor => 
-        `<span class="actor-name" data-id="${actor.id}">${actor.name}</span>`
-      ).join('')}
-    </div>
-  `;
-  
-  // Add click event to actor names
-  actorsContainer.querySelectorAll('.actor-name').forEach(actorEl => {
-    actorEl.addEventListener('click', () => {
-      const actorId = parseInt(actorEl.dataset.id);
-      showActorModal(actorId);
-    });
-  });
-}
+    // Add event listener to back button
+    backBtn.onclick = () => {
+      // Remove the back button when leaving
+      const headerDiv = backBtn.parentElement;
+      if (headerDiv) {
+        headerDiv.remove();
+      }
+      // Go back to previous page
+      const previousPage = localStorage.getItem('currentPage') || 'home';
+      showPage(previousPage);
+    };
 
   } catch (error) {
     console.error('Error loading details:', error);
@@ -1145,11 +1175,21 @@ document.addEventListener('click', (e) => {
 });
 
 // Helper functions for favorites
+// Update the saveToFavorites function
 function saveToFavorites(item) {
   let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-  favorites.push(item);
-  localStorage.setItem('favorites', JSON.stringify(favorites));
-  console.log('Added to favorites:', item.title || item.name);
+  
+  // Check if already in favorites
+  const existingIndex = favorites.findIndex(fav => fav.id === item.id);
+  if (existingIndex === -1) {
+    // Ensure we have media_type
+    if (!item.media_type) {
+      item.media_type = item.title ? 'movie' : 'tv';
+    }
+    favorites.push(item);
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    console.log('Added to favorites:', item.title || item.name);
+  }
 }
 
 function removeFromFavorites(itemId) {
@@ -1160,7 +1200,7 @@ function removeFromFavorites(itemId) {
 }
 
 // Function to show the My List page
-// Function to show the My List page
+// Replace your existing showMyListPage function with this:
 function showMyListPage() {
   const mylistPage = document.getElementById('mylist-page');
   const emptyMessage = document.getElementById('mylist-empty');
@@ -1221,6 +1261,7 @@ function showMyListPage() {
         // If delete button was clicked, don't show details
         if (e.target.closest('.favorite-delete')) return;
         
+        // Show details page directly
         showDetailsPage(item.id, item.media_type);
       });
       
@@ -2798,6 +2839,7 @@ function initSearch() {
 }
 // ===== NEWSLETTER FORM =====
 
+// Replace your existing performSearch function with this:
 async function performSearch(query) {
   console.log(`Searching for: ${query}`);
   try {
@@ -2809,15 +2851,26 @@ async function performSearch(query) {
     const data = await res.json();
     
     searchResultsContainer.innerHTML = '';
+    
+    // Add back button
+    const backBtn = document.createElement('button');
+    backBtn.className = 'search-back-btn';
+    backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
+    backBtn.addEventListener('click', () => {
+      const previousPage = localStorage.getItem('currentPage') || 'home';
+      showPage(previousPage);
+    });
+    searchResultsContainer.appendChild(backBtn);
+    
     if (data.results && data.results.length > 0) {
       const filtered = data.results.filter(item => item.media_type === 'movie' || item.media_type === 'tv');
       if (filtered.length > 0) {
         displaySearchResults(filtered, query);
       } else {
-        searchResultsContainer.innerHTML = '<p>No movies or series found for this query.</p>';
+        searchResultsContainer.innerHTML += '<p>No movies or series found for this query.</p>';
       }
     } else {
-      searchResultsContainer.innerHTML = '<p>No movies or series found.</p>';
+      searchResultsContainer.innerHTML += '<p>No movies or series found.</p>';
     }
   } catch (error) {
     console.error('Search error:', error);
@@ -2981,6 +3034,7 @@ const refreshBtn = document.getElementById('main-refresh-btn');
 const refreshTime = document.getElementById('refresh-time');
 
 // Format timestamp in WAT (Africa/Lagos)
+// Replace the existing refresh time functionality with this:
 function formatTimestamp(date) {
   return date.toLocaleString('en-US', {
     timeZone: 'Africa/Lagos',
@@ -3002,12 +3056,8 @@ if (refreshBtn && refreshTime) {
     console.log('Refresh clicked at', formatTimestamp(new Date()));
     lastRefreshTimestamp = new Date(); // Store timestamp
     refreshTime.textContent = formatTimestamp(lastRefreshTimestamp);
-    // Your existing news refresh logic here (e.g., fetchNewsData, displaySocialMediaNews, etc.)
-    // Example placeholder (replace with your actual fetch calls):
-    // fetchNewsData().then(() => {
-    //   displaySocialMediaNews();
-    //   // Other display functions for all-general-news, actors-grid, etc.
-    // });
+    // Your existing news refresh logic here
+    refreshAllNews();
   });
 } else {
   console.error('Refresh button or time element missing');
@@ -3078,6 +3128,23 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Show the saved page
   showPage(savedPage);
+});
+
+// Replace the existing mobile menu click handler with this:
+document.addEventListener('click', (e) => {
+  // Existing search suggestions handler
+  if (searchInput && searchSuggestions && !searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+    searchSuggestions.innerHTML = '';
+    searchSuggestions.classList.remove('active');
+  }
+
+  // Mobile menu handler
+  const menuToggle = document.getElementById('menu-toggle');
+  const menuClass = document.querySelector('.menu-class');
+  
+  if (menuToggle && menuClass && menuToggle.checked && !menuClass.contains(e.target) && !menuToggle.contains(e.target)) {
+    menuToggle.checked = false;
+  }
 });
 
 // Add click event to carousel and grid items

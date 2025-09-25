@@ -2707,7 +2707,7 @@ html, body { height: 100%; font-family: Inter, ui-sans-serif, system-ui, -apple-
 }
 
 .about-section{
-  background-image: url(/CINEVAULT/static/images/red-question-mark-background-black-question-marks-which-lying-table-3d-render_120871-641.jpg);
+  background-image: url(/static/images/red-question-mark-background-black-question-marks-which-lying-table-3d-render_120871-641.jpg);
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -4149,4 +4149,79 @@ html, body { height: 100%; font-family: Inter, ui-sans-serif, system-ui, -apple-
   .result-info h3 {
     font-size: 1.1rem;
   }
+}
+
+/* Search Suggestions */
+#search-suggestions {
+  position: absolute;
+  right: 0;
+  width: 80%;
+  background: #111;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 20rem;
+  z-index: 1000;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.suggestion-item:hover {
+  background: rgba(229,9,20,0.3);
+}
+
+.suggestion-poster {
+  width: 50px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.suggestion-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.suggestion-title {
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggestion-type {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+/* Search Back Button */
+.search-back-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.search-back-btn:hover {
+  background: #b00710;
 }
