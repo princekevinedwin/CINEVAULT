@@ -1112,11 +1112,18 @@ function loadThisDayInHistory() {
 }
 
 // Update the showPage function to initialize the data when the home page is loaded
-// Add to your showPage function
+// Add this to your existing showPage function
 function showPage(page) {
   // Save current page to localStorage
   localStorage.setItem('currentPage', page);
   currentPageName = page;
+
+  const protectedPages = ['home', 'movies', 'series', 'genres', 'mylist', 'news-updates', 'community', 'hall-of-fame', 'profile', 'settings'];
+  
+  if (protectedPages.includes(page) && !authState.isLoggedIn()) {
+    showPage('login');
+    return;
+  }
   
   // Hide all pages
   document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
@@ -1129,10 +1136,6 @@ function showPage(page) {
   navLinks.forEach(l => l.classList.remove('active'));
   const activeLink = document.querySelector(`.nav-link[data-page="${page}"]`);
   if (activeLink) activeLink.classList.add('active');
-
-  navlinks.forEach(l => l.classList.remove('active'));
-  const activeLinks = document.querySelector(`.navmobile[data-page="${page}"]`);
-  if (activeLinks) activeLinks.classList.add('active');
 
   // Page-specific initialization
   const today = new Date().toISOString().split('T')[0];
@@ -1195,6 +1198,21 @@ function showPage(page) {
   } else if (page === 'hall-of-fame') {
     console.log('Loading hall of fame page');
     initHallOfFamePage();
+  } else if (page === 'profile') {
+    console.log('Loading profile page');
+    updateProfilePage();
+  } else if (page === 'settings') {
+    console.log('Loading settings page');
+    updateSettingsPage();
+  } else if (page === 'login') {
+    console.log('Loading login page');
+    // No additional initialization needed for login page
+  } else if (page === 'signup') {
+    console.log('Loading signup page');
+    // No additional initialization needed for signup page
+  } else if (page === 'logout') {
+    console.log('Loading logout page');
+    // No additional initialization needed for logout page
   } else if (page === 'search-results') {
     // Check if we have stored search results
     const storedQuery = localStorage.getItem('lastSearchQuery');
@@ -2138,7 +2156,7 @@ async function fetchActors() {
 }
 
 // Function to show details page
-// Update the showDetailsPage function to save genre_ids
+// Replace your existing showDetailsPage function with this enhanced version
 async function showDetailsPage(mediaId, mediaType) {
   console.log('showDetailsPage called with:', mediaId, mediaType);
   
@@ -2165,6 +2183,11 @@ async function showDetailsPage(mediaId, mediaType) {
       content.innerHTML = '<p>Unable to load details. Please try again.</p>';
       return;
     }
+
+    // Get user's current rating for this item
+    const user = authState.getCurrentUser();
+    const userRating = user && user.ratings ? user.ratings[`${mediaType}-${mediaId}`] : null;
+    const currentRating = userRating ? userRating.rating : 0;
 
     // Remove any existing back button
     const existingBackBtn = document.getElementById('details-back-btn');
@@ -2202,6 +2225,32 @@ async function showDetailsPage(mediaId, mediaType) {
         <button id="details-download-btn" class="details-btn"><i class="fas fa-download"></i> Download</button>
         <button id="details-favorite-btn" class="details-btn"><i class="fas fa-heart"></i> Favorite</button>
         <button id="details-recommended-btn" class="details-btn"><i class="fas fa-thumbs-up"></i> Recommended</button>
+      </div>
+      
+      <!-- Ratings Box -->
+      <div class="details-rating">
+        <h2>Your Rating</h2>
+        <div class="star-rating-container">
+          <div class="star-rating" id="user-rating">
+            <i class="far fa-star" data-rating="1"></i>
+            <i class="far fa-star" data-rating="2"></i>
+            <i class="far fa-star" data-rating="3"></i>
+            <i class="far fa-star" data-rating="4"></i>
+            <i class="far fa-star" data-rating="5"></i>
+          </div>
+          <p id="rating-text">${currentRating > 0 ? `You rated this ${currentRating} star${currentRating !== 1 ? 's' : ''}` : 'Click to rate'}</p>
+        </div>
+      </div>
+      
+      <!-- Country Information -->
+      <div class="details-country">
+        <h2>Country</h2>
+        <div class="country-info">
+          <i class="fas fa-globe-americas"></i>
+          <p id="movie-country">${details.production_countries && details.production_countries.length > 0 
+            ? details.production_countries.map(c => c.name).join(', ') 
+            : 'Not available'}</p>
+        </div>
       </div>
       
       <!-- Summary -->
@@ -2342,6 +2391,9 @@ async function showDetailsPage(mediaId, mediaType) {
         };
         saveToFavorites(favoriteItem);
         showNotification('Added to favorites!', 'success');
+        
+        // Add activity
+        addActivity('favorite', `You added "${details.title || details.name}" to your favorites`);
       } else {
         favoriteBtn.innerHTML = '<i class="fas fa-heart"></i> Favorite';
         // Remove from localStorage
@@ -2361,10 +2413,79 @@ async function showDetailsPage(mediaId, mediaType) {
       if (reviewText.trim()) {
         showNotification('Review submitted successfully!', 'success');
         document.getElementById('review-input').value = '';
+        
+        // Add activity
+        addActivity('review', `You wrote a review for "${details.title || details.name}"`);
       } else {
         showNotification('Please write a review before submitting.', 'error');
       }
     };
+
+    // Set up star rating system
+    const stars = document.querySelectorAll('#user-rating i');
+    const ratingText = document.getElementById('rating-text');
+    let selectedRating = currentRating;
+
+    // Initialize stars based on current rating
+    stars.forEach((star, index) => {
+      if (index < currentRating) {
+        star.classList.remove('far');
+        star.classList.add('fas');
+      }
+    });
+
+    // Add click event to stars
+    stars.forEach(star => {
+      star.addEventListener('click', () => {
+        const rating = parseInt(star.dataset.rating);
+        selectedRating = rating;
+        
+        // Update star display
+        stars.forEach((s, index) => {
+          if (index < rating) {
+            s.classList.remove('far');
+            s.classList.add('fas');
+          } else {
+            s.classList.remove('fas');
+            s.classList.add('far');
+          }
+        });
+        
+        // Update rating text
+        ratingText.textContent = `You rated this ${rating} star${rating !== 1 ? 's' : ''}`;
+        
+        // Save rating to user data
+        saveUserRating(details.id, mediaType, rating);
+        
+        // Add activity
+        addActivity('review', `You rated "${details.title || details.name}" ${rating} star${rating !== 1 ? 's' : ''}`);
+      });
+      
+      // Add hover effect
+      star.addEventListener('mouseenter', () => {
+        const rating = parseInt(star.dataset.rating);
+        
+        stars.forEach((s, index) => {
+          if (index < rating) {
+            s.style.color = '#f5c518';
+          } else {
+            s.style.color = '';
+          }
+        });
+      });
+    });
+
+    // Reset star colors when mouse leaves rating container
+    const ratingContainer = document.querySelector('.star-rating-container');
+    ratingContainer.addEventListener('mouseleave', () => {
+      stars.forEach((s, index) => {
+        if (index < selectedRating) {
+          s.style.color = '#f5c518';
+        } else {
+          s.style.color = '';
+        }
+      });
+    });
 
     // Add back button
     backBtn.onclick = () => {
@@ -2379,6 +2500,28 @@ async function showDetailsPage(mediaId, mediaType) {
     console.error('Error loading details:', error);
     content.innerHTML = '<p>Error loading details. Please try again.</p>';
   }
+}
+
+// Save user rating
+function saveUserRating(itemId, itemType, rating) {
+  const user = authState.getCurrentUser();
+  if (!user) return;
+  
+  if (!user.ratings) user.ratings = {};
+  
+  user.ratings[`${itemType}-${itemId}`] = {
+    rating: rating,
+    timestamp: new Date().toISOString()
+  };
+  
+  localStorage.setItem('currentUser', JSON.stringify(user));
+  
+  // Update statistics
+  if (!user.stats) user.stats = { reviewsWritten: 0 };
+  user.stats.reviewsWritten = (user.stats.reviewsWritten || 0) + 1;
+  localStorage.setItem('currentUser', JSON.stringify(user));
+  
+  showNotification('Rating saved!', 'success');
 }
 
 // Add click event to carousel and grid items
@@ -4853,3 +4996,607 @@ document.addEventListener('click', (e) => {
     }
   }
 });
+
+// Add this to your index.js file
+
+// Login state management
+const authState = {
+  isLoggedIn: () => localStorage.getItem('isLoggedIn') === 'true',
+  login: (userData) => {
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+  },
+  logout: () => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('currentUser');
+  },
+  getCurrentUser: () => {
+    const userData = localStorage.getItem('currentUser');
+    return userData ? JSON.parse(userData) : null;
+  }
+};
+
+// Login form handler
+document.addEventListener('DOMContentLoaded', () => {
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      
+      // Simple authentication (in real app, this would be a server request)
+      if (email && password) {
+        const userData = {
+          name: email.split('@')[0], // Simple name from email
+          email: email,
+          joinDate: new Date().toISOString()
+        };
+        
+        authState.login(userData);
+        showPage('home');
+      }
+    });
+  }
+  
+  // Signup form handler
+  const signupForm = document.getElementById('signup-form');
+  if (signupForm) {
+    signupForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('signup-name').value;
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+      
+      if (name && email && password) {
+        const userData = {
+          name: name,
+          email: email,
+          joinDate: new Date().toISOString()
+        };
+        
+        authState.login(userData);
+        showPage('home');
+      }
+    });
+  }
+  
+  // Logout handler
+  const logoutLinks = document.querySelectorAll('[data-page="logout"]');
+  logoutLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      authState.logout();
+      showPage('logout');
+    });
+  });
+  
+  // Show login/signup links
+  const showSignup = document.getElementById('show-signup');
+  const showLogin = document.getElementById('show-login');
+  
+  if (showSignup) {
+    showSignup.addEventListener('click', (e) => {
+      e.preventDefault();
+      showPage('signup');
+    });
+  }
+  
+  if (showLogin) {
+    showLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      showPage('login');
+    });
+  }
+});
+
+// Add to your index.js file
+
+// Update profile page with user data
+function updateProfilePage() {
+  const user = authState.getCurrentUser();
+  if (!user) return;
+  
+  // Update profile information
+  document.getElementById('profile-name').textContent = user.name || 'User Name';
+  document.getElementById('profile-email').textContent = user.email || 'user@example.com';
+  
+  // Format join date
+  if (user.joinDate) {
+    const joinDate = new Date(user.joinDate);
+    const options = { year: 'numeric', month: 'long' };
+    document.getElementById('profile-member-since').textContent = 
+      `Member since ${joinDate.toLocaleDateString(undefined, options)}`;
+  }
+  
+  // Update profile picture if available
+  if (user.profilePicture) {
+    document.getElementById('profile-avatar').src = user.profilePicture;
+  }
+  
+  // Update statistics
+  updateProfileStatistics();
+  
+  // Update activity
+  updateProfileActivity();
+}
+
+// Profile picture upload
+document.addEventListener('DOMContentLoaded', () => {
+  const editAvatarBtn = document.querySelector('.edit-avatar-btn');
+  if (editAvatarBtn) {
+    editAvatarBtn.addEventListener('click', () => {
+      // Create file input
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          
+          reader.onload = function(event) {
+            const imageData = event.target.result;
+            
+            // Update profile picture
+            document.getElementById('profile-avatar').src = imageData;
+            
+            // Save to user data
+            const user = authState.getCurrentUser();
+            if (user) {
+              user.profilePicture = imageData;
+              localStorage.setItem('currentUser', JSON.stringify(user));
+            }
+          };
+          
+          reader.readAsDataURL(file);
+        }
+      });
+      
+      // Trigger file selection
+      fileInput.click();
+    });
+  }
+  
+  // Edit profile button
+  const editProfileBtn = document.getElementById('edit-profile-btn');
+  if (editProfileBtn) {
+    editProfileBtn.addEventListener('click', () => {
+      const user = authState.getCurrentUser();
+      if (!user) return;
+      
+      // Create edit form
+      const editForm = document.createElement('div');
+      editForm.className = 'edit-profile-form';
+      editForm.innerHTML = `
+        <h3>Edit Profile</h3>
+        <div class="form-group">
+          <label for="edit-name">Name</label>
+          <input type="text" id="edit-name" value="${user.name || ''}">
+        </div>
+        <div class="form-group">
+          <label for="edit-email">Email</label>
+          <input type="email" id="edit-email" value="${user.email || ''}">
+        </div>
+        <div class="form-actions">
+          <button id="save-profile-btn" class="btn primary">Save</button>
+          <button id="cancel-edit-btn" class="btn secondary">Cancel</button>
+        </div>
+      `;
+      
+      // Replace profile section with edit form
+      const profileSection = document.querySelector('.profile-section');
+      const originalContent = profileSection.innerHTML;
+      profileSection.innerHTML = '';
+      profileSection.appendChild(editForm);
+      
+      // Save button
+      document.getElementById('save-profile-btn').addEventListener('click', () => {
+        user.name = document.getElementById('edit-name').value;
+        user.email = document.getElementById('edit-email').value;
+        
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        profileSection.innerHTML = originalContent;
+        updateProfilePage();
+      });
+      
+      // Cancel button
+      document.getElementById('cancel-edit-btn').addEventListener('click', () => {
+        profileSection.innerHTML = originalContent;
+      });
+    });
+  }
+});
+
+// Update profile statistics
+function updateProfileStatistics() {
+  const user = authState.getCurrentUser();
+  if (!user) return;
+  
+  // Get statistics from localStorage or user object
+  const stats = user.stats || {
+    moviesWatched: 0,
+    seriesWatched: 0,
+    reviewsWritten: 0,
+    favoritesCount: 0
+  };
+  
+  document.getElementById('movies-watched').textContent = stats.moviesWatched;
+  document.getElementById('series-watched').textContent = stats.seriesWatched;
+  document.getElementById('reviews-written').textContent = stats.reviewsWritten;
+  document.getElementById('favorites-count').textContent = stats.favoritesCount;
+}
+
+// Update profile activity
+function updateProfileActivity() {
+  const user = authState.getCurrentUser();
+  if (!user) return;
+  
+  const activityContainer = document.querySelector('.activity-timeline');
+  if (!activityContainer) return;
+  
+  // Get activity from localStorage or user object
+  const activities = user.activities || [];
+  
+  // Clear existing activities
+  activityContainer.innerHTML = '';
+  
+  // Add activities
+  activities.forEach(activity => {
+    const activityItem = document.createElement('div');
+    activityItem.className = 'activity-item';
+    
+    let iconClass = 'fas fa-circle';
+    if (activity.type === 'favorite') iconClass = 'fas fa-heart';
+    else if (activity.type === 'review') iconClass = 'fas fa-edit';
+    else if (activity.type === 'watch') iconClass = 'fas fa-eye';
+    
+    activityItem.innerHTML = `
+      <div class="activity-icon">
+        <i class="${iconClass}"></i>
+      </div>
+      <div class="activity-content">
+        <p>${activity.description}</p>
+        <span class="activity-time">${formatActivityTime(activity.timestamp)}</span>
+      </div>
+    `;
+    
+    activityContainer.appendChild(activityItem);
+  });
+  
+  // If no activities, show placeholder
+  if (activities.length === 0) {
+    activityContainer.innerHTML = '<p class="no-activity">No activity yet. Start exploring movies and series!</p>';
+  }
+}
+
+// Format activity time
+function formatActivityTime(timestamp) {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  if (diffMins < 60) return `${diffMins} minutes ago`;
+  if (diffHours < 24) return `${diffHours} hours ago`;
+  if (diffDays < 7) return `${diffDays} days ago`;
+  
+  return date.toLocaleDateString();
+}
+
+// Add activity to user profile
+function addActivity(type, description) {
+  const user = authState.getCurrentUser();
+  if (!user) return;
+  
+  if (!user.activities) user.activities = [];
+  
+  user.activities.unshift({
+    type: type,
+    description: description,
+    timestamp: new Date().toISOString()
+  });
+  
+  // Keep only last 10 activities
+  if (user.activities.length > 10) {
+    user.activities = user.activities.slice(0, 10);
+  }
+  
+  localStorage.setItem('currentUser', JSON.stringify(user));
+}
+
+// Add to your index.js file
+
+// Update settings page with user preferences
+function updateSettingsPage() {
+  const user = authState.getCurrentUser();
+  if (!user) return;
+  
+  // Set user preferences
+  const preferences = user.preferences || {};
+  
+  // Dark mode toggle
+  const darkModeToggle = document.getElementById('dark-mode-toggle');
+  if (darkModeToggle) {
+    darkModeToggle.checked = preferences.darkMode || false;
+    
+    darkModeToggle.addEventListener('change', () => {
+      preferences.darkMode = darkModeToggle.checked;
+      user.preferences = preferences;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      
+      // Apply dark mode
+      if (preferences.darkMode) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    });
+  }
+  
+  // Email notifications toggle
+  const emailNotifications = document.getElementById('email-notifications');
+  if (emailNotifications) {
+    emailNotifications.checked = preferences.emailNotifications !== false;
+    
+    emailNotifications.addEventListener('change', () => {
+      preferences.emailNotifications = emailNotifications.checked;
+      user.preferences = preferences;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    });
+  }
+  
+  // Newsletter subscription toggle
+  const newsletterSubscription = document.getElementById('newsletter-subscription');
+  if (newsletterSubscription) {
+    newsletterSubscription.checked = preferences.newsletterSubscription !== false;
+    
+    newsletterSubscription.addEventListener('change', () => {
+      preferences.newsletterSubscription = newsletterSubscription.checked;
+      user.preferences = preferences;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    });
+  };
+  
+  // Theme select
+  const themeSelect = document.getElementById('theme-select');
+  if (themeSelect) {
+    themeSelect.value = preferences.theme || 'dark';
+    
+    themeSelect.addEventListener('change', () => {
+      preferences.theme = themeSelect.value;
+      user.preferences = preferences;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    });
+  }
+  
+  // Language select
+  const languageSelect = document.getElementById('language-select');
+  if (languageSelect) {
+    languageSelect.value = preferences.language || 'en';
+    
+    languageSelect.addEventListener('change', () => {
+      preferences.language = languageSelect.value;
+      user.preferences = preferences;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    });
+  }
+  
+  // Profile visibility select
+  const profileVisibility = document.getElementById('profile-visibility');
+  if (profileVisibility) {
+    profileVisibility.value = preferences.profileVisibility || 'public';
+    
+    profileVisibility.addEventListener('change', () => {
+      preferences.profileVisibility = profileVisibility.value;
+      user.preferences = preferences;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    });
+  }
+  
+  // Activity status toggle
+  const activityStatus = document.getElementById('activity-status');
+  if (activityStatus) {
+    activityStatus.checked = preferences.activityStatus !== false;
+    
+    activityStatus.addEventListener('change', () => {
+      preferences.activityStatus = activityStatus.checked;
+      user.preferences = preferences;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    });
+  }
+  
+  // Two-factor authentication toggle
+  const twoFactorAuth = document.getElementById('two-factor-auth');
+  if (twoFactorAuth) {
+    twoFactorAuth.checked = preferences.twoFactorAuth || false;
+    
+    twoFactorAuth.addEventListener('change', () => {
+      preferences.twoFactorAuth = twoFactorAuth.checked;
+      user.preferences = preferences;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      
+      if (preferences.twoFactorAuth) {
+        showNotification('Two-factor authentication enabled', 'success');
+      } else {
+        showNotification('Two-factor authentication disabled', 'info');
+      }
+    });
+  }
+  
+  // Push notifications toggle
+  const pushNotifications = document.getElementById('push-notifications');
+  if (pushNotifications) {
+    pushNotifications.checked = preferences.pushNotifications || false;
+    
+    pushNotifications.addEventListener('change', () => {
+      preferences.pushNotifications = pushNotifications.checked;
+      user.preferences = preferences;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    });
+  }
+  
+  // New releases notifications toggle
+  const newReleasesNotifications = document.getElementById('new-releases-notifications');
+  if (newReleasesNotifications) {
+    newReleasesNotifications.checked = preferences.newReleasesNotifications !== false;
+    
+    newReleasesNotifications.addEventListener('change', () => {
+      preferences.newReleasesNotifications = newReleasesNotifications.checked;
+      user.preferences = preferences;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    });
+  }
+  
+  // Save settings button
+  const saveSettingsBtn = document.getElementById('save-settings-btn');
+  if (saveSettingsBtn) {
+    saveSettingsBtn.addEventListener('click', () => {
+      user.preferences = preferences;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      showNotification('Settings saved successfully', 'success');
+    });
+  }
+  
+  // Reset settings button
+  const resetSettingsBtn = document.getElementById('reset-settings-btn');
+  if (resetSettingsBtn) {
+    resetSettingsBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to reset all settings to default?')) {
+        user.preferences = {};
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        updateSettingsPage();
+        showNotification('Settings reset to default', 'info');
+      }
+    });
+  }
+  
+  // Change password button
+  const changePasswordBtn = document.getElementById('change-password-btn');
+  if (changePasswordBtn) {
+    changePasswordBtn.addEventListener('click', () => {
+      // Create password change form
+      const passwordForm = document.createElement('div');
+      passwordForm.className = 'password-form';
+      passwordForm.innerHTML = `
+        <h3>Change Password</h3>
+        <div class="form-group">
+          <label for="current-password">Current Password</label>
+          <input type="password" id="current-password">
+        </div>
+        <div class="form-group">
+          <label for="new-password">New Password</label>
+          <input type="password" id="new-password">
+        </div>
+        <div class="form-group">
+          <label for="confirm-password">Confirm New Password</label>
+          <input type="password" id="confirm-password">
+        </div>
+        <div class="form-actions">
+          <button id="save-password-btn" class="btn primary">Save</button>
+          <button id="cancel-password-btn" class="btn secondary">Cancel</button>
+        </div>
+      `;
+      
+      // Add form to page
+      const settingsSection = document.querySelector('.settings-section');
+      const originalContent = settingsSection.innerHTML;
+      settingsSection.innerHTML = '';
+      settingsSection.appendChild(passwordForm);
+      
+      // Save password button
+      document.getElementById('save-password-btn').addEventListener('click', () => {
+        const currentPassword = document.getElementById('current-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+        
+        if (newPassword !== confirmPassword) {
+          showNotification('New passwords do not match', 'error');
+          return;
+        }
+        
+        if (newPassword.length < 6) {
+          showNotification('Password must be at least 6 characters', 'error');
+          return;
+        }
+        
+        // In a real app, you would verify current password and update on server
+        showNotification('Password changed successfully', 'success');
+        settingsSection.innerHTML = originalContent;
+        updateSettingsPage();
+      });
+      
+      // Cancel button
+      document.getElementById('cancel-password-btn').addEventListener('click', () => {
+        settingsSection.innerHTML = originalContent;
+        updateSettingsPage();
+      });
+    });
+  }
+  
+  // Delete account button
+  const deleteAccountBtn = document.getElementById('delete-account-btn');
+  if (deleteAccountBtn) {
+    deleteAccountBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        authState.logout();
+        showPage('logout');
+        showNotification('Your account has been deleted', 'info');
+      }
+    });
+  }
+}
+
+
+// Function to add user activity
+function addActivity(type, description) {
+  const user = authState.getCurrentUser();
+  if (!user) return;
+  
+  if (!user.activities) user.activities = [];
+  
+  user.activities.unshift({
+    type: type,
+    description: description,
+    timestamp: new Date().toISOString()
+  });
+  
+  // Keep only last 10 activities
+  if (user.activities.length > 10) {
+    user.activities = user.activities.slice(0, 10);
+  }
+  
+  localStorage.setItem('currentUser', JSON.stringify(user));
+}
+
+// Function to show notifications
+function showNotification(message, type = 'success') {
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.innerHTML = `
+    <div class="notification-content">
+      <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+      <span>${message}</span>
+    </div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Animate in
+  setTimeout(() => {
+    notification.classList.add('show');
+  }, 10);
+  
+  // Remove after 3 seconds
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 300);
+  }, 3000);
+}
