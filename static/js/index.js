@@ -1112,7 +1112,7 @@ function loadThisDayInHistory() {
 }
 
 // Update the showPage function to initialize the data when the home page is loaded
-// Update the showPage function to include the search results page handling
+// Add to your showPage function
 function showPage(page) {
   // Save current page to localStorage
   localStorage.setItem('currentPage', page);
@@ -1189,24 +1189,402 @@ function showPage(page) {
   } else if (page === 'mylist') {
     console.log('Loading my list page');
     showMyListPage();
+  } else if (page === 'community') {
+    console.log('Loading community page');
+    initCommunityPage();
+  } else if (page === 'hall-of-fame') {
+    console.log('Loading hall of fame page');
+    initHallOfFamePage();
   } else if (page === 'search-results') {
-    // Add event listener to back button when search results page is shown
+    // Check if we have stored search results
+    const storedQuery = localStorage.getItem('lastSearchQuery');
+    const storedResults = localStorage.getItem('lastSearchResults');
+    
+    if (storedQuery && storedResults) {
+      // Update the title
+      if (searchResultsTitle) {
+        searchResultsTitle.textContent = `Search Results for "${storedQuery}"`;
+      }
+      
+      // Display the stored results
+      const results = JSON.parse(storedResults);
+      displaySearchResults(results);
+    } else {
+      // If no stored results, show a message
+      if (searchResultsContainer) {
+        searchResultsContainer.innerHTML = '<div class="no-results">No search results found. Please perform a new search.</div>';
+      }
+    }
+    
+    // Add event listener to back button
     const searchBackBtn = document.querySelector('.search-back-btn');
     if (searchBackBtn) {
       // Remove any existing event listeners to avoid duplicates
       searchBackBtn.replaceWith(searchBackBtn.cloneNode(true));
       const newSearchBackBtn = document.querySelector('.search-back-btn');
       
-      // Add the event listener
       newSearchBackBtn.addEventListener('click', () => {
-        // Get the previous page from localStorage
         const pageBeforeSearch = localStorage.getItem('pageBeforeSearch') || 'home';
-        
-        // Navigate back to the previous page
         showPage(pageBeforeSearch);
       });
     }
   }
+}
+
+// Add initialization functions for the new pages
+// Enhanced initialization functions for the new pages
+function initCommunityPage() {
+  // Set up poll voting functionality
+  const pollVoteBtns = document.querySelectorAll('.poll-vote-btn');
+  pollVoteBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const pollContainer = this.closest('.poll');
+      const pollOptions = pollContainer.querySelectorAll('input[type="radio"]');
+      let selectedOption = null;
+      
+      pollOptions.forEach(option => {
+        if (option.checked) {
+          selectedOption = option.value;
+        }
+      });
+      
+      if (selectedOption) {
+        // Simulate voting with animation
+        const pollResults = pollContainer.querySelector('.poll-results');
+        pollResults.style.display = 'block';
+        pollResults.innerHTML = `
+          <h4>Results:</h4>
+          <div class="result-bar">
+            <div class="result-option">Dune: Part Three</div>
+            <div class="result-percentage">45%</div>
+          </div>
+          <div class="result-bar">
+            <div class="result-option">Avatar 3</div>
+            <div class="result-percentage">25%</div>
+          </div>
+          <div class="result-bar">
+            <div class="result-option">Guardians of the Galaxy Vol. 4</div>
+            <div class="result-percentage">20%</div>
+          </div>
+          <div class="result-bar">
+            <div class="result-option">The Batman 2</div>
+            <div class="result-percentage">10%</div>
+          </div>
+        `;
+        
+        // Animate the results
+        const resultBars = pollResults.querySelectorAll('.result-bar');
+        resultBars.forEach((bar, index) => {
+          const percentageBar = document.createElement('div');
+          percentageBar.className = 'percentage-bar';
+          percentageBar.style.height = '8px';
+          percentageBar.style.background = 'linear-gradient(90deg, var(--accent), #ff6b6b)';
+          percentageBar.style.width = '0%';
+          percentageBar.style.marginTop = '5px';
+          percentageBar.style.borderRadius = '4px';
+          bar.appendChild(percentageBar);
+          
+          // Animate the width based on percentage
+          setTimeout(() => {
+            const percentage = parseInt(bar.querySelector('.result-percentage').textContent);
+            percentageBar.style.width = percentage + '%';
+          }, 100 * (index + 1));
+        });
+        
+        // Disable voting after vote
+        pollOptions.forEach(option => {
+          option.disabled = true;
+        });
+        this.disabled = true;
+        
+        // Show success message
+        showNotification('Thank you for voting!', 'success');
+      } else {
+        showNotification('Please select an option before voting.', 'error');
+      }
+    });
+  });
+  
+  // Set up like buttons with animation
+  const likeBtns = document.querySelectorAll('.like-btn');
+  likeBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const likeCount = this.querySelector('i').nextSibling;
+      const currentCount = parseInt(likeCount.textContent.trim());
+      likeCount.textContent = ` ${currentCount + 1}`;
+      
+      // Change button to indicate liked with animation
+      this.style.color = 'var(--accent)';
+      this.style.transform = 'scale(1.2)';
+      setTimeout(() => {
+        this.style.transform = 'scale(1)';
+      }, 200);
+      
+      // Disable button to prevent multiple likes
+      this.disabled = true;
+    });
+  });
+}
+
+function initHallOfFamePage() {
+  // Set up poll voting functionality for Hall of Fame
+  const hofPollVoteBtns = document.querySelectorAll('.hof-section .poll-vote-btn');
+  hofPollVoteBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const pollContainer = this.closest('.poll');
+      const pollOptions = pollContainer.querySelectorAll('input[type="radio"]');
+      let selectedOption = null;
+      
+      pollOptions.forEach(option => {
+        if (option.checked) {
+          selectedOption = option.value;
+        }
+      });
+      
+      if (selectedOption) {
+        // Simulate voting with animation
+        const pollResults = pollContainer.querySelector('.poll-results');
+        pollResults.style.display = 'block';
+        pollResults.innerHTML = `
+          <h4>Results:</h4>
+          <div class="result-bar">
+            <div class="result-option">James Bond is a codename</div>
+            <div class="result-percentage">40%</div>
+          </div>
+          <div class="result-bar">
+            <div class="result-option">Ferris Bueller is Cameron's dream</div>
+            <div class="result-percentage">30%</div>
+          </div>
+          <div class="result-bar">
+            <div class="result-option">The Pixar Theory</div>
+            <div class="result-percentage">25%</div>
+          </div>
+          <div class="result-bar">
+            <div class="result-option">None of these</div>
+            <div class="result-percentage">5%</div>
+          </div>
+        `;
+        
+        // Animate the results
+        const resultBars = pollResults.querySelectorAll('.result-bar');
+        resultBars.forEach((bar, index) => {
+          const percentageBar = document.createElement('div');
+          percentageBar.className = 'percentage-bar';
+          percentageBar.style.height = '8px';
+          percentageBar.style.background = 'linear-gradient(90deg, var(--gold), #ffd700)';
+          percentageBar.style.width = '0%';
+          percentageBar.style.marginTop = '5px';
+          percentageBar.style.borderRadius = '4px';
+          bar.appendChild(percentageBar);
+          
+          // Animate the width based on percentage
+          setTimeout(() => {
+            const percentage = parseInt(bar.querySelector('.result-percentage').textContent);
+            percentageBar.style.width = percentage + '%';
+          }, 100 * (index + 1));
+        });
+        
+        // Disable voting after vote
+        pollOptions.forEach(option => {
+          option.disabled = true;
+        });
+        this.disabled = true;
+        
+        // Show success message
+        showNotification('Thank you for voting!', 'success');
+      } else {
+        showNotification('Please select an option before voting.', 'error');
+      }
+    });
+  });
+  
+  // Set up comment submission with animation
+  const commentForms = document.querySelectorAll('.comment-form button');
+  commentForms.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const form = this.closest('.comment-form');
+      const textarea = form.querySelector('textarea');
+      const commentText = textarea.value.trim();
+      
+      if (commentText) {
+        const commentsList = form.closest('.comments-section').querySelector('.comments-list');
+        
+        // Create new comment element with animation
+        const newComment = document.createElement('div');
+        newComment.className = 'comment';
+        newComment.style.opacity = '0';
+        newComment.style.transform = 'translateY(20px)';
+        newComment.innerHTML = `
+          <div class="comment-header">
+            <img src="https://picsum.photos/seed/newuser/40/40.jpg" alt="User" class="user-avatar">
+            <div>
+              <div class="user-name">You</div>
+              <div class="comment-time">Just now</div>
+            </div>
+          </div>
+          <div class="comment-content">
+            <p>${commentText}</p>
+          </div>
+        `;
+        
+        // Add to comments list
+        commentsList.insertBefore(newComment, commentsList.firstChild);
+        
+        // Animate the new comment
+        setTimeout(() => {
+          newComment.style.transition = 'all 0.5s ease';
+          newComment.style.opacity = '1';
+          newComment.style.transform = 'translateY(0)';
+        }, 10);
+        
+        // Clear textarea
+        textarea.value = '';
+        
+        // Show success message
+        showNotification('Comment posted successfully!', 'success');
+      } else {
+        showNotification('Please enter a comment before submitting.', 'error');
+      }
+    });
+  });
+  
+  // Add hover effect to award items
+  const awardItems = document.querySelectorAll('.award-item');
+  awardItems.forEach(item => {
+    item.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateX(8px) scale(1.02)';
+    });
+    
+    item.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateX(0) scale(1)';
+    });
+  });
+  
+  // Add hover effect to easter eggs
+  const easterEggs = document.querySelectorAll('.easter-egg');
+  easterEggs.forEach(egg => {
+    egg.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-8px) scale(1.02)';
+      const eggIcon = this.querySelector('::before');
+      if (eggIcon) {
+        eggIcon.style.transform = 'rotate(10deg) scale(1.2)';
+      }
+    });
+    
+    egg.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0) scale(1)';
+      const eggIcon = this.querySelector('::before');
+      if (eggIcon) {
+        eggIcon.style.transform = 'rotate(0) scale(1)';
+      }
+    });
+  });
+  
+  // Add hover effect to behind-the-scenes items
+  const btsItems = document.querySelectorAll('.bts-item');
+  btsItems.forEach(item => {
+    const img = item.querySelector('img');
+    
+    item.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-8px)';
+      if (img) {
+        img.style.transform = 'scale(1.05)';
+      }
+    });
+    
+    item.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0)';
+      if (img) {
+        img.style.transform = 'scale(1)';
+      }
+    });
+  });
+  
+  // Add hover effect to quotes
+  const quotes = document.querySelectorAll('.quote');
+  quotes.forEach(quote => {
+    quote.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-8px) scale(1.02)';
+      const quoteIcon = this.querySelector('::before');
+      if (quoteIcon) {
+        quoteIcon.style.opacity = '0.5';
+      }
+    });
+    
+    quote.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0) scale(1)';
+      const quoteIcon = this.querySelector('::before');
+      if (quoteIcon) {
+        quoteIcon.style.opacity = '0.3';
+      }
+    });
+  });
+  
+  // Add hover effect to fun facts
+  const funFacts = document.querySelectorAll('.fact');
+  funFacts.forEach(fact => {
+    fact.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-8px) scale(1.02)';
+      const factIcon = this.querySelector('::before');
+      if (factIcon) {
+        factIcon.style.transform = 'rotate(10deg) scale(1.2)';
+      }
+    });
+    
+    fact.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0) scale(1)';
+      const factIcon = this.querySelector('::before');
+      if (factIcon) {
+        factIcon.style.transform = 'rotate(0) scale(1)';
+      }
+    });
+  });
+  
+  // Add hover effect to fan theories
+  const fanTheories = document.querySelectorAll('.theory');
+  fanTheories.forEach(theory => {
+    theory.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-8px) scale(1.02)';
+      const theoryIcon = this.querySelector('::before');
+      if (theoryIcon) {
+        theoryIcon.style.transform = 'rotate(10deg) scale(1.2)';
+      }
+    });
+    
+    theory.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0) scale(1)';
+      const theoryIcon = this.querySelector('::before');
+      if (theoryIcon) {
+        theoryIcon.style.transform = 'rotate(0) scale(1)';
+      }
+    });
+  });
+
+  // Updated JS Snippets for Interactivity
+
+// Poll Voting Example
+const pollVoteBtn = document.querySelector('.poll-vote-btn');
+const pollResults = document.querySelector('.poll-results');
+if (pollVoteBtn) {
+  pollVoteBtn.addEventListener('click', () => {
+    // Simulate voting logic
+    pollResults.style.display = 'block';
+    pollVoteBtn.disabled = true;
+    // Update bars dynamically if real data is available
+  });
+}
+
+// Discussion Likes/Comments (Placeholder)
+const actionButtons = document.querySelectorAll('.discussion-actions button');
+actionButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Increment count or handle interaction
+    const count = parseInt(btn.textContent.trim().split(' ')[1]) + 1;
+    btn.innerHTML = btn.innerHTML.replace(/\d+/, count);
+  });
+});
+
+// Similar event listeners for reviews, events, etc.
 }
 
 // Initialize search functionality
@@ -1334,6 +1712,7 @@ function handleSearchSubmit(e) {
 }
 
 // Fetch search results from TMDB
+// Update the fetchSearchResults function
 async function fetchSearchResults(query) {
   try {
     const res = await fetch(`${BASE}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&page=1`);
@@ -1341,9 +1720,15 @@ async function fetchSearchResults(query) {
     
     if (data.results && data.results.length > 0) {
       currentSearchResults = data.results;
+      
+      // Store the results in localStorage
+      localStorage.setItem('lastSearchResults', JSON.stringify(data.results));
+      
       displaySearchResults(data.results);
     } else {
       if (searchResultsContainer) searchResultsContainer.innerHTML = '<div class="no-results">No results found</div>';
+      // Clear stored results
+      localStorage.removeItem('lastSearchResults');
     }
   } catch (error) {
     console.error("Error fetching search results:", error);
@@ -2340,6 +2725,7 @@ async function displayItem(index) {
 }
 
 // Create trailer modal
+// Update the createTrailerModal function
 function createTrailerModal() {
   const modal = document.createElement('div');
   modal.id = 'trailer-modal';
@@ -2354,21 +2740,25 @@ function createTrailerModal() {
   
   // Close modal when clicking on X
   const closeBtn = modal.querySelector('.close');
-  closeBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
-    document.getElementById('trailer-modal-body').innerHTML = '';
-  });
+  closeBtn.addEventListener('click', closeModal);
   
   // Close modal when clicking outside
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
-      modal.style.display = 'none';
-      document.getElementById('trailer-modal-body').innerHTML = '';
+      closeModal();
     }
   });
+  
+  function closeModal() {
+    modal.style.display = 'none';
+    const modalBody = document.getElementById('trailer-modal-body');
+    if (modalBody) {
+      modalBody.innerHTML = '';
+    }
+  }
 }
 
-// Function to open trailer modal
+// Update the openTrailerModal function
 function openTrailerModal(trailerKey) {
   let modal = document.getElementById('trailer-modal');
   
@@ -2430,7 +2820,7 @@ async function displayMoviesItem(index) {
   const trailer = videos.find(v => v.type === "Trailer" && v.site === "YouTube") || videos.find(v => v.site === "YouTube");
   
   if (moviesWatchTrailerBtn) {
-    if (trailer) moviesWatchTrailerBtn.onclick = () => window.open(`https://www.youtube.com/watch?v=${trailer.key}`, "_blank");
+    if (trailer) moviesWatchTrailerBtn.onclick = () => window();
     else moviesWatchTrailerBtn.onclick = () => alert("Trailer not available");
   }
   
@@ -2479,7 +2869,7 @@ async function displaySeriesItem(index) {
   const trailer = videos.find(v => v.type === "Trailer" && v.site === "YouTube") || videos.find(v => v.site === "YouTube");
   
   if (seriesWatchTrailerBtn) {
-    if (trailer) seriesWatchTrailerBtn.onclick = () => window.open(`https://www.youtube.com/watch?v=${trailer.key}`, "_blank");
+    if (trailer) seriesWatchTrailerBtn.onclick = () => window();
     else seriesWatchTrailerBtn.onclick = () => alert("Trailer not available");
   }
   
@@ -3645,7 +4035,7 @@ function displayTrailersNews() {
         // Open modal instead of going to YouTube
         openTrailerModal(trailer.key);
       } else {
-        window.open(`https://www.themoviedb.org/movie/${movie.id}`, "_blank");
+        window.open(`https://www.themoviedb.org/movie/${movie.id}`, "");
       }
     });
     
@@ -3749,12 +4139,32 @@ async function fetchSearchSuggestions(query) {
 
 // Handle enter/submit (ensure this fires)
 function handleSearchSubmit(e) {
-  e.preventDefault(); // Prevent form reload
-  const query = searchInput.value.trim();
-  if (query) {
-    performSearch(query);
-    searchSuggestions.innerHTML = ''; // Clear suggestions
+  e.preventDefault();
+  
+  const query = searchInput ? searchInput.value.trim() : '';
+  
+  if (query.length === 0) return;
+  
+  // Store the current page (before search) in localStorage
+  const previousPage = localStorage.getItem('currentPage') || 'home';
+  localStorage.setItem('pageBeforeSearch', previousPage);
+  
+  // Store the search query in localStorage
+  localStorage.setItem('lastSearchQuery', query);
+  
+  // Hide suggestions
+  if (searchSuggestions) searchSuggestions.innerHTML = '';
+  
+  // Navigate to search results page
+  showPage('search-results');
+  
+  // Update search results title
+  if (searchResultsTitle) {
+    searchResultsTitle.textContent = `Search Results for "${query}"`;
   }
+  
+  // Fetch and display search results
+  fetchSearchResults(query);
 }
 
 // Enhanced displaySearchResults: Show centered poster if single exact match, else grid
@@ -4152,6 +4562,199 @@ function disableRelativeTimeUpdates() {
     refreshTime.textContent = formatTimestamp(lastRefreshTimestamp);
   }
 }
+
+// TMDB API Key (replace with your actual key)
+// TMDB API Key
+const TMDB_API_KEY = "3c1a2f72d6fdb0c8cdf454c4996353af";
+
+// Function to fetch poster from TMDB
+async function fetchPoster(tmdbId, imgElement, type = 'movie') {
+  try {
+    const endpoint = type === 'tv' ? 'tv' : 'movie';
+    const response = await fetch(`https://api.themoviedb.org/3/${endpoint}/${tmdbId}?api_key=${TMDB_API_KEY}`);
+    const data = await response.json();
+    if (data.poster_path) {
+      imgElement.src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
+    } else {
+      imgElement.src = 'https://via.placeholder.com/80?text=No+Image';
+    }
+  } catch (error) {
+    console.error('Error fetching TMDB data:', error);
+    // Keep the fallback src if fetch fails
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if we're on the Hall of Fame page
+  const hallOfFamePage = document.getElementById('hall-of-fame-page');
+  if (!hallOfFamePage) return;
+  
+  // Check if we're on mobile
+  function isMobile() {
+    return window.innerWidth <= 768;
+  }
+  
+  // Store carousel intervals for cleanup
+  const carouselIntervals = new Map();
+  
+  // Initialize carousels
+  function initAwardCarousels() {
+    const carousels = document.querySelectorAll('.award-carousel');
+    
+    carousels.forEach(carousel => {
+      const track = carousel.querySelector('.award-track');
+      const items = track.querySelectorAll('.award-item');
+      const indicatorsContainer = carousel.querySelector('.award-indicators');
+      
+      if (items.length === 0) return;
+      
+      let currentIndex = 0;
+      
+      // Clear existing indicators
+      indicatorsContainer.innerHTML = '';
+      
+      // Create indicators
+      items.forEach((_, index) => {
+        const indicator = document.createElement('div');
+        indicator.className = 'award-indicator';
+        if (index === 0) indicator.classList.add('active');
+        indicator.addEventListener('click', () => goToSlide(index));
+        indicatorsContainer.appendChild(indicator);
+      });
+      
+      // Function to go to a specific slide
+      function goToSlide(index) {
+        // Update indicators
+        indicatorsContainer.querySelectorAll('.award-indicator').forEach((indicator, i) => {
+          indicator.classList.toggle('active', i === index);
+        });
+        
+        // Move the track
+        track.style.transform = `translateX(-${index * 100}%)`;
+        
+        currentIndex = index;
+      }
+      
+      // Function to go to next slide
+      function nextSlide() {
+        const nextIndex = (currentIndex + 1) % items.length;
+        goToSlide(nextIndex);
+      }
+      
+      // Start auto-rotation
+      const intervalId = setInterval(nextSlide, 8000);
+      carouselIntervals.set(carousel, intervalId);
+      
+      // Pause on hover
+      carousel.addEventListener('mouseenter', () => {
+        clearInterval(intervalId);
+      });
+      
+      carousel.addEventListener('mouseleave', () => {
+        const newIntervalId = setInterval(nextSlide, 8000);
+        carouselIntervals.set(carousel, newIntervalId);
+      });
+    });
+  }
+  
+  // Clean up carousels
+  function destroyAwardCarousels() {
+    // Clear all intervals
+    carouselIntervals.forEach((intervalId, carousel) => {
+      clearInterval(intervalId);
+    });
+    carouselIntervals.clear();
+    
+    // Reset transforms and clear indicators
+    const carousels = document.querySelectorAll('.award-carousel');
+    carousels.forEach(carousel => {
+      const track = carousel.querySelector('.award-track');
+      const indicatorsContainer = carousel.querySelector('.award-indicators');
+      
+      if (track) {
+        track.style.transform = '';
+      }
+      
+      if (indicatorsContainer) {
+        indicatorsContainer.innerHTML = '';
+      }
+    });
+  }
+  
+  // Initialize on mobile
+  if (isMobile()) {
+    initAwardCarousels();
+  }
+  
+  // Handle window resize
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      if (isMobile()) {
+        destroyAwardCarousels();
+        initAwardCarousels();
+      } else {
+        destroyAwardCarousels();
+      }
+    }, 200);
+  });
+});
+
+// Initialize TMDB image fetching
+document.addEventListener('DOMContentLoaded', () => {
+  const tmdbImages = document.querySelectorAll('.tmdb-image');
+  tmdbImages.forEach(img => {
+    const tmdbId = img.getAttribute('data-tmdb-id');
+    const type = img.getAttribute('data-type') || 'movie';
+    if (tmdbId) {
+      fetchPoster(tmdbId, img, type);
+    }
+  });
+});
+
+// Poll Voting
+const pollVoteBtns = document.querySelectorAll('.poll-vote-btn');
+pollVoteBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const pollResults = btn.nextElementSibling;
+    pollResults.style.display = 'block';
+    btn.disabled = true;
+  });
+});
+
+// Discussion Likes/Comments
+const actionButtons = document.querySelectorAll('.discussion-actions button');
+actionButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const count = parseInt(btn.textContent.trim().split(' ')[1]) + 1;
+    btn.innerHTML = btn.innerHTML.replace(/\d+/, count);
+  });
+});
+
+// Comment Submission
+const commentSubmitBtn = document.querySelector('.comment-form button');
+if (commentSubmitBtn) {
+  commentSubmitBtn.addEventListener('click', () => {
+    const textarea = document.querySelector('.comment-form textarea');
+    const commentText = textarea.value.trim();
+    if (commentText) {
+      const commentsList = document.querySelector('.comments-list');
+      const newComment = document.createElement('div');
+      newComment.classList.add('comment');
+      newComment.innerHTML = `
+        <div class="comment-header">
+          <img src="https://via.placeholder.com/40?text=User" alt="User" class="avatar">
+          <h4>Anonymous</h4>
+          <span class="comment-time">Just now</span>
+        </div>
+        <p>${commentText}</p>
+      `;
+      commentsList.prepend(newComment);
+      textarea.value = '';
+    }
+  });
+};
 
 // Run on DOM load to ensure no relative updates override
 document.addEventListener('DOMContentLoaded', () => {
