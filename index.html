@@ -32,6 +32,7 @@
       <a class="nav-link" href="#" data-page="logout"><i class="fas fa-sign-out-alt"></i><span class="label">Logout</span></a>
     </div>
   </aside>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
   <div class="menu-mobile">
     <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="logo" />
@@ -55,7 +56,7 @@
 
   <!-- MAIN -->
   <main class="main">
-    <header class="topbar">
+    <header class="topbar" id="topbar">
       <div class="left"></div>
       <div class="right">
         <form id="search-form">
@@ -994,6 +995,7 @@
                 <span id="details-year"><i class="fas fa-calendar"></i> </span>
                 <span id="details-rating"><i class="fas fa-star"></i> </span>
                 <span id="details-runtime"><i class="fas fa-clock"></i> </span>
+                <span class="details-country"><i class="fas fa-globe"></i> </span>
               </div>
             </div>
           </div>
@@ -1397,16 +1399,14 @@
       </div>
       <h2>You have been logged out</h2>
       <p>Thank you for using CineVault. We hope to see you again soon!</p>
-      <div class="logout-timer">
-        <p>Redirecting to home page in <span id="logout-countdown">5</span> seconds...</p>
-      </div>
-      <button id="logout-redirect-btn" class="logout-btn">Go to Home Now</button>
     </div>
   </div>
 </div>
 
+
+
     <!-- Global Footer -->
-    <footer class="footer">
+    <footer class="footer" id="footer">
       <div class="footer-content">
         <div class="footer-logo-container">
           <img src="/static/images/ChatGPT Image Sep 20, 2025, 11_48_57 PM.png" alt="CineVault logo" class="footer-logo">

@@ -8645,10 +8645,14 @@ h1 {
 
 /* Login and Signup Page Styles */
 .login-container {
+  overflow-y: hidden;
+}
+
+.login-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: 95vh;
   padding: 2rem;
   background: linear-gradient(135deg, #070707, #121212);
 }
@@ -9548,25 +9552,6 @@ input:checked + .slider:before {
   color: var(--muted);
 }
 
-.details-country {
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.details-country h2 {
-  margin-bottom: 1rem;
-  color: white;
-}
-
-.details-country p {
-  color: #ddd;
-}
-
 /* Settings Page Styles */
 .settings-select {
   width: 100%;
@@ -9803,39 +9788,6 @@ input:checked + .slider:before {
   transition: color 0.3s ease;
 }
 
-.details-country {
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-}
-
-.details-country:hover {
-  background: rgba(255, 255, 255, 0.08);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.details-country h2 {
-  margin-bottom: 1rem;
-  color: white;
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.details-country h2::before {
-  content: '\f57d';
-  font-family: 'Font Awesome 5 Free';
-  font-weight: 900;
-  color: var(--accent);
-}
-
 .country-info {
   display: flex;
   align-items: center;
@@ -9928,4 +9880,309 @@ input:checked + .slider:before {
 
 .notification i {
   font-size: 1.2rem;
+}
+
+/* Add to your style.css file */
+.confirm-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.confirm-popup.show {
+  opacity: 1;
+}
+
+.confirm-popup-content {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 400px;
+  width: 90%;
+}
+
+.confirm-icon {
+  font-size: 3rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+.confirm-popup-content h3 {
+  color: white;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.confirm-popup-content p {
+  color: #ddd;
+  margin-bottom: 2rem;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn.danger {
+  background: #f44336;
+  color: white;
+}
+
+.btn.danger:hover {
+  background: #d32f2f;
+}
+
+/* Sidebar overlay */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 80px; /* Matches collapsed sidebar width */
+  background: rgba(0, 0, 0, 0.7); /* Semi-transparent dark overlay */
+  z-index: 61; /* Above sidebar (z-index: 60) */
+  display: none; /* Hidden by default */
+  transition: width 200ms ease, display 200ms ease;
+}
+
+/* Match sidebar hover width on desktop */
+@media (min-width: 1024px) {
+  .sidebar:hover ~ .sidebar-overlay {
+    width: 240px; /* Matches expanded sidebar */
+  }
+}
+
+/* Disabled sidebar appearance */
+.sidebar.disabled {
+  opacity: 0.5; /* Already set in JS, but ensure CSS supports it */
+  pointer-events: none;
+}
+
+/* Ensure hamburger is disabled visually */
+.hamburger.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Logout confirmation popup */
+.logout-confirmation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 300ms ease, visibility 300ms ease;
+}
+
+.logout-confirmation.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.confirmation-content {
+  background: #1a1a1a;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  color: #fff;
+}
+
+.confirmation-content h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.confirmation-content p {
+  margin-bottom: 1.5rem;
+  color: var(--muted);
+}
+
+.confirmation-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.confirmation-buttons button {
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 200ms ease;
+}
+
+#confirm-logout-btn {
+  background: var(--accent);
+  color: #fff;
+}
+
+#confirm-logout-btn:hover {
+  background: #d43f00;
+}
+
+#cancel-logout-btn {
+  background: #333;
+  color: #fff;
+}
+
+#cancel-logout-btn:hover {
+  background: #555;
+}
+
+/* Existing sidebar overlay styles */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 80px;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 61;
+  display: none;
+  transition: width 200ms ease, display 200ms ease;
+}
+
+@media (min-width: 1024px) {
+  .sidebar:hover ~ .sidebar-overlay {
+    width: 240px;
+  }
+}
+
+.sidebar.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.hamburger.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+
+/* Logout confirmation popup - Ensure centering with flex (already present, but confirmed) */
+.logout-confirmation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 300ms ease, visibility 300ms ease;
+}
+
+.logout-confirmation.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.confirmation-content {
+  background: #1a1a1a;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  color: #fff;
+}
+
+.confirmation-content h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.confirmation-content p {
+  margin-bottom: 1.5rem;
+  color: var(--muted);
+}
+
+.confirmation-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.confirmation-buttons button {
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 200ms ease;
+}
+
+#confirm-logout-btns {
+  background: var(--accent);
+  color: #fff;
+}
+
+#confirm-logout-btns:hover {
+  background: #d43f00;
+}
+
+#cancel-logout-btns {
+  background: #333;
+  color: #fff;
+}
+
+#cancel-logout-btns:hover {
+  background: #555;
+}
+
+/* Existing sidebar overlay styles */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 80px;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 61;
+  display: none;
+  transition: width 200ms ease, display 200ms ease;
+}
+
+@media (min-width: 1024px) {
+  .sidebar:hover ~ .sidebar-overlay {
+    width: 240px;
+  }
+}
+
+.sidebar.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.hamburger.disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }

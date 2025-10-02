@@ -1111,35 +1111,75 @@ function loadThisDayInHistory() {
   showRandomHistoryEvent();
 }
 
-// Update the showPage function to initialize the data when the home page is loaded
-// Add this to your existing showPage function
-function showPage(page) {
-  // Save current page to localStorage
-  localStorage.setItem('currentPage', page);
-  currentPageName = page;
+// In index.js, replace the existing DOMContentLoaded logout handler and related logic
 
-  const protectedPages = ['home', 'movies', 'series', 'genres', 'mylist', 'news-updates', 'community', 'hall-of-fame', 'profile', 'settings'];
-  
-  if (protectedPages.includes(page) && !authState.isLoggedIn()) {
+document.addEventListener('DOMContentLoaded', () => {
+  // Existing initialization code
+  if (!authState.isLoggedIn()) {
     showPage('login');
     return;
   }
-  
-  // Hide all pages
+  const savedPage = localStorage.getItem('currentPage') || 'home';
+  populateYearsAndCountries();
+  populateGenreButtons('movie');
+  initSearch();
+  showPage(savedPage);
+
+  // Handle logout link clicks
+  const logoutLinks = document.querySelectorAll('.nav-link[data-page="logout"]');
+  logoutLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault(); 
+      
+      });
+    });
+  });
+
+// Update the showPage function to handle logout correctly
+function showPage(page) {
+  localStorage.setItem('currentPage', page);
+  currentPageName = page;
+
+  // Special handling for logout: show confirmation popup instead of directly showing the page
+  if (page === 'logout') {
+    const logoutConfirmation = document.getElementById('logout-confirmation');
+    if (logoutConfirmation) {
+      logoutConfirmation.classList.add('show');
+    }
+    return; // Exit early to prevent showing the logout page
+  }
+
   document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-  
-  // Show selected page
   const activePage = q(`${page}-page`);
   if (activePage) activePage.style.display = 'block';
-
-  // Update active nav link
   navLinks.forEach(l => l.classList.remove('active'));
   const activeLink = document.querySelector(`.nav-link[data-page="${page}"]`);
   if (activeLink) activeLink.classList.add('active');
-
-  // Page-specific initialization
+  navlinks.forEach(l => l.classList.remove('active'));
+  const activeLinks = document.querySelector(`.navmobile[data-page="${page}"]`);
+  if (activeLinks) activeLinks.classList.add('active');
+  const footer = document.querySelector('#footer');
+  if (footer) {
+    footer.style.display = ['login', 'signup'].includes(page) ? 'none' : 'block';
+  }
+  const sidebar = document.querySelector('.sidebar');
+  const sidebarOverlay = document.querySelector('#sidebar-overlay');
+  if (sidebar && sidebarOverlay) {
+    if (['login', 'signup'].includes(page)) {
+      sidebarOverlay.style.display = 'block';
+      sidebar.style.pointerEvents = 'none';
+      sidebar.style.opacity = '0.5';
+      const hamburger = q('hamburger');
+      if (hamburger) hamburger.style.pointerEvents = 'none';
+    } else {
+      sidebarOverlay.style.display = 'none';
+      sidebar.style.pointerEvents = 'auto';
+      sidebar.style.opacity = '1';
+      const hamburger = q('hamburger');
+      if (hamburger) hamburger.style.pointerEvents = 'auto';
+    }
+  }
   const today = new Date().toISOString().split('T')[0];
-
   if (page === 'home') {
     console.log('Loading home page content');
     fetchTrending();
@@ -1150,15 +1190,9 @@ function showPage(page) {
     fetchTop10();
     fetchActors();
     fetchHomeNews();
-    
-    // Initialize the special sections if they haven't been initialized yet
-    if (directors.length === 0 || movieTrivia.length === 0 || thisDayInHistory.length === 0) {
-      initializeAllData();
-    } else {
-      loadMovieTrivia();
-      loadThisDayInHistory();
-      loadDirectorSpotlight();
-    }
+    loadMovieTrivia();
+    loadThisDayInHistory();
+    loadDirectorSpotlight();
   } else if (page === 'movies') {
     console.log('Loading movies page content');
     fetchMoviesTrending();
@@ -1192,63 +1226,32 @@ function showPage(page) {
   } else if (page === 'mylist') {
     console.log('Loading my list page');
     showMyListPage();
-  } else if (page === 'community') {
-    console.log('Loading community page');
-    initCommunityPage();
-  } else if (page === 'hall-of-fame') {
-    console.log('Loading hall of fame page');
-    initHallOfFamePage();
-  } else if (page === 'profile') {
-    console.log('Loading profile page');
-    updateProfilePage();
-  } else if (page === 'settings') {
-    console.log('Loading settings page');
-    updateSettingsPage();
-  } else if (page === 'login') {
-    console.log('Loading login page');
-    // No additional initialization needed for login page
-  } else if (page === 'signup') {
-    console.log('Loading signup page');
-    // No additional initialization needed for signup page
-  } else if (page === 'logout') {
-    console.log('Loading logout page');
-    // No additional initialization needed for logout page
   } else if (page === 'search-results') {
-    // Check if we have stored search results
-    const storedQuery = localStorage.getItem('lastSearchQuery');
-    const storedResults = localStorage.getItem('lastSearchResults');
-    
-    if (storedQuery && storedResults) {
-      // Update the title
-      if (searchResultsTitle) {
-        searchResultsTitle.textContent = `Search Results for "${storedQuery}"`;
-      }
-      
-      // Display the stored results
-      const results = JSON.parse(storedResults);
-      displaySearchResults(results);
-    } else {
-      // If no stored results, show a message
-      if (searchResultsContainer) {
-        searchResultsContainer.innerHTML = '<div class="no-results">No search results found. Please perform a new search.</div>';
+    const searchResultsPage = document.getElementById('search-results-page');
+    if (searchResultsPage) {
+      if (!searchResultsPage.querySelector('.search-back-btn')) {
+        const backBtn = document.createElement('button');
+        backBtn.className = 'search-back-btn';
+        backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
+        backBtn.addEventListener('click', () => {
+          const previousPage = localStorage.getItem('currentPage') || 'home';
+          showPage(previousPage);
+        });
+        searchResultsPage.insertBefore(backBtn, searchResultsPage.firstChild);
       }
     }
-    
-    // Add event listener to back button
-    const searchBackBtn = document.querySelector('.search-back-btn');
-    if (searchBackBtn) {
-      // Remove any existing event listeners to avoid duplicates
-      searchBackBtn.replaceWith(searchBackBtn.cloneNode(true));
-      const newSearchBackBtn = document.querySelector('.search-back-btn');
-      
-      newSearchBackBtn.addEventListener('click', () => {
-        const pageBeforeSearch = localStorage.getItem('pageBeforeSearch') || 'home';
-        showPage(pageBeforeSearch);
-      });
-    }
+  } else if (page === 'login' || page === 'signup') {
+    const topbar = document.getElementById('topbar');
+    if (topbar) topbar.style.display = 'none';
+    const footers = document.getElementById('footer');
+    if (footers) footers.style.display = 'none';
+  } else {
+    const topbar = document.getElementById('topbar');
+    if (topbar) topbar.style.display = 'flex';
+    const footers = document.getElementById('footer');
+    if (footers) footers.style.display = 'block';
   }
 }
-
 // Add initialization functions for the new pages
 // Enhanced initialization functions for the new pages
 function initCommunityPage() {
@@ -2213,6 +2216,13 @@ async function showDetailsPage(mediaId, mediaType) {
             <span id="details-year"><i class="fas fa-calendar"></i> </span>
             <span id="details-rating"><i class="fas fa-star"></i> </span>
             <span id="details-runtime"><i class="fas fa-clock"></i> </span>
+            <span class="details-country"><i class="fas fa-globe"></i>
+              <div class="country-info">
+                <p id="movie-country">${details.production_countries && details.production_countries.length > 0 
+                  ? details.production_countries.map(c => c.name).join(', ') 
+                  : 'Not available'}</p>
+              </div>
+            </span>
           </div>
           <div class="details-genres" id="details-genres"></div>
           <div class="details-actors" id="details-actors"></div>
@@ -2239,17 +2249,6 @@ async function showDetailsPage(mediaId, mediaType) {
             <i class="far fa-star" data-rating="5"></i>
           </div>
           <p id="rating-text">${currentRating > 0 ? `You rated this ${currentRating} star${currentRating !== 1 ? 's' : ''}` : 'Click to rate'}</p>
-        </div>
-      </div>
-      
-      <!-- Country Information -->
-      <div class="details-country">
-        <h2>Country</h2>
-        <div class="country-info">
-          <i class="fas fa-globe-americas"></i>
-          <p id="movie-country">${details.production_countries && details.production_countries.length > 0 
-            ? details.production_countries.map(c => c.name).join(', ') 
-            : 'Not available'}</p>
         </div>
       </div>
       
@@ -5018,24 +5017,21 @@ const authState = {
 
 // Login form handler
 document.addEventListener('DOMContentLoaded', () => {
-  const loginForm = document.getElementById('login-form');
+  const loginForm = document.querySelector('#login-form');  // Adjust selector to match your HTML
   if (loginForm) {
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
+      const email = document.querySelector('#login-email').value;  // Adjust IDs
+      const password = document.querySelector('#login-password').value;
       
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-password').value;
-      
-      // Simple authentication (in real app, this would be a server request)
+      // Validate credentials (dummy example; in real app, add proper validation)
       if (email && password) {
-        const userData = {
-          name: email.split('@')[0], // Simple name from email
-          email: email,
-          joinDate: new Date().toISOString()
-        };
-        
-        authState.login(userData);
-        showPage('home');
+        const user = { email, name: 'User', /* other data */ };
+        authState.login(user);  // Assuming this sets isLoggedIn to true and saves to localStorage
+        showPage('home');  // Redirect to home after login
+        showNotification('Login successful!', 'success');  // Optional
+      } else {
+        showNotification('Invalid credentials', 'error');
       }
     });
   }
@@ -5317,25 +5313,54 @@ function updateSettingsPage() {
   const user = authState.getCurrentUser();
   if (!user) return;
   
-  // Set user preferences
+  // Get user preferences or set defaults
   const preferences = user.preferences || {};
   
-  // Dark mode toggle
-  const darkModeToggle = document.getElementById('dark-mode-toggle');
-  if (darkModeToggle) {
-    darkModeToggle.checked = preferences.darkMode || false;
+  // Theme select - make it styled
+  const themeSelect = document.getElementById('theme-select');
+  if (themeSelect) {
+    themeSelect.value = preferences.theme || 'dark';
     
-    darkModeToggle.addEventListener('change', () => {
-      preferences.darkMode = darkModeToggle.checked;
+    // Add custom styling class
+    themeSelect.classList.add('styled-select');
+    
+    themeSelect.addEventListener('change', () => {
+      preferences.theme = themeSelect.value;
       user.preferences = preferences;
       localStorage.setItem('currentUser', JSON.stringify(user));
       
-      // Apply dark mode
-      if (preferences.darkMode) {
-        document.body.classList.add('dark-mode');
-      } else {
-        document.body.classList.remove('dark-mode');
-      }
+      // Apply theme immediately
+      applyTheme(themeSelect.value);
+    });
+  }
+  
+  // Language select - make it styled
+  const languageSelect = document.getElementById('language-select');
+  if (languageSelect) {
+    languageSelect.value = preferences.language || 'en';
+    
+    // Add custom styling class
+    languageSelect.classList.add('styled-select');
+    
+    languageSelect.addEventListener('change', () => {
+      preferences.language = languageSelect.value;
+      user.preferences = preferences;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    });
+  }
+  
+  // Profile visibility select - make it styled
+  const profileVisibility = document.getElementById('profile-visibility');
+  if (profileVisibility) {
+    profileVisibility.value = preferences.profileVisibility || 'public';
+    
+    // Add custom styling class
+    profileVisibility.classList.add('styled-select');
+    
+    profileVisibility.addEventListener('change', () => {
+      preferences.profileVisibility = profileVisibility.value;
+      user.preferences = preferences;
+      localStorage.setItem('currentUser', JSON.stringify(user));
     });
   }
   
@@ -5362,42 +5387,6 @@ function updateSettingsPage() {
       localStorage.setItem('currentUser', JSON.stringify(user));
     });
   };
-  
-  // Theme select
-  const themeSelect = document.getElementById('theme-select');
-  if (themeSelect) {
-    themeSelect.value = preferences.theme || 'dark';
-    
-    themeSelect.addEventListener('change', () => {
-      preferences.theme = themeSelect.value;
-      user.preferences = preferences;
-      localStorage.setItem('currentUser', JSON.stringify(user));
-    });
-  }
-  
-  // Language select
-  const languageSelect = document.getElementById('language-select');
-  if (languageSelect) {
-    languageSelect.value = preferences.language || 'en';
-    
-    languageSelect.addEventListener('change', () => {
-      preferences.language = languageSelect.value;
-      user.preferences = preferences;
-      localStorage.setItem('currentUser', JSON.stringify(user));
-    });
-  }
-  
-  // Profile visibility select
-  const profileVisibility = document.getElementById('profile-visibility');
-  if (profileVisibility) {
-    profileVisibility.value = preferences.profileVisibility || 'public';
-    
-    profileVisibility.addEventListener('change', () => {
-      preferences.profileVisibility = profileVisibility.value;
-      user.preferences = preferences;
-      localStorage.setItem('currentUser', JSON.stringify(user));
-    });
-  }
   
   // Activity status toggle
   const activityStatus = document.getElementById('activity-status');
@@ -5600,3 +5589,43 @@ function showNotification(message, type = 'success') {
     }, 300);
   }, 3000);
 }
+
+function handleLogoutConfirmation() {
+  const logoutLinks = document.querySelectorAll('.nav-link[data-page="logout"]');
+  logoutLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const popup = document.createElement('div');
+      popup.className = 'logout-confirmation';
+      popup.innerHTML = `
+        <div class="confirmation-content">
+          <h2>Confirm Logout</h2>
+          <p>Are you sure you want to log out?</p>
+          <div class="confirmation-buttons">
+            <button id="confirm-logout-btns">Yes</button>
+            <button id="cancel-logout-btns">Cancel</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.classList.add('show'), 10);
+
+      document.getElementById('confirm-logout-btns').onclick = () => {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('currentUser');
+        popup.classList.remove('show');
+        setTimeout(() => document.body.removeChild(popup), 300);
+        showPage('login');
+      };
+
+      document.getElementById('cancel-logout-btns').onclick = () => {
+        popup.classList.remove('show');
+        setTimeout(() => document.body.removeChild(popup), 300);
+        showPage('home');
+      };
+    });
+  });
+}
+
+// Call the function to set up the listeners
+handleLogoutConfirmation();
