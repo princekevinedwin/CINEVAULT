@@ -115,6 +115,7 @@
         <button class="nav-btn next" id="next" aria-label="Next item"><i class="fas fa-chevron-right"></i></button>
       </section>
       <section class="below"></section>
+
       <section class="featured-section">
         <h2>Popular Movies</h2>
         <div class="carousel">
@@ -123,6 +124,7 @@
           <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
         </div>
       </section>
+
       <section class="featured-section">
         <h2>Popular TV Shows</h2>
         <div class="carousel">
@@ -131,12 +133,14 @@
           <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
         </div>
       </section>
+
       <section class="top-10">
         <h2>Top 10 of the Week</h2>
         <div class="top-10-carousel">
           <div class="top-10-track" id="top10"></div>
         </div>
       </section>
+
       <section class="featured-section">
         <h2>Award Winning Movies</h2>
         <div class="carousel">
@@ -165,6 +169,36 @@
           </div>
         </div>
       </section>
+
+      <section id="specials" class="featured-section">
+        <h2>Specials</h2>
+        <div class="carousel">
+          <div class="carousel-track"></div>
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+      <section id="events" class="featured-section">
+        <h2>Events & Premieres</h2>
+        <div class="carousel">
+          <div class="carousel-track"></div>
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+      <section id="movie-of-week" class="featured-section">
+        <h2>Movie/Series of the Week</h2>
+        <!-- Detailed content loaded via JS -->
+      </section>
+      <section id="recommended-favorites" class="featured-section">
+        <h2>Recommended Based on Favorites</h2>
+        <div class="carousel">
+          <div class="carousel-track"></div>
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+
       <section class="actors-section">
         <h2>Trending Actors</h2>
         <div class="actor-carousel" id="trending-actors">
@@ -281,6 +315,34 @@
           <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
         </div>
       </section>
+      <section id="movie-specials" class="featured-section">
+        <h2>Movie Specials</h2>
+        <div class="carousel">
+          <div class="carousel-track"></div>
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+      <section id="movie-events" class="featured-section">
+        <h2>Movie Events & Premieres</h2>
+        <div class="carousel">
+          <div class="carousel-track"></div>
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+      <section id="movie-of-week" class="featured-section">
+        <h2>Movie of the Week</h2>
+        <!-- Detailed content loaded via JS -->
+      </section>
+      <section id="movie-recommended" class="featured-section">
+        <h2>Recommended Movies</h2>
+        <div class="carousel">
+          <div class="carousel-track"></div>
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
     </div>
 
     <!-- Series Page Content -->
@@ -340,6 +402,34 @@
         <div class="carousel">
           <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
           <div class="carousel-track" id="series-airing"></div>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+      <section id="series-specials" class="featured-section">
+        <h2>Series Specials</h2>
+        <div class="carousel">
+          <div class="carousel-track"></div>
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+      <section id="series-events" class="featured-section">
+        <h2>Series Events & Premieres</h2>
+        <div class="carousel">
+          <div class="carousel-track"></div>
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+          <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </section>
+      <section id="series-of-week" class="featured-section">
+        <h2>Series of the Week</h2>
+        <!-- Detailed content loaded via JS -->
+      </section>
+      <section id="series-recommended" class="featured-section">
+        <h2>Recommended Series</h2>
+        <div class="carousel">
+          <div class="carousel-track"></div>
+          <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
           <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
         </div>
       </section>
@@ -478,485 +568,301 @@
     </div>
 
     <!-- Full Updated Community Page HTML -->
-    <div id="community-page" class="page" style="display: none;">
-      <div class="community-container">
+     <div id="community-page" class="page">
+      <div id="community-container" class="community-hub">
         <h1>Community Hub</h1>
-        
-        <!-- Polls Section -->
-        <section class="community-section polls-section">
-          <h2>Community Polls</h2>
-          <div class="poll-card">
-            <div class="poll-header">
-              <i class="fas fa-vote-yea poll-icon"></i>
-              <h3>Which movie are you most excited about this year?</h3>
+        <div class="community-grid">
+          <section class="polls-card modern-card">
+            <h2>Community Polls</h2>
+            <div class="poll">
+              <h3>Which movie are you most excited about in 2025?</h3>
+              <ul>
+                <li>Avatar 3 - 45%</li>
+                <li>The Batman Part II - 30%</li>
+                <li>Jurassic World Rebirth - 25%</li>
+              </ul>
+              <button class="btn primary">Vote Now</button>
+              <p class="vote-message" style="display: none;">Thanks for voting! Current results shown above.</p>
             </div>
-            <div class="poll-options">
-              <label>
-                <input type="radio" name="poll" value="dune">
-                <span class="poll-option-text">Dune: Part Three</span>
-                <span class="poll-bar" style="width: 35%;"></span>
-                <span class="vote-count">35%</span>
-              </label>
-              <label>
-                <input type="radio" name="poll" value="avatar">
-                <span class="poll-option-text">Avatar 3</span>
-                <span class="poll-bar" style="width: 25%;"></span>
-                <span class="vote-count">25%</span>
-              </label>
-              <label>
-                <input type="radio" name="poll" value="guardians">
-                <span class="poll-option-text">Guardians of the Galaxy Vol. 4</span>
-                <span class="poll-bar" style="width: 20%;"></span>
-                <span class="vote-count">20%</span>
-              </label>
-              <label>
-                <input type="radio" name="poll" value="batman">
-                <span class="poll-option-text">The Batman 2</span>
-                <span class="poll-bar" style="width: 20%;"></span>
-                <span class="vote-count">20%</span>
-              </label>
+          </section>
+          <section class="discussions-card modern-card">
+            <h2>Recent Discussions</h2>
+            <div class="discussion">
+              <h3>Oppenheimer vs. Barbie: 2023 Showdown</h3>
+              <p>Join the debate on 2023-2024's biggest films. Updated with 2024 insights.</p>
+              <span>156 comments • 2 hours ago</span>
             </div>
-            <button class="poll-vote-btn">Cast Your Vote!</button>
-            <div class="poll-results" style="display: none;">
-              <p>Thanks for voting! Current results shown above.</p>
+            <div class="discussion">
+              <h3>Best Sci-Fi of 2024</h3>
+              <p>Dune: Part Two dominates discussions.</p>
+              <span>89 comments • 5 hours ago</span>
+            </div>
+            <div class="discussion">
+              <h3>Underrated Gems of 2024</h3>
+              <p>Share your favorite overlooked films, like "Anatomy of a Fall."</p>
+              <span>42 comments • 1 day ago</span>
+            </div>
+          </section>
+          <section class="events-card modern-card">
+            <h2>Upcoming Events</h2>
+            <ul>
+              <li>Comic-Con 2025 - July 24-27, San Diego</li>
+              <li>Oscar Nominations 2026 - January 17</li>
+              <li>Toronto International Film Festival 2025 - September 4-14</li>
+            </ul>
+            <button class="btn secondary">View All Events</button>
+          </section>
+          <section class="reviews-card modern-card">
+            <h2>Recent Reviews</h2>
+            <div class="review">
+              <h3>Dune: Part Two</h3>
+              <p>★★★★★ Epic visuals and storytelling. (User: SciFiFan2024)</p>
+            </div>
+            <div class="review">
+              <h3>Deadpool & Wolverine</h3>
+              <p>★★★★ Hilarious action. (User: MarvelLover)</p>
+            </div>
+            <div class="review">
+              <h3>The Bear Season 3</h3>
+              <p>★★★★★ Intense and emotional. (User: SeriesBinger)</p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hall of Fame Page (Redesigned: Modern sections/cards, real info, new award sections) -->
+    <div id="hall-of-fame-page" class="page">
+      <div id="hall-of-fame-container" class="hall-of-fame">
+        <h1>Hall of Fame</h1>
+        <section class="awards-grid modern-grid">
+          <div class="award-category modern-card">
+            <h2>Oscar Winners 2024</h2>
+            <ul>
+              <li>Best Picture: Oppenheimer</li>
+              <li>Best Director: Christopher Nolan (Oppenheimer)</li>
+              <li>Best Actor: Cillian Murphy (Oppenheimer)</li>
+              <li>Best Actress: Emma Stone (Poor Things)</li>
+              <li>Best Supporting Actor: Robert Downey Jr. (Oppenheimer)</li>
+              <li>Best Supporting Actress: Da’Vine Joy Randolph (The Holdovers)</li>
+            </ul>
+          </div>
+          <div class="award-category modern-card">
+            <h2>Golden Globe Winners 2024</h2>
+            <ul>
+              <li>Best Motion Picture - Drama: Oppenheimer</li>
+              <li>Best Motion Picture - Musical/Comedy: Poor Things</li>
+              <li>Best Director: Christopher Nolan (Oppenheimer)</li>
+              <li>Best Actor - Drama: Cillian Murphy (Oppenheimer)</li>
+              <li>Best Actress - Comedy: Emma Stone (Poor Things)</li>
+            </ul>
+          </div>
+          <div class="award-category modern-card">
+            <h2>Emmy Winners 2024</h2>
+            <ul>
+              <li>Best Drama Series: Shogun</li>
+              <li>Best Comedy Series: Hacks</li>
+              <li>Best Limited Series: Baby Reindeer</li>
+              <li>Best Actor - Drama: Hiroyuki Sanada (Shogun)</li>
+              <li>Best Actress - Comedy: Jean Smart (Hacks)</li>
+            </ul>
+          </div>
+          <div class="award-category modern-card">
+            <h2>BAFTA Winners 2024</h2>
+            <ul>
+              <li>Best Film: Oppenheimer</li>
+              <li>Best Director: Christopher Nolan</li>
+              <li>Best Actor: Cillian Murphy</li>
+              <li>Best Supporting Actress: Da’Vine Joy Randolph (The Holdovers)</li>
+            </ul>
+          </div>
+        </section>
+        <section id="award-winners-actors" class="modern-section">
+          <h2>Award-Winning Actors</h2>
+          <div class="actors-grid">
+            <div class="actor-card">
+              <img src="https://image.tmdb.org/t/p/w500/1gLV0DTAymF5TFRrhp9A6X2Yv8x.jpg" alt="Cillian Murphy">
+              <h3>Cillian Murphy</h3>
+              <p>Oscar Best Actor 2024 - Oppenheimer</p>
+            </div>
+            <div class="actor-card">
+              <img src="https://image.tmdb.org/t/p/w500/2M1uJ8sV9mlNjy6hG3SFwU7rX0l.jpg" alt="Emma Stone">
+              <h3>Emma Stone</h3>
+              <p>Oscar Best Actress 2024 - Poor Things</p>
+            </div>
+            <div class="actor-card">
+              <img src="https://image.tmdb.org/t/p/w500/6EyWWQ9haH3q2bsgT2G3fO2Zc.jpg" alt="Robert Downey Jr.">
+              <h3>Robert Downey Jr.</h3>
+              <p>Oscar Best Supporting Actor 2024 - Oppenheimer</p>
+            </div>
+            <div class="actor-card">
+              <img src="https://image.tmdb.org/t/p/w500/2N5gB3s7C6kL3pY9cQ5Qd5Ztm.jpg" alt="Da’Vine Joy Randolph">
+              <h3>Da’Vine Joy Randolph</h3>
+              <p>Oscar Best Supporting Actress 2024 - The Holdovers</p>
             </div>
           </div>
         </section>
-        
-        <!-- Recent Discussions -->
-        <section class="community-section discussions-section">
-          <h2>Recent Discussions</h2>
-          <div class="discussion-grid">
-            <div class="discussion-card">
-              <div class="discussion-header">
-                <img src="https://ui-avatars.com/api/?name=John+Doe&size=50&background=0D8ABC&color=fff" alt="John Doe" class="avatar">
-                <div>
-                  <h4>John Doe</h4>
-                  <span class="time">2 hours ago</span>
-                </div>
-              </div>
-              <h3>What did you think of the latest superhero movie?</h3>
-              <p>I thought the visual effects were amazing, but the plot was a bit weak. The character development felt rushed compared to the previous installments.</p>
-              <div class="discussion-actions">
-                <button><i class="fas fa-thumbs-up"></i> 24</button>
-                <button><i class="fas fa-comment"></i> 12</button>
-              </div>
-            </div>
-            <div class="discussion-card">
-              <div class="discussion-header">
-                <img src="https://ui-avatars.com/api/?name=Jane+Smith&size=50&background=FF5733&color=fff" alt="Jane Smith" class="avatar">
-                <div>
-                  <h4>Jane Smith</h4>
-                  <span class="time">5 hours ago</span>
-                </div>
-              </div>
-              <h3>Underrated gems of 2023</h3>
-              <p>Let's share some movies that didn't get the attention they deserved last year. I'll start with "The Banshees of Inisherin" - a masterpiece of dark comedy!</p>
-              <div class="discussion-actions">
-                <button><i class="fas fa-thumbs-up"></i> 42</button>
-                <button><i class="fas fa-comment"></i> 18</button>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        <!-- Upcoming Events -->
-        <section class="community-section events-section">
-          <h2>Upcoming Events</h2>
-          <div class="events-timeline">
-            <div class="event-item">
-              <div class="event-date">Dec 15<br>2023</div>
-              <div class="event-content">
-                <h3>Movie Trivia Night</h3>
-                <p>Join us for a fun night of movie trivia at the community center. Prizes include exclusive merchandise and movie tickets!</p>
-                <img src="https://i.pinimg.com/originals/3e/d2/a4/3ed2a466a598ae8bec5a9ad70f01a3b1.jpg" alt="Movie Trivia Night" class="event-image">
-              </div>
-            </div>
-            <div class="event-item">
-              <div class="event-date">Jan 8<br>2024</div>
-              <div class="event-content">
-                <h3>Director Q&A: Christopher Nolan</h3>
-                <p>Live virtual session with the acclaimed director discussing his filmography and upcoming projects.</p>
-                <img src="https://deadline.com/wp-content/uploads/2024/12/Christopher-Nolan.jpg?w=1024" alt="Nolan Q&A" class="event-image">
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        <!-- Recent Reviews -->
-        <section class="community-section reviews-section">
-          <h2>Recent Reviews</h2>
-          <div class="reviews-grid">
-            <div class="review-card">
-              <div class="review-header">
-                <img src="https://ui-avatars.com/api/?name=Mike+Johnson&size=50&background=1E90FF&color=fff" alt="Mike Johnson" class="avatar">
-                <div>
-                  <h4>Mike Johnson</h4>
-                  <div class="star-rating">★★★★★</div>
-                </div>
-              </div>
+        <section id="award-winners-movies" class="modern-section">
+          <h2>Award-Winning Movies/Series</h2>
+          <div class="movies-grid">
+            <div class="movie-card">
+              <img src="https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2.jpg" alt="Oppenheimer">
               <h3>Oppenheimer</h3>
-              <p>A masterpiece of filmmaking. Nolan has outdone himself with this biographical thriller. The cinematography and score are exceptional.</p>
-              <img src="https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" data-tmdb-id="872585" alt="Oppenheimer Review" class="review-image tmdb-image">
+              <p>7 Oscars including Best Picture (2024)</p>
             </div>
-            <div class="review-card">
-              <div class="review-header">
-                <img src="https://ui-avatars.com/api/?name=Sarah+Williams&size=50&background=FF69B4&color=fff" alt="Sarah Williams" class="avatar">
-                <div>
-                  <h4>Sarah Williams</h4>
-                  <div class="star-rating">★★★★☆</div>
-                </div>
-              </div>
-              <h3>Fast X</h3>
-              <p>Entertaining but starting to feel repetitive. The action sequences are still top-notch though. Great for a fun movie night.</p>
-              <img src="https://image.tmdb.org/t/p/w500/fiVW06jE7z9YnO4trhaMEdclSiC.jpg" data-tmdb-id="385687" alt="Fast X Review" class="review-image tmdb-image">
+            <div class="movie-card">
+              <img src="https://image.tmdb.org/t/p/w500/5ZSwZPKa5gw3G9fj2B94j9yza.jpg" alt="Poor Things">
+              <h3>Poor Things</h3>
+              <p>4 Oscars including Best Actress (2024)</p>
+            </div>
+            <div class="movie-card">
+              <img src="https://image.tmdb.org/t/p/w500/7qZUCXgK8KXDI6tS4H8e3pWyg.jpg" alt="Shogun">
+              <h3>Shogun</h3>
+              <p>Emmy Best Drama Series 2024</p>
+            </div>
+            <div class="movie-card">
+              <img src="https://image.tmdb.org/t/p/w500/2f9k3I4vW5k.jpg" alt="Hacks">
+              <h3>Hacks</h3>
+              <p>Emmy Best Comedy Series 2024</p>
+            </div>
+          </div>
+        </section>
+        <section id="award-winners-directors" class="modern-section">
+          <h2>Award-Winning Directors</h2>
+          <div class="directors-grid">
+            <div class="director-card">
+              <img src="https://image.tmdb.org/t/p/w500/1vM3yV5M.jpg" alt="Christopher Nolan">
+              <h3>Christopher Nolan</h3>
+              <p>Oscar Best Director 2024 - Oppenheimer</p>
+            </div>
+            <div class="director-card">
+              <img src="https://image.tmdb.org/t/p/w500/3k4Sp.jpg" alt="Yorgos Lanthimos">
+              <h3>Yorgos Lanthimos</h3>
+              <p>Golden Globe Nominee 2024 - Poor Things</p>
+            </div>
+            <div class="director-card">
+              <img src="https://image.tmdb.org/t/p/w500/7Y2z.jpg" alt="Greta Gerwig">
+              <h3>Greta Gerwig</h3>
+              <p>Oscar Nominee 2024 - Barbie</p>
+            </div>
+            <div class="director-card">
+              <img src="https://image.tmdb.org/t/p/w500/5kSp.jpg" alt="Denis Villeneuve">
+              <h3>Denis Villeneuve</h3>
+              <p>Critics Choice Nominee 2024 - Dune: Part Two</p>
+            </div>
+          </div>
+        </section>
+        <section class="easter-eggs modern-section">
+          <h2>Easter Eggs & Hidden References</h2>
+          <div class="modern-card">
+            <h3>Pixar's "A113"</h3>
+            <p>In almost every Pixar film, you can find the code "A113" somewhere in the background. This is the classroom number where many Pixar animators learned their craft. It appears in movies like Toy Story, Finding Nemo, and The Incredibles.</p>
+          </div>
+          <div class="modern-card">
+            <h3>Stan Lee Cameos</h3>
+            <p>Before his passing, Stan Lee made cameo appearances in nearly every Marvel movie. His most memorable cameos include playing a hot dog vendor in "X-Men" and a strip club DJ in "Deadpool."</p>
+          </div>
+          <div class="modern-card">
+            <h3>The Tarantino Universe</h3>
+            <p>Many of Quentin Tarantino's films exist in the same universe. Characters from one film often appear in another, and brands like "Red Apple" cigarettes appear across multiple movies.</p>
+          </div>
+        </section>
+        <section class="behind-scenes modern-section">
+          <h2>Behind-the-Scenes</h2>
+          <div class="modern-card">
+            <h3>The Making of Avatar</h3>
+            <p>James Cameron waited over a decade to make "Avatar" because he felt technology wasn't advanced enough to realize his vision. The film pioneered new motion capture techniques.</p>
+          </div>
+          <div class="modern-card">
+            <h3>Practical Effects in Mad Max</h3>
+            <p>"Mad Max: Fury Road" used minimal CGI, with over 80% of the effects being practical. The team built 150 custom vehicles for the film's chase sequences.</p>
+          </div>
+        </section>
+        <section class="movie-records modern-section">
+          <h2>Movie Firsts & Records</h2>
+          <div class="modern-card">
+            <h3>First Color Film</h3>
+            <p>"The Wizard of Oz" (1939) was one of the first feature-length films to be shot in Technicolor, revolutionizing the use of color in cinema.</p>
+          </div>
+          <div class="modern-card">
+            <h3>Highest-Grossing Film</h3>
+            <p>"Avatar" (2009) remains the highest-grossing film of all time with over $2.9 billion worldwide, a record it has held for over a decade.</p>
+          </div>
+          <div class="modern-card">
+            <h3>Longest Film Ever Made</h3>
+            <p>"The Cure for Insomnia" (1987) runs for 87 hours, consisting primarily of artist L.D. Groban reading his 4,000-page poem "A Cure for Insomnia."</p>
+          </div>
+        </section>
+        <section class="iconic-quotes modern-section">
+          <h2>Iconic Quotes</h2>
+          <div class="modern-card">
+            <p>"May the Force be with you." - Star Wars (1977)</p>
+          </div>
+          <div class="modern-card">
+            <p>"I'll be back." - The Terminator (1984)</p>
+          </div>
+          <div class="modern-card">
+            <p>"Here's looking at you, kid." - Casablanca (1942)</p>
+          </div>
+          <div class="modern-card">
+            <p>"You can't handle the truth!" - A Few Good Men (1992)</p>
+          </div>
+        </section>
+        <section class="fun-facts modern-section">
+          <h2>Character & Actor Fun Facts</h2>
+          <div class="modern-card">
+            <p>🎭 Heath Ledger's Joker: Heath Ledger locked himself in a hotel room for a month to prepare for his role as the Joker in "The Dark Knight."</p>
+          </div>
+          <div class="modern-card">
+            <p>🎭 Daniel Day-Lewis' Method Acting: For his role in "My Left Foot," Daniel Day-Lewis stayed in a wheelchair for the entire duration of filming.</p>
+          </div>
+          <div class="modern-card">
+            <p>🎭 Robert Downey Jr.'s Iron Man: Robert Downey Jr. improvised many of Tony Stark's lines, including the iconic "I am Iron Man."</p>
+          </div>
+        </section>
+        <section class="fan-theories modern-section">
+          <h2>Fan Theories</h2>
+          <div class="modern-card">
+            <p>🤯 James Bond is a Codename: A popular fan theory suggests that "James Bond" is a codename passed down to different agents.</p>
+          </div>
+          <div class="modern-card">
+            <p>🤯 Ferris Bueller's Day Off - Cameron's Dream: Some fans believe the entire movie is actually Cameron's dream.</p>
+          </div>
+          <div class="modern-card">
+            <p>🤯 The Pixar Theory: A complex fan theory connects all Pixar movies into a single timeline.</p>
+          </div>
+        </section>
+        <section class="interactive-section modern-section">
+          <h2>Interactive</h2>
+          <div class="poll">
+            <h3>Which fan theory do you believe?</h3>
+            <form>
+              <label><input type="radio" name="fan-theory" value="bond"> James Bond is a codename</label>
+              <label><input type="radio" name="fan-theory" value="ferris"> Ferris Bueller is Cameron's dream</label>
+              <label><input type="radio" name="fan-theory" value="pixar"> The Pixar Theory</label>
+              <label><input type="radio" name="fan-theory" value="none"> None of these</label>
+              <button type="submit" class="btn primary">Vote</button>
+            </form>
+          </div>
+          <div class="comments">
+            <h3>Comments</h3>
+            <form>
+              <textarea placeholder="Share your thoughts..."></textarea>
+              <button type="submit" class="btn primary">Submit</button>
+            </form>
+            <div class="comment">
+              <p><strong>Alex Thompson</strong> <span>1 day ago</span></p>
+              <p>The Pixar Theory makes so much sense when you connect all the dots!</p>
+            </div>
+            <div class="comment">
+              <p><strong>Morgan Lee</strong> <span>2 days ago</span></p>
+              <p>I always thought James Bond was just one character with different actors. The codename theory blew my mind!</p>
             </div>
           </div>
         </section>
       </div>
     </div>
-
-    <!-- Full Updated Hall of Fame Page HTML -->
-    <div id="hall-of-fame-page" class="page" style="display: none;">
-      <div class="hall-of-fame-container">
-        <h1>Hall of Fame</h1>
-        
-        <!-- Award Winners -->
-        <section class="hof-section awards-section">
-          <h2>Award Winners</h2>
-          <div class="awards-grid">
-            <div class="award-category">
-              <h3><i class="fas fa-trophy"></i> Grammy Winners</h3>
-              <div class="award-carousel">
-                <div class="award-track">
-                  <div class="award-item">
-                    <img src="https://image.tmdb.org/t/p/w500/62HCnUTziyWcpDaBO2i1DX17ljH.jpg" data-tmdb-id="361743" alt="Top Gun: Maverick" class="tmdb-image">
-                    <div>
-                      <h4>Best Soundtrack</h4>
-                      <p>Top Gun: Maverick - Harold Faltermeyer, Lady Gaga</p>
-                    </div>
-                  </div>
-                  <div class="award-item">
-                    <img src="https://image.tmdb.org/t/p/w500/74jG9k0ecN4n1X4nM5S9sRGk1X4.jpg" data-tmdb-id="414906" alt="The Batman" class="tmdb-image">
-                    <div>
-                      <h4>Best Score Soundtrack For Visual Media</h4>
-                      <p>The Batman - Michael Giacchino</p>
-                    </div>
-                  </div>
-                  <div class="award-item">
-                    <img src="https://image.tmdb.org/t/p/w500/4j0PNHkMr5ax3IA8tjtxcmPUk9c.jpg" data-tmdb-id="568124" alt="Encanto" class="tmdb-image">
-                    <div>
-                      <h4>Best Compilation Soundtrack For Visual Media</h4>
-                      <p>Encanto - Various Artists</p>
-                    </div>
-                  </div>
-                  <div class="award-item">
-                    <img src="https://image.tmdb.org/t/p/w500/iUgygtbvnDRYN0eH1QnlG1rA5Pq.jpg" data-tmdb-id="370172" alt="No Time To Die" class="tmdb-image">
-                    <div>
-                      <h4>Best Song Written For Visual Media</h4>
-                      <p>"No Time To Die" - Billie Eilish</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="award-indicators"></div>
-              </div>
-            </div>
-            <div class="award-category">
-              <h3><i class="fas fa-trophy"></i> Emmy Winners</h3>
-              <div class="award-carousel">
-                <div class="award-track">
-                  <div class="award-item">
-                    <img src="https://image.tmdb.org/t/p/w500/w4tS8cM6wO7P2a47JWRXQ3nBLIY.jpg" data-tmdb-id="76331" data-type="tv" alt="Succession" class="tmdb-image">
-                    <div>
-                      <h4>Outstanding Drama Series</h4>
-                      <p>Succession</p>
-                    </div>
-                  </div>
-                  <div class="award-item">
-                    <img src="https://image.tmdb.org/t/p/w500/5fXZJ105Xs5L3wsly9UukDDY29p.jpg" data-tmdb-id="97546" data-type="tv" alt="Ted Lasso" class="tmdb-image">
-                    <div>
-                      <h4>Outstanding Comedy Series</h4>
-                      <p>Ted Lasso</p>
-                    </div>
-                  </div>
-                  <div class="award-item">
-                    <img src="https://image.tmdb.org/t/p/w500/65rd3Y8dUJ2TuW9hFSudRfsu7FG.jpg" data-tmdb-id="93405" data-type="tv" alt="Squid Game" class="tmdb-image">
-                    <div>
-                      <h4>Outstanding Lead Actor in a Drama Series</h4>
-                      <p>Lee Jung-jae - Squid Game</p>
-                    </div>
-                  </div>
-                  <div class="award-item">
-                    <img src="https://image.tmdb.org/t/p/w500/jtnfNzqZwN4E32FGG7nwykvXfgg.jpg" data-tmdb-id="85552" data-type="tv" alt="Euphoria" class="tmdb-image">
-                    <div>
-                      <h4>Outstanding Lead Actress in a Drama Series</h4>
-                      <p>Zendaya - Euphoria</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="award-indicators"></div>
-              </div>
-            </div>
-            <div class="award-category">
-              <h3><i class="fas fa-trophy"></i> BET Winners</h3>
-              <div class="award-carousel">
-                <div class="award-track">
-                  <div class="award-item">
-                    <img src="https://image.tmdb.org/t/p/w500/sv1xJUazXeYqALzczSZ3O6nkH75.jpg" data-tmdb-id="505642" alt="Black Panther: Wakanda Forever" class="tmdb-image">
-                    <div>
-                      <h4>Best Movie</h4>
-                      <p>Black Panther: Wakanda Forever</p>
-                    </div>
-                  </div>
-                  <div class="award-item">
-                    <img src="https://image.tmdb.org/t/p/w500/cvsXj3I9Q2iyyIo95AecSd1tad7.jpg" data-tmdb-id="677179" alt="Creed III" class="tmdb-image">
-                    <div>
-                      <h4>Best Actor</h4>
-                      <p>Jonathan Majors - Creed III</p>
-                    </div>
-                  </div>
-                  <div class="award-item">
-                    <img src="https://image.tmdb.org/t/p/w500/438QXt1E3WJWb3PqNniK0tAE5c1.jpg" data-tmdb-id="724495" alt="The Woman King" class="tmdb-image">
-                    <div>
-                      <h4>Best Actress</h4>
-                      <p>Viola Davis - The Woman King</p>
-                    </div>
-                  </div>
-                  <div class="award-item">
-                    <img src="https://image.tmdb.org/t/p/w500/wE0I6efAW4cDDmZQWSDxbP0E4MD.jpg" data-tmdb-id="579974" alt="RRR" class="tmdb-image">
-                    <div>
-                      <h4>Best International Film</h4>
-                      <p>RRR</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="award-indicators"></div>
-              </div>
-            </div>
-            <div class="award-category">
-              <h3><i class="fas fa-trophy"></i> Golden Globe Winners</h3>
-              <div class="award-carousel">
-                <div class="award-track">
-                  <div class="award-item">
-                    <img src="https://static1.srcdn.com/wordpress/wp-content/uploads/2022/09/The-Fabelmans-Official-Poster.jpg" alt="The Fabelmans" class="tmdb-image">
-                    <div>
-                      <h4>Best Motion Picture - Drama</h4>
-                      <p>The Fabelmans</p>
-                    </div>
-                  </div>
-                  <div class="award-item">
-                    <img src="https://static1.srcdn.com/wordpress/wp-content/uploads/2024/08/instar53980780.jpg" alt="The Fabelmans" class="tmdb-image">
-                    <div>
-                      <h4>Best Director</h4>
-                      <p>Steven Spielberg (The Fabelmans)</p>
-                    </div>
-                  </div>
-                  <div class="award-item">
-                    <img src="https://m.media-amazon.com/images/M/MV5BMTc1MDI0MDg1NV5BMl5BanBnXkFtZTgwMDM3OTAzMTE@._V1_FMjpg_UX1000_.jpg" alt="Tár" class="tmdb-image">
-                    <div>
-                      <h4>Best Actress - Drama</h4>
-                      <p>Cate Blanchett (Tár)</p>
-                    </div>
-                  </div>
-                  <div class="award-item">
-                    <img src="https://wallpapers.com/images/hd/austin-butler-looking-at-camera-38c5icepfdrjx581.jpg" alt="Elvis" class="tmdb-image">
-                    <div>
-                      <h4>Best Actor - Drama</h4>
-                      <p>Austin Butler (Elvis)</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="award-indicators"></div>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        <!-- Easter Eggs & Hidden References -->
-        <section class="hof-section easter-eggs-section">
-          <h2>Easter Eggs & Hidden References</h2>
-          <div class="easter-eggs-grid">
-            <div class="easter-egg-card">
-              <img src="https://static1.srcdn.com/wordpress/wp-content/uploads/2023/09/untitled-design-84.jpg" alt="Pixar A113">
-              <h3>Pixar's "A113"</h3>
-              <p>In almost every Pixar film, you can find the code "A113" somewhere in the background. This is the classroom number where many Pixar animators learned their craft. It appears in movies like Toy Story, Finding Nemo, and The Incredibles.</p>
-            </div>
-            <div class="easter-egg-card">
-              <img src="https://www.cheatsheet.com/wp-content/uploads/2021/02/stan-lee.jpg?w=1200&h=799&strip=all&quality=89" alt="Stan Lee Cameo">
-              <h3>Stan Lee Cameos</h3>
-              <p>Before his passing, Stan Lee made cameo appearances in nearly every Marvel movie. His most memorable cameos include playing a hot dog vendor in "X-Men" and a strip club DJ in "Deadpool."</p>
-            </div>
-            <div class="easter-egg-card">
-              <img src="https://static1.srcdn.com/wordpress/wp-content/uploads/2019/10/Quentin-Tarantino-Movies-Timeline.jpg" alt="Tarantino Red Apple">
-              <h3>The Tarantino Universe</h3>
-              <p>Many of Quentin Tarantino's films exist in the same universe. Characters from one film often appear in another, and brands like "Red Apple" cigarettes appear across multiple movies.</p>
-            </div>
-          </div>
-        </section>
-        
-        <!-- Behind-the-Scenes -->
-        <section class="hof-section bts-section">
-          <h2>Behind-the-Scenes</h2>
-          <div class="bts-grid">
-            <div class="bts-card">
-              <img src="https://image.tmdb.org/t/p/w500/jRXYjXNq0Cs2TcJjLkki24MLpDs.jpg" data-tmdb-id="19995" alt="Avatar BTS" class="tmdb-image">
-              <h3>The Making of Avatar</h3>
-              <p>James Cameron waited over a decade to make "Avatar" because he felt technology wasn't advanced enough to realize his vision. The film pioneered new motion capture techniques.</p>
-            </div>
-            <div class="bts-card">
-              <img src="https://image.tmdb.org/t/p/w500/8tZYtuWeGTtV8VRIOXWggLvDmn0.jpg" data-tmdb-id="76341" alt="Mad Max Practical Effects" class="tmdb-image">
-              <h3>Practical Effects in Mad Max</h3>
-              <p>"Mad Max: Fury Road" used minimal CGI, with over 80% of the effects being practical. The team built 150 custom vehicles for the film's chase sequences.</p>
-            </div>
-          </div>
-        </section>
-        
-        <!-- Movie Firsts & Records -->
-        <section class="hof-section records-section">
-          <h2>Movie Firsts & Records</h2>
-          <div class="records-list">
-            <div class="record-item">
-              <i class="fas fa-film"></i>
-              <h3>First Color Film</h3>
-              <p>"The Wizard of Oz" (1939) was one of the first feature-length films to be shot in Technicolor, revolutionizing the use of color in cinema.</p>
-              <img src="https://image.tmdb.org/t/p/w500/wv2vY9MoCkEYf9Kj9GoP585pG8p.jpg" data-tmdb-id="630" alt="Wizard of Oz" class="tmdb-image">
-            </div>
-            <div class="record-item">
-              <i class="fas fa-dollar-sign"></i>
-              <h3>Highest-Grossing Film</h3>
-              <p>"Avatar" (2009) remains the highest-grossing film of all time with over $2.9 billion worldwide, a record it has held for over a decade.</p>
-              <img src="https://image.tmdb.org/t/p/w500/jRXYjXNq0Cs2TcJjLkki24MLpDs.jpg" data-tmdb-id="19995" alt="Avatar Grossing" class="tmdb-image">
-            </div>
-            <div class="record-item">
-              <i class="fas fa-clock"></i>
-              <h3>Longest Film Ever Made</h3>
-              <p>"The Cure for Insomnia" (1987) runs for 87 hours, consisting primarily of artist L.D. Groban reading his 4,000-page poem "A Cure for Insomnia."</p>
-              <img src="https://media.senscritique.com/media/000004189739/source_big/The_Cure_for_Insomnia.jpg" alt="Cure for Insomnia">
-            </div>
-          </div>
-        </section>
-        
-        <!-- Iconic Quotes -->
-        <section class="hof-section quotes-section">
-          <h2>Iconic Quotes</h2>
-          <div class="quotes-grid">
-            <div class="quote-card">
-              <blockquote>"May the Force be with you."</blockquote>
-              <cite>Star Wars (1977)</cite>
-              <img src="https://image.tmdb.org/t/p/w500/6FfCtAuVAW8XJjZ7eWeLibgSju1.jpg" data-tmdb-id="11" alt="Star Wars Quote" class="tmdb-image">
-            </div>
-            <div class="quote-card">
-              <blockquote>"I'll be back."</blockquote>
-              <cite>The Terminator (1984)</cite>
-              <img src="https://image.tmdb.org/t/p/w500/qzqkiOna0BHgBReJt6OLmaFSV5O.jpg" data-tmdb-id="218" alt="Terminator Quote" class="tmdb-image">
-            </div>
-            <div class="quote-card">
-              <blockquote>"Here's looking at you, kid."</blockquote>
-              <cite>Casablanca (1942)</cite>
-              <img src="https://image.tmdb.org/t/p/w500/5K7cOAqDVrefY3OwtO6I0OaB3F.jpg" data-tmdb-id="289" alt="Casablanca Quote" class="tmdb-image">
-            </div>
-            <div class="quote-card">
-              <blockquote>"You can't handle the truth!"</blockquote>
-              <cite>A Few Good Men (1992)</cite>
-              <img src="https://image.tmdb.org/t/p/w500/8VQurjgXNr8TxpS0aejD58G57MV.jpg" data-tmdb-id="881" alt="A Few Good Men Quote" class="tmdb-image">
-            </div>
-          </div>
-        </section>
-        
-        <!-- Character & Actor Fun Facts -->
-        <section class="hof-section facts-section">
-          <h2>Character & Actor Fun Facts</h2>
-          <div class="facts-list">
-            <div class="fact-item">
-              <span class="fact-emoji">🎭</span>
-              <h3>Heath Ledger's Joker</h3>
-              <p>Heath Ledger locked himself in a hotel room for a month to prepare for his role as the Joker in "The Dark Knight." He kept a diary of the character's thoughts and emotions.</p>
-              <img src="https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6A0G5YKMMbW.jpg" data-tmdb-id="155" alt="The Dark Knight" class="tmdb-image">
-            </div>
-            <div class="fact-item">
-              <span class="fact-emoji">🎭</span>
-              <h3>Daniel Day-Lewis' Method Acting</h3>
-              <p>For his role in "My Left Foot," Daniel Day-Lewis stayed in a wheelchair for the entire duration of filming, requiring crew members to carry him around.</p>
-              <img src="https://image.tmdb.org/t/p/w500/rKYYWyO3GdgwDX3yYVpmoYzw5iO.jpg" data-tmdb-id="10161" alt="My Left Foot" class="tmdb-image">
-            </div>
-            <div class="fact-item">
-              <span class="fact-emoji">🎭</span>
-              <h3>Robert Downey Jr.'s Iron Man</h3>
-              <p>Robert Downey Jr. improvised many of Tony Stark's lines, including the iconic "I am Iron Man" at the end of the first movie, which was not in the original script.</p>
-              <img src="https://image.tmdb.org/t/p/w500/78lPtwv72eTNqFW9COBYI0dWDJa.jpg" data-tmdb-id="1726" alt="Iron Man" class="tmdb-image">
-            </div>
-          </div>
-        </section>
-        
-        <!-- Fan Theories -->
-        <section class="hof-section theories-section">
-          <h2>Fan Theories</h2>
-          <div class="theories-list">
-            <div class="theory-item">
-              <span class="theory-emoji">🤯</span>
-              <h3>James Bond is a Codename</h3>
-              <p>A popular fan theory suggests that "James Bond" is not a single person but a codename passed down to different agents, explaining why the character has changed appearance and personality over decades.</p>
-              <img src="https://image.tmdb.org/t/p/w500/iUgygtbvnDRYN0eH1QnlG1rA5Pq.jpg" data-tmdb-id="370172" alt="James Bond" class="tmdb-image">
-            </div>
-            <div class="theory-item">
-              <span class="theory-emoji">🤯</span>
-              <h3>Ferris Bueller's Day Off - Cameron's Dream</h3>
-              <p>Some fans believe the entire movie is actually Cameron's dream, and Ferris is a manifestation of everything Cameron wishes he could be.</p>
-              <img src="https://image.tmdb.org/t/p/w500/9FkeUqm6zxDLPtbJQmFZL8IChBP.jpg" data-tmdb-id="9377" alt="Ferris Bueller" class="tmdb-image">
-            </div>
-            <div class="theory-item">
-              <span class="theory-emoji">🤯</span>
-              <h3>The Pixar Theory</h3>
-              <p>A complex fan theory connects all Pixar movies into a single timeline, suggesting that the films tell the story of a universe where humans, animals, and machines coexist and evolve.</p>
-              <img src="https://www.popoptiq.com/wp-content/uploads/2014/10/pixar-theory-1.jpg" alt="Pixar Theory">
-            </div>
-          </div>
-        </section>
-           
-    <!-- Interactive -->
-    <section class="hof-section interactive-section">
-      <h2>Interactive</h2>
-      <div class="interactive">
-        <div class="poll">
-          <h3>Which fan theory do you believe?</h3>
-          <div class="poll-options">
-            <label><input type="radio" name="fan-poll" value="bond"> James Bond is a codename</label>
-            <label><input type="radio" name="fan-poll" value="ferris"> Ferris Bueller is Cameron's dream</label>
-            <label><input type="radio" name="fan-poll" value="pixar"> The Pixar Theory</label>
-            <label><input type="radio" name="fan-poll" value="none"> None of these</label>
-          </div>
-          <button class="poll-vote-btn">Vote</button>
-        </div>
-        <div class="comments-section">
-          <h3>Comments</h3>
-          <div class="comment-form">
-            <textarea placeholder="Add a comment..."></textarea>
-            <button>Submit</button>
-          </div>
-          <div class="comments-list">
-            <div class="comment">
-              <div class="comment-header">
-                <img src="https://ui-avatars.com/api/?name=Alex+Thompson&size=40&background=FF69B4&color=fff" alt="Alex" class="avatar">
-                <h4>Alex Thompson</h4>
-                <span class="comment-time">1 day ago</span>
-              </div>
-              <p>The Pixar Theory makes so much sense when you connect all the dots!</p>
-            </div>
-            <div class="comment">
-              <div class="comment-header">
-                <img src="https://ui-avatars.com/api/?name=Morgan+Lee&size=40&background=1E90FF&color=fff" alt="Morgan" class="avatar">
-                <h4>Morgan Lee</h4>
-                <span class="comment-time">2 days ago</span>
-              </div>
-              <p>I always thought James Bond was just one character with different actors. The codename theory blew my mind!</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-</div>
-    <!-- Actor Modal -->
+        <!-- Actor Modal -->
     <div class="modal" id="actor-modal">
       <div class="modal-content">
         <span class="close">&times;</span>
@@ -1024,13 +930,26 @@
       </div>
     </div>
 
-    <!-- Trailer Modal -->
-    <div id="trailer-modal" class="modal">
+    <!-- Trailer Popup (Ensured close functionality) -->
+    <div id="trailer-popup" class="modal" style="display: none;">
+      <span id="trailer-close" class="close">&times;</span>
       <div class="modal-content">
-        <span class="close">&times;</span>
-        <div id="trailer-modal-body"></div>
+        <iframe width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
       </div>
     </div>
+
+    <!-- Recommended Popup (New) -->
+    <div id="recommended-popup" class="recommended-modal" style="display: none;">
+  <span id="recommended-close" class="close">&times;</span>
+  <div class="rec-modal-content">
+    <h2>Recommended For You</h2>
+    <div class="carousel">
+      <button class="carousel-btn prev" id="recommended-prev"><i class="fas fa-chevron-left"></i></button>
+      <div id="recommended-list" class="carousel-track"></div>
+      <button class="carousel-btn next" id="recommended-next"><i class="fas fa-chevron-right"></i></button>
+    </div>
+  </div>
+</div>
 
     <!-- Login Page -->
 <div id="login-page" class="page" style="display: none;">
@@ -1450,26 +1369,7 @@
     </footer>
   </main>
 
-  <script src="/static/js/index.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-  // Initialize Mermaid
-  mermaid.initialize({ startOnLoad: true });
-
-  // Navigation logic
-  const navLinks = document.querySelectorAll('.nav-link');
-  navLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const page = link.getAttribute('data-page');
-      if (page) {
-        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-        document.querySelector(`#${page}-page`).style.display = 'block';
-      }
-    });
-  });
-
-    });
-  </script>
+<script  src="/static/js/index.js"></script>
+ 
 </body>
 </html>

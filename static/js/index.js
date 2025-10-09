@@ -111,6 +111,16 @@ const genreButtons = document.querySelectorAll(".genre-btn");
 const genreMovies = q("genre-movies");
 const genreClose = q("genre-close");
 
+const trailerPopup = q("trailer-popup");
+const trailerClose = q("trailer-close");
+
+const specials = q("specials");
+const events = q("events");
+const movieOfWeek = q("movie-of-week");
+const recommendedFavorites = q("recommended-favorites");
+const movieSpecials = q("movie-specials");
+const seriesSpecials = q("series-specials");
+
 // News page elements
 const movieNewsContainer = q("movie-news");
 const tvNewsContainer = q("tv-news");
@@ -1193,18 +1203,30 @@ function showPage(page) {
     loadMovieTrivia();
     loadThisDayInHistory();
     loadDirectorSpotlight();
+    fetchSpecials(); // New
+    fetchEvents(); // New
+    fetchMovieOfTheWeek(); // New (with details)
+    fetchRecommendedBasedOnFavorites(); // New
   } else if (page === 'movies') {
     console.log('Loading movies page content');
     fetchMoviesTrending();
     loadMovies(moviesCurrentPage);
     fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'movies-top-rated', 10, false, 'movie');
     fetchUpcomingMovies('movies-upcoming', 10);
+    fetchMovieSpecials(); // New
+    fetchMovieEvents(); // New
+    fetchMovieOfTheWeek(); // New
+    fetchMovieRecommended(); // New
   } else if (page === 'series') {
     console.log('Loading series page content');
     fetchSeriesTrending();
     loadSeries(seriesCurrentPage);
     fetchMovies(`${BASE}/discover/tv?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'series-top-rated', 10, false, 'tv');
     fetchUpcoming(`${BASE}/discover/tv?api_key=${API_KEY}&sort_by=first_air_date.asc&first_air_date.gte=${today}&first_air_date.lte=2026-12-31`, 'series-airing', 10, 'tv');
+    fetchSeriesSpecials(); // New
+    fetchSeriesEvents(); // New
+    fetchSeriesOfTheWeek(); // New
+    fetchSeriesRecommended(); // New
   } else if (page === 'genres') {
     console.log('Loading genres page content');
     selectedType = 'movie';
@@ -1226,6 +1248,10 @@ function showPage(page) {
   } else if (page === 'mylist') {
     console.log('Loading my list page');
     showMyListPage();
+  } else if (page === 'community') {
+    loadCommunity(); // Redesigned loader
+  } else if (page === 'hall-of-fame') {
+    loadHallOfFame(); // Redesigned loader
   } else if (page === 'search-results') {
     const searchResultsPage = document.getElementById('search-results-page');
     if (searchResultsPage) {
@@ -2158,8 +2184,6 @@ async function fetchActors() {
   }
 }
 
-// Function to show details page
-// Replace your existing showDetailsPage function with this enhanced version
 async function showDetailsPage(mediaId, mediaType) {
   console.log('showDetailsPage called with:', mediaId, mediaType);
   
@@ -2401,10 +2425,212 @@ async function showDetailsPage(mediaId, mediaType) {
       }
     };
 
-    // Recommended button (placeholder)
-    recommendedBtn.onclick = () => {
-      showNotification('Recommended feature coming soon!', 'info');
+    // Handle the Recommended button click using onclick
+recommendedBtn.onclick = async () => {
+  console.log('Recommended button clicked. Details:', details, 'Type:', mediaType, 'ID:', mediaId); // Debug: Log inputs
+  try {
+    // Get the recommended popup and its elements
+    const recommendedPopup = document.getElementById('recommended-popup');
+    const recommendedList = document.getElementById('recommended-list');
+    const recommendedClose = document.getElementById('recommended-close');
+
+    // Verify popup elements exist
+    if (!recommendedPopup || !recommendedList || !recommendedClose) {
+      console.error('Popup elements not found:', {
+        recommendedPopup: !!recommendedPopup,
+        recommendedList: !!recommendedList,
+        recommendedClose: !!recommendedClose
+      });
+      showNotification('Popup elements not found. Please check the DOM.', 'error');
+      return;
+    }
+
+    // Clear previous content in the carousel
+    recommendedList.innerHTML = '';
+    console.log('Cleared recommendedList content'); // Debug: Confirm clear
+
+    // Check if details, mediaType, and mediaId are available
+    if (!details || !mediaType || !mediaId) {
+      console.error('Missing required data:', { details: !!details, mediaType, mediaId });
+      showNotification('Item details or type not available', 'error');
+      // Fallback: Show title
+      const title = details?.title || details?.name || 'Unknown Title';
+      const titleBox = document.createElement('div');
+      titleBox.className = 'title-box';
+      titleBox.style.cssText = `
+        background: #333;
+        color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 1.5rem;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+      `;
+      titleBox.textContent = `No data available for ${title}`;
+      recommendedList.appendChild(titleBox);
+      recommendedPopup.style.display = 'flex';
+      console.log('Popup displayed with fallback title:', title); // Debug
+      return;
+    }
+
+    // Try fetching recommendations
+    let recommendations = [];
+    const recommendationUrl = `${BASE}/${mediaType}/${mediaId}/recommendations?api_key=${API_KEY}&page=1`;
+    console.log('Attempting recommendations endpoint:', recommendationUrl); // Debug: Log URL
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 250)); // Rate limit delay
+      const res = await fetch(recommendationUrl);
+      if (!res.ok) {
+        console.error(`Recommendations API failed: Status ${res.status} ${res.statusText}`);
+        throw new Error(`HTTP error: ${res.status}`);
+      }
+      const data = await res.json();
+      recommendations = data.results || [];
+      console.log('Recommendations fetched:', recommendations); // Debug: Log results
+    } catch (error) {
+      console.warn('Recommendations endpoint failed:', error.message);
+      // Fallback: Show title
+      const title = details.title || details.name || 'Unknown Title';
+      const titleBox = document.createElement('div');
+      titleBox.className = 'title-box';
+      titleBox.style.cssText = `
+        background: #333;
+        color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 1.5rem;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+      `;
+      titleBox.textContent = `No recommendations available for ${title}`;
+      recommendedList.appendChild(titleBox);
+      recommendedPopup.style.display = 'flex';
+      console.log('Popup displayed with no recommendations fallback:', title); // Debug
+      return;
+    }
+
+    // Filter out the current item and limit to 10 items
+    recommendations = recommendations.filter(item => item.id !== mediaId).slice(0, 10);
+
+    if (recommendations.length === 0) {
+      console.warn('No recommendations found');
+      showNotification('No recommendations found', 'info');
+      // Fallback: Show title
+      const title = details.title || details.name || 'Unknown Title';
+      const titleBox = document.createElement('div');
+      titleBox.className = 'title-box';
+      titleBox.style.cssText = `
+        background: #333;
+        color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 1.5rem;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+      `;
+      titleBox.textContent = `No recommendations available for ${title}`;
+      recommendedList.appendChild(titleBox);
+      recommendedPopup.style.display = 'flex';
+      console.log('Popup displayed with no recommendations fallback:', title); // Debug
+      return;
+    }
+
+    // Populate the carousel with recommendation cards
+    recommendations.forEach(item => {
+      const card = createCard(item, mediaType); // Use existing createCard
+      recommendedList.appendChild(card);
+    });
+    console.log('Appended', recommendations.length, 'cards to recommendedList'); // Debug
+
+    // Show the popup
+    recommendedPopup.style.display = 'flex';
+    console.log('Popup displayed with', recommendations.length, 'items'); // Debug
+
+    // Handle closing the popup
+    recommendedClose.onclick = () => {
+      recommendedPopup.style.display = 'none';
+      recommendedList.innerHTML = ''; // Clear carousel
+      console.log('Popup closed via close button'); // Debug
     };
+
+    // Close popup when clicking outside
+    recommendedPopup.onclick = (e) => {
+      if (e.target === recommendedPopup) {
+        recommendedPopup.style.display = 'none';
+        recommendedList.innerHTML = ''; // Clear carousel
+        console.log('Popup closed via outside click'); // Debug
+      }
+    };
+
+    // Log user activity
+    addActivity('recommendation', `Viewed recommendations for ${details.title || details.name}`);
+
+  } catch (error) {
+    console.error('Error in recommended button handler:', error);
+    showNotification('Failed to load recommendations', 'error');
+    // Fallback: Show title
+    const recommendedPopup = document.getElementById('recommended-popup');
+    const recommendedList = document.getElementById('recommended-list');
+    if (recommendedPopup && recommendedList) {
+      recommendedList.innerHTML = '';
+      const title = details?.title || details?.name || 'Unknown Title';
+      const titleBox = document.createElement('div');
+      titleBox.className = 'title-box';
+      titleBox.style.cssText = `
+        background: #333;
+        color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 1.5rem;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+      `;
+      titleBox.textContent = `Error loading recommendations for ${title}`;
+      recommendedList.appendChild(titleBox);
+      recommendedPopup.style.display = 'flex';
+      console.log('Popup displayed with error fallback:', title); // Debug
+    } else {
+      console.error('Popup elements not found in catch block');
+      showNotification('Popup elements not found', 'error');
+    }
+  }
+};
+
+
+
+function createCard(item, type) {
+  const card = document.createElement('div');
+  card.className = 'carousel-item';
+  const title = item.title || item.name || 'Unknown Title';
+  const posterPath = item.poster_path ? `${IMG_PATH}${item.poster_path}` : 'https://via.placeholder.com/280x420';
+  const voteAverage = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+  const releaseYear = item.release_date || item.first_air_date ? new Date(item.release_date || item.first_air_date).getFullYear() : 'N/A';
+  card.innerHTML = `
+    <img src="${posterPath}" alt="${title}">
+    <div class="overlay">
+      <h3>${title}</h3>
+      <div class="meta">
+        <i class="fas fa-star"></i>
+        <span>${voteAverage}</span>
+        <span>${releaseYear}</span>
+      </div>
+    </div>
+  `;
+  card.onclick = () => {
+    showDetailsPage(item.id, type);
+    document.getElementById('recommended-popup').style.display = 'none';
+  };
+  return card;
+}
 
     // Submit review button (placeholder)
     submitReviewBtn.onclick = () => {
@@ -3223,6 +3449,13 @@ async function loadSeries(page) {
   updatePagination(seriesPagination, seriesCurrentPage, seriesTotalPages, loadSeries);
 }
 
+if (trailerClose) {
+  trailerClose.addEventListener('click', () => {
+    trailerPopup.style.display = 'none';
+    const iframe = trailerPopup.querySelector('iframe');
+    if (iframe) iframe.src = ''; // Stop video
+  });
+}
 // ===== ACTOR MODAL =====
 
 // Replace your existing showActorModal function with this enhanced version
@@ -5206,6 +5439,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+
 
 // Update profile statistics
 function updateProfileStatistics() {
