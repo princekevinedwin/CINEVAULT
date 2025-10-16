@@ -5,6 +5,7 @@ const IMAGE_BASE = "https://image.tmdb.org/t/p/original";
 const IMG_PATH = "https://image.tmdb.org/t/p/w500";
 const NEWS_API_KEY = "8602accfad284b4e9ee12b8a9f4319a0";
 const GNEWS_API_KEY = "d4ea11c49c7766c92e887b415c857790";
+const TVMAZE_API = "HYujUeRQvIwtdOtBjIx3wjncjzmhNPmb";
 
 // Genre lists
 const movieGenres = [
@@ -25,6 +26,15 @@ const tvGenres = [
   { id: 10766, name: 'Soap' }, { id: 10767, name: 'Talk' }, { id: 10768, name: 'War & Politics' },
   { id: 37, name: 'Western' }
 ];
+
+const GENRE_MAP = {
+  28: 'Action', 12: 'Adventure', 16: 'Animation', 35: 'Comedy', 80: 'Crime',
+  99: 'Documentary', 18: 'Drama', 10751: 'Family', 14: 'Fantasy', 36: 'History',
+  27: 'Horror', 10402: 'Music', 9648: 'Mystery', 10749: 'Romance', 878: 'Science Fiction',
+  10770: 'TV Movie', 53: 'Thriller', 10752: 'War', 37: 'Western',
+  10759: 'Action & Adventure', 10762: 'Kids', 10763: 'News', 10764: 'Reality',
+  10765: 'Sci-Fi & Fantasy', 10766: 'Soap', 10767: 'Talk', 10768: 'War & Politics'
+};
 
 // ===== DOM REFERENCES =====
 // Helper function to get DOM elements safely
@@ -278,6 +288,42 @@ navLinks.forEach(link => {
     showPage(page);
   });
 });
+
+
+async function fetchTVMazeSchedule(containerId, limit, date = new Date().toISOString().split('T')[0]) {
+  const container = q(containerId);
+  if (!container) {
+    console.error(`Container ${containerId} not found`);
+    return;
+  }
+  container.innerHTML = '<div class="loading-spinner">Loading...</div>';
+  try {
+    const res = await fetch(`https://api.tvmaze.com/schedule?country=US&date=${date}&api_key=${TVMAZE_API}`);
+    if (!res.ok) throw new Error(`Fetch failed for ${containerId}: ${res.status}`);
+    const data = await res.json();
+    container.innerHTML = '';
+    
+    // Map TVmaze data to TMDb-like structure for createCard
+    const mappedData = data.slice(0, limit).map(item => ({
+      id: item.show.id,
+      title: item.show.name,
+      poster_path: item.show.image?.medium || '/static/images/placeholder.jpg',
+      vote_average: item.show.rating?.average || 0,
+      overview: item.show.summary?.replace(/<[^>]+>/g, '') || 'No description available',
+      media_type: 'tv'
+    }));
+
+    mappedData.forEach(item => {
+      const card = createCard(item, 'tv');
+      container.appendChild(card);
+    });
+    console.log(`Populated ${containerId} with TVmaze data`);
+    addCarouselNavigation(); // Ensure navigation works
+  } catch (error) {
+    console.error(`Error fetching ${containerId}:`, error);
+    container.innerHTML = '<div class="title-box">Error loading content</div>';
+  }
+}
 
 // Show specific page
 function showPage(page) {
@@ -1145,7 +1191,121 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-// Update the showPage function to handle logout correctly
+// New function for single-item sections
+async function fetchSingleItem(endpoint, containerId, type) {
+  const container = q(containerId);
+  if (!container) return;
+  container.innerHTML = '<div class="loading-spinner">Loading...</div>';
+  try {
+    // Fetch top-rated item
+    const res = await fetch(endpoint);
+    if (!res.ok) throw new Error(`Fetch failed for ${containerId}: ${res.status}`);
+    const data = await res.json();
+    container.innerHTML = '';
+    if (data.results.length > 0) {
+      const item = data.results[0];
+      // Fetch credits for cast and director
+      const creditsRes = await fetch(`${BASE}/${type}/${item.id}/credits?api_key=${API_KEY}&language=en-US`);
+      if (!creditsRes.ok) throw new Error(`Fetch credits failed for ${item.id}`);
+      const credits = await creditsRes.json();
+      
+      // Create carousel item
+      const carouselItem = document.createElement('div');
+      carouselItem.classList.add('carousel-item');
+      // Set grayscale backdrop using backdrop_path
+      carouselItem.style.setProperty('--backdrop-url', `url(${IMAGE_BASE}${item.backdrop_path})`);
+      
+      // Create poster
+      const poster = document.createElement('img');
+      poster.src = item.poster_path ? `${IMAGE_BASE}${item.poster_path}` : '/static/images/placeholder.jpg';
+      poster.alt = type === 'movie' ? item.title : item.name;
+      
+      // Create IMDb rating (using vote_average)
+      const rating = document.createElement('div');
+      rating.classList.add('imdb-rating');
+      rating.textContent = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+      
+      // Create movie info container
+      const movieInfo = document.createElement('div');
+      movieInfo.classList.add('movie-info');
+      
+      // Title
+      const title = document.createElement('h3');
+      title.textContent = type === 'movie' ? item.title : item.name;
+      
+      // Summary (overview)
+      const summary = document.createElement('p');
+      summary.textContent = item.overview || 'No summary available.';
+      
+      // Cast (top 3 actors)
+      const cast = document.createElement('p');
+      cast.classList.add('cast');
+      const topCast = credits.cast.slice(0, 3).map(actor => actor.name).join(', ') || 'Unknown';
+      cast.textContent = `Cast: ${topCast}`;
+      
+      // Director (for movies) or Creator (for series)
+      const director = document.createElement('p');
+      director.classList.add('director');
+      let directorName = 'Unknown';
+      if (type === 'movie') {
+        const directors = credits.crew.find(member => member.job === 'Director');
+        directorName = directors ? directors.name : 'Unknown';
+      } else {
+        // For series, try to get creator from /tv/{id} endpoint if needed
+        const seriesRes = await fetch(`${BASE}/tv/${item.id}?api_key=${API_KEY}&language=en-US`);
+        const seriesData = await seriesRes.json();
+        directorName = seriesData.created_by?.[0]?.name || 'Unknown';
+      }
+      director.textContent = `${type === 'movie' ? 'Director' : 'Creator'}: ${directorName}`;
+      
+      // Additional details (e.g., release date, genres)
+      const release = document.createElement('p');
+      release.textContent = `Release: ${item.release_date || item.first_air_date || 'Unknown'}`;
+      
+      const genres = document.createElement('p');
+      genres.textContent = `Genres: ${item.genre_ids.map(id => GENRE_MAP[id] || 'Unknown').join(', ') || 'Unknown'}`;
+      
+      // Append elements
+      movieInfo.append(title, summary, cast, director, release, genres);
+      carouselItem.append(poster, rating, movieInfo);
+      container.appendChild(carouselItem);
+      
+      console.log(`Populated ${containerId}`);
+    } else {
+      container.innerHTML = '<div class="title-box">No featured content available</div>';
+    }
+  } catch (error) {
+    console.error(`Error fetching ${containerId}:`, error);
+    container.innerHTML = '<div class="title-box">Error loading content</div>';
+  }
+}
+
+function fetchUpcomingMovies(containerId, limit) {
+  console.log('Running fetchUpcomingMovies for:', containerId);
+  fetchMovies(`${BASE}/movie/upcoming?api_key=${API_KEY}&language=en-US`, containerId, limit, false, 'movie');
+}
+
+function createCard(item, type) {
+    if (!item) {
+        console.error('createCard: Item is null or undefined');
+        return null;
+    }
+    const card = document.createElement('div');
+    card.className = 'carousel-item';
+    const title = type === 'tv' ? (item.name || 'Untitled Series') : (item.title || 'Untitled Movie');
+    const poster = item.poster_path ? `${IMG_PATH}${item.poster_path}` : '/static/images/placeholder.jpg';
+    const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+    card.innerHTML = `
+        <img src="${poster}" alt="${title}" loading="lazy">
+        <div class="card-info">
+            <h3>${title}</h3>
+            <span class="rating">${rating}</span>
+        </div>
+    `;
+    card.addEventListener('click', () => showDetails(item.id, type));
+    return card;
+}
+
 function showPage(page) {
   localStorage.setItem('currentPage', page);
   currentPageName = page;
@@ -1190,43 +1350,54 @@ function showPage(page) {
     }
   }
   const today = new Date().toISOString().split('T')[0];
-  if (page === 'home') {
-    console.log('Loading home page content');
-    fetchTrending();
-    fetchMovies(`${BASE}/movie/popular?api_key=${API_KEY}`, 'popular-movies', 10, false, 'movie');
-    fetchMovies(`${BASE}/tv/popular?api_key=${API_KEY}`, 'popular-tv', 10, false, 'tv');
-    fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'award-winning', 10, false, 'movie');
-    fetchUpcomingCombined('recommendations', 10);
-    fetchTop10();
-    fetchActors();
-    fetchHomeNews();
-    loadMovieTrivia();
-    loadThisDayInHistory();
-    loadDirectorSpotlight();
-    fetchSpecials(); // New
-    fetchEvents(); // New
-    fetchMovieOfTheWeek(); // New (with details)
-    fetchRecommendedBasedOnFavorites(); // New
-  } else if (page === 'movies') {
-    console.log('Loading movies page content');
-    fetchMoviesTrending();
-    loadMovies(moviesCurrentPage);
-    fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'movies-top-rated', 10, false, 'movie');
-    fetchUpcomingMovies('movies-upcoming', 10);
-    fetchMovieSpecials(); // New
-    fetchMovieEvents(); // New
-    fetchMovieOfTheWeek(); // New
-    fetchMovieRecommended(); // New
-  } else if (page === 'series') {
+  // Home page
+if (page === 'home') {
+  console.log('Loading home page content');
+  fetchTrending();
+  fetchMovies(`${BASE}/movie/popular?api_key=${API_KEY}`, 'popular-movies', 10, false, 'movie');
+  fetchMovies(`${BASE}/tv/popular?api_key=${API_KEY}`, 'popular-tv', 10, false, 'tv');
+  fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'award-winning', 10, false, 'movie');
+  fetchUpcomingCombined('recommendations', 10);
+  fetchTop10();
+  fetchActors();
+  fetchHomeNews();
+  loadMovieTrivia();
+  loadThisDayInHistory();
+  loadDirectorSpotlight();
+  fetchMovies(`${BASE}/movie/top_rated?api_key=${API_KEY}&language=en-US`, 'specials-track', 10, false, 'movie');
+  fetchMovies(`${BASE}/movie/upcoming?api_key=${API_KEY}&language=en-US`, 'events-track', 10, false, 'movie');
+  fetchSingleItem(`${BASE}/movie/top_rated?api_key=${API_KEY}&language=en-US`, 'home-movie-of-week-track', 'movie'); // Updated ID
+  // Recommended Based on Favorites
+  const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  if (favorites.length > 0) {
+    const genres = favorites.flatMap(f => f.genre_ids || []);
+    const commonGenre = genres.sort((a, b) => genres.filter(v => v === a).length - genres.filter(v => v === b).length).pop();
+    fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&with_genres=${commonGenre}&language=en-US`, 'recommended-favorites-track', 10, false, 'movie');
+  } else {
+    fetchMovies(`${BASE}/trending/movie/week?api_key=${API_KEY}&language=en-US`, 'recommended-favorites-track', 10, false, 'movie');
+  }
+// Movies page
+} else if (page === 'movies') {
+  console.log('Loading movies page content');
+  fetchMoviesTrending();
+  loadMovies(moviesCurrentPage);
+  fetchMovies(`${BASE}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'movies-top-rated', 10, false, 'movie');
+  fetchUpcomingMovies('movies-upcoming', 10);
+  fetchMovies(`${BASE}/movie/top_rated?api_key=${API_KEY}&language=en-US`, 'movie-specials-track', 10, false, 'movie');
+  fetchMovies(`${BASE}/movie/upcoming?api_key=${API_KEY}&language=en-US`, 'movie-events-track', 10, false, 'movie');
+  fetchSingleItem(`${BASE}/movie/top_rated?api_key=${API_KEY}&language=en-US`, 'movies-movie-of-week-track', 'movie'); // Updated ID
+  fetchMovies(`${BASE}/trending/movie/week?api_key=${API_KEY}&language=en-US`, 'movie-recommended-track', 10, false, 'movie');
+} else if (page === 'series') {
     console.log('Loading series page content');
     fetchSeriesTrending();
     loadSeries(seriesCurrentPage);
     fetchMovies(`${BASE}/discover/tv?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=200`, 'series-top-rated', 10, false, 'tv');
     fetchUpcoming(`${BASE}/discover/tv?api_key=${API_KEY}&sort_by=first_air_date.asc&first_air_date.gte=${today}&first_air_date.lte=2026-12-31`, 'series-airing', 10, 'tv');
-    fetchSeriesSpecials(); // New
-    fetchSeriesEvents(); // New
-    fetchSeriesOfTheWeek(); // New
-    fetchSeriesRecommended(); // New
+    fetchMovies(`${BASE}/tv/top_rated?api_key=${API_KEY}&language=en-US`, 'series-specials-track', 10, false, 'tv');
+    fetchMovies(`${BASE}/tv/airing_today?api_key=${API_KEY}&language=en-US`, 'series-events-track', 10, false, 'tv');
+    fetchSingleItem(`${BASE}/tv/top_rated?api_key=${API_KEY}&language=en-US`, 'series-of-week-track', 'tv');
+    fetchMovies(`${BASE}/trending/tv/week?api_key=${API_KEY}&language=en-US`, 'series-recommended-track', 10, false, 'tv');
+        // Populate Series page sections
   } else if (page === 'genres') {
     console.log('Loading genres page content');
     selectedType = 'movie';
@@ -1278,7 +1449,7 @@ function showPage(page) {
     if (footers) footers.style.display = 'block';
   }
 }
-// Add initialization functions for the new pages
+
 // Enhanced initialization functions for the new pages
 function initCommunityPage() {
   // Set up poll voting functionality
@@ -3436,7 +3607,7 @@ function updatePagination(paginationEl, currentPage, totalPages, loadFunction) {
 // Load paginated movies
 async function loadMovies(page) {
   moviesCurrentPage = page;
-  const totalPages = await fetchMovies(`${BASE}/movie/popular?api_key=${API_KEY}&page=${page}`, "movies-list", 20, true);
+  const totalPages = await fetchMovies(`${BASE}/movie/popular?api_key=${API_KEY}&page=${page}`, "movies-list", 21, true);
   moviesTotalPages = totalPages;
   updatePagination(moviesPagination, moviesCurrentPage, moviesTotalPages, loadMovies);
 }
@@ -3444,7 +3615,7 @@ async function loadMovies(page) {
 // Load paginated series
 async function loadSeries(page) {
   seriesCurrentPage = page;
-  const totalPages = await fetchMovies(`${BASE}/tv/popular?api_key=${API_KEY}&page=${page}`, "series-list", 20, true, 'tv'); // Add 'tv' as media type
+  const totalPages = await fetchMovies(`${BASE}/tv/popular?api_key=${API_KEY}&page=${page}`, "series-list", 21, true, 'tv'); // Add 'tv' as media type
   seriesTotalPages = totalPages;
   updatePagination(seriesPagination, seriesCurrentPage, seriesTotalPages, loadSeries);
 }

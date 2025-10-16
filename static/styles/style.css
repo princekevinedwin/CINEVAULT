@@ -274,7 +274,7 @@ html, body { height: 100%; font-family: Inter, ui-sans-serif, system-ui, -apple-
 /* Grid for paginated lists */
 .movie-grid, .series-grid, .genres-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 1.5rem;
   padding: 1rem;
   background: linear-gradient(135deg, rgba(0,0,0,0.5), rgba(0,0,0,0.3));
@@ -10229,12 +10229,6 @@ input:checked + .slider:before {
   color: var(--gold);
 }
 
-.actor-grids, .movies-grid, .directors-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
 /* Card Styles for Actors/Movies/Directors */
 .actor-cards, .movie-card, .director-card {
   background: rgba(255,255,255,0.05);
@@ -10593,4 +10587,710 @@ input:checked + .slider:before {
   text-align: center;
   font-size: 1.2rem;
   padding: 2rem;
+}
+
+  .carousel-btn {
+    font-size: 1rem;
+    padding: 8px;
+  }
+
+  .carousel-btn.prev {
+    left: -20px;
+  }
+
+  .carousel-btn.next {
+    right: -20px;
+  }
+
+
+@media (max-width: 480px) {
+
+  .carousel-btn {
+    font-size: 0.9rem;
+    padding: 6px;
+  }
+
+  .carousel-btn.prev {
+    left: -15px;
+  }
+
+  .carousel-btn.next {
+    right: -15px;
+  }
+
+}
+
+/* Font import for consistency */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Target the 'of the Week' sections specifically */
+#home-movie-of-week .carousel-item,
+#movies-movie-of-week .carousel-item,
+#series-of-week .carousel-item {
+position: relative;
+width: 100%;
+max-width: 800px;
+height: 400px;
+margin: 0 auto;
+background-size: cover;
+background-position: center;
+filter: grayscale(); /* Grayscale backdrop */
+border-radius: 12px;
+overflow: hidden;
+box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+display: flex;
+align-items: center;
+justify-content: flex-start;
+padding: 2rem;
+background-image: var(--backdrop-url); 
+}
+/* Hide default card-info for custom layout */
+#home-movie-of-week .carousel-item .card-info,
+#movies-movie-of-week .carousel-item .card-info,
+#series-of-week .carousel-item .card-info {
+display: none;
+}
+/* Main portrait poster */
+#home-movie-of-week .carousel-item img,
+#movies-movie-of-week .carousel-item img,
+#series-of-week .carousel-item img {
+width: 200px;
+height: 300px;
+transform: rotate(-5deg); /* Slanted appearance */
+box-shadow: 10px 10px 20px rgba(0,0,0,0.6);
+border-radius: 8px;
+position: relative;
+z-index: 2;
+object-fit: cover;
+}
+/* Blurred 90-degree shadow/reflection */
+#home-movie-of-week .carousel-item img::after,
+#movies-movie-of-week .carousel-item img::after,
+#series-of-week .carousel-item img::after {
+content: '';
+position: absolute;
+bottom: -80px;
+left: -20px; /* Slight offset for perspective */
+width: 100%;
+height: 100%;
+background-image: inherit; /* Use same poster image */
+transform: rotate(90deg) scale(0.8); /* 90-degree form */
+filter: blur(20px) opacity(0.4); /* Blurred and semi-transparent */
+z-index: -1;
+}
+/* IMDb rating circle on bottom left of main poster */
+#home-movie-of-week .carousel-item .imdb-rating,
+#movies-movie-of-week .carousel-item .imdb-rating,
+#series-of-week .carousel-item .imdb-rating {
+position: absolute;
+bottom: 15px;
+left: 15px;
+width: 60px; /* Medium-ish size */
+height: 60px;
+background: rgba(0,0,0,0.7);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.4rem;
+color: var(--gold);
+font-weight: bold;
+box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+z-index: 3; /* Above poster */
+}
+/* Text content beside poster (movie details) */
+#home-movie-of-week .carousel-item .movie-info,
+#movies-movie-of-week .carousel-item .movie-info,
+#series-of-week .carousel-item .movie-info {
+margin-left: 3rem;
+max-width: 50%;
+color: #fff;
+z-index: 2;
+}
+#home-movie-of-week .carousel-item .movie-info h3,
+#movies-movie-of-week .carousel-item .movie-info h3,
+#series-of-week .carousel-item .movie-info h3 {
+font-size: 1.8rem;
+margin-bottom: 1rem;
+text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+#home-movie-of-week .carousel-item .movie-info p,
+#movies-movie-of-week .carousel-item .movie-info p,
+#series-of-week .carousel-item .movie-info p {
+font-size: 1rem;
+line-height: 1.5;
+margin-bottom: 0.5rem;
+}
+#home-movie-of-week .carousel-item .movie-info .cast,
+#movies-movie-of-week .carousel-item .movie-info .cast,
+#series-of-week .carousel-item .movie-info .cast,
+#home-movie-of-week .carousel-item .movie-info .director,
+#movies-movie-of-week .carousel-item .movie-info .director,
+#series-of-week .carousel-item .movie-info .director {
+font-style: italic;
+color: var(--muted);
+margin-bottom: 0.5rem;
+}
+/* Classic creative touches: Film reel border (add a film-reel-pattern.png to /static/images/) */
+#home-movie-of-week .carousel-item::before,
+#movies-movie-of-week .carousel-item::before,
+#series-of-week .carousel-item::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+border: 10px solid transparent;
+border-image: url('/static/images/film-reel-pattern.png') 30 round; /* Film reel border */
+pointer-events: none;
+z-index: 1;
+}
+/* Vintage overlay for classic feel */
+#home-movie-of-week .carousel-item::after,
+#movies-movie-of-week .carousel-item::after,
+#series-of-week .carousel-item::after {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.5) 100%);
+pointer-events: none;
+z-index: 1;
+mix-blend-mode: overlay; /* Creative vintage texture */
+}
+/* Hide carousel buttons for single-item sections */
+#home-movie-of-week .carousel-btn,
+#movies-movie-of-week .carousel-btn,
+#series-of-week .carousel-btn {
+display: none;
+}
+/* Responsiveness */
+@media (max-width: 768px) {
+#home-movie-of-week .carousel-item,
+#movies-movie-of-week .carousel-item,
+#series-of-week .carousel-item {
+flex-direction: column;
+height: auto;
+padding: 1rem;
+}
+#home-movie-of-week .carousel-item img,
+#movies-movie-of-week .carousel-item img,
+#series-of-week .carousel-item img {
+width: 150px;
+height: 225px;
+}
+#home-movie-of-week .carousel-item .movie-info,
+#movies-movie-of-week .carousel-item .movie-info,
+#series-of-week .carousel-item .movie-info {
+margin-left: 0;
+margin-top: 1rem;
+max-width: 100%;
+}
+#home-movie-of-week .carousel-item .imdb-rating,
+#movies-movie-of-week .carousel-item .imdb-rating,
+#series-of-week .carousel-item .imdb-rating {
+width: 50px;
+height: 50px;
+font-size: 1.2rem;
+}
+}
+
+/* Target the 'of the Week' sections specifically */
+#home-movie-of-week .carousel-item,
+#movies-movie-of-week .carousel-item,
+#series-of-week .carousel-item {
+  position: relative;
+  width: 100%;
+  max-width: 900px; /* Wider for details */
+  height: 450px; /* Adjusted for content */
+  margin: 0 auto;
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(100%); /* Grayscale landscape backdrop */
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2.5rem;
+  background-image: var(--backdrop-url);
+}
+
+/* Hide default card-info for custom layout */
+#home-movie-of-week .carousel-item .card-info,
+#movies-movie-of-week .carousel-item .card-info,
+#series-of-week .carousel-item .card-info {
+  display: none;
+}
+
+/* Main portrait poster */
+#home-movie-of-week .carousel-item img,
+#movies-movie-of-week .carousel-item img,
+#series-of-week .carousel-item img {
+  width: 220px;
+  height: 330px;
+  transform: rotate(-5deg); /* Slanted appearance */
+  box-shadow: 12px 12px 24px rgba(0,0,0,0.7);
+  border-radius: 10px;
+  position: relative;
+  z-index: 2;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.1);
+}
+
+/* Blurred 90-degree shadow/reflection */
+#home-movie-of-week .carousel-item img::after,
+#movies-movie-of-week .carousel-item img::after,
+#series-of-week .carousel-item img::after {
+  content: '';
+  position: absolute;
+  bottom: -100px;
+  left: -30px;
+  width: 100%;
+  height: 100%;
+  background-image: inherit;
+  transform: rotate(90deg) scale(0.9);
+  filter: blur(25px) opacity(0.5);
+  z-index: -1;
+}
+
+/* IMDb rating circle on bottom left of main poster */
+#home-movie-of-week .carousel-item .imdb-rating,
+#movies-movie-of-week .carousel-item .imdb-rating,
+#series-of-week .carousel-item .imdb-rating {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 70px;
+  height: 70px;
+  background: rgba(0,0,0,0.75);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: var(--gold);
+  font-weight: 700;
+  font-family: 'Roboto', sans-serif;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  z-index: 3;
+  border: 2px solid var(--gold);
+}
+
+/* Text content beside poster (movie details) */
+#home-movie-of-week .carousel-item .movie-info,
+#movies-movie-of-week .carousel-item .movie-info,
+#series-of-week .carousel-item .movie-info {
+  margin-left: 3.5rem;
+  max-width: 55%;
+  color: #fff;
+  z-index: 2;
+}
+
+#home-movie-of-week .carousel-item .movie-info h3,
+#movies-movie-of-week .carousel-item .movie-info h3,
+#series-of-week .carousel-item .movie-info h3 {
+  font-size: 2rem;
+  margin-bottom: 1.2rem;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.6);
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+#home-movie-of-week .carousel-item .movie-info p,
+#movies-movie-of-week .carousel-item .movie-info p,
+#series-of-week .carousel-item .movie-info p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 0.8rem;
+  font-family: 'Roboto', sans-serif;
+  color: #e6e6e6;
+}
+
+#home-movie-of-week .carousel-item .movie-info .cast,
+#movies-movie-of-week .carousel-item .movie-info .cast,
+#series-of-week .carousel-item .movie-info .cast,
+#home-movie-of-week .carousel-item .movie-info .director,
+#movies-movie-of-week .carousel-item .movie-info .director,
+#series-of-week .carousel-item .movie-info .director {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 0.8rem;
+}
+
+/* Vintage film reel border */
+#home-movie-of-week .carousel-item::before,
+#movies-movie-of-week .carousel-item::before,
+#series-of-week .carousel-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 12px solid transparent;
+  border-image: url('/static/images/film-reel-pattern.png') 30 round;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Vintage overlay */
+#home-movie-of-week .carousel-item::after,
+#movies-movie-of-week .carousel-item::after,
+#series-of-week .carousel-item::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0.6) 100%);
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+/* Hide carousel buttons */
+#home-movie-of-week .carousel-btn,
+#movies-movie-of-week .carousel-btn,
+#series-of-week .carousel-btn {
+  display: none;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  #home-movie-of-week .carousel-item,
+  #movies-movie-of-week .carousel-item,
+  #series-of-week .carousel-item {
+    flex-direction: column;
+    height: auto;
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+
+  #home-movie-of-week .carousel-item img,
+  #movies-movie-of-week .carousel-item img,
+  #series-of-week .carousel-item img {
+    width: 180px;
+    height: 270px;
+  }
+
+  #home-movie-of-week .carousel-item .movie-info,
+  #movies-movie-of-week .carousel-item .movie-info,
+  #series-of-week .carousel-item .movie-info {
+    margin-left: 0;
+    margin-top: 1.5rem;
+    max-width: 100%;
+  }
+
+  #home-movie-of-week .carousel-item .movie-info h3,
+  #movies-movie-of-week .carousel-item .movie-info h3,
+  #series-of-week .carousel-item .movie-info h3 {
+    font-size: 1.6rem;
+  }
+
+  #home-movie-of-week .carousel-item .movie-info p,
+  #movies-movie-of-week .carousel-item .movie-info p,
+  #series-of-week .carousel-item .movie-info p {
+    font-size: 0.9rem;
+  }
+
+  #home-movie-of-week .carousel-item .imdb-rating,
+  #movies-movie-of-week .carousel-item .imdb-rating,
+  #series-of-week .carousel-item .imdb-rating {
+    width: 60px;
+    height: 60px;
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #home-movie-of-week .carousel-item img,
+  #movies-movie-of-week .carousel-item img,
+  #series-of-week .carousel-item img {
+    width: 140px;
+    height: 210px;
+  }
+
+  #home-movie-of-week .carousel-item .movie-info h3,
+  #movies-movie-of-week .carousel-item .movie-info h3,
+  #series-of-week .carousel-item .movie-info h3 {
+    font-size: 1.4rem;
+  }
+
+  #home-movie-of-week .carousel-item .movie-info p,
+  #movies-movie-of-week .carousel-item .movie-info p,
+  #series-of-week .carousel-item .movie-info p {
+    font-size: 0.85rem;
+  }
+
+  #home-movie-of-week .carousel-item .imdb-rating,
+  #movies-movie-of-week .carousel-item .imdb-rating,
+  #series-of-week .carousel-item .imdb-rating {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+}
+
+/* Target the 'of the Week' sections specifically */
+#home-movie-of-week .carousel-item,
+#movies-movie-of-week .carousel-item,
+#series-of-week .carousel-item {
+  position: relative;
+  width: 100%;
+  max-width: 900px; /* Wider for details */
+  height: 450px; /* Adjusted for content */
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2.5rem;
+}
+
+/* Grayscale landscape background using ::before */
+#home-movie-of-week .carousel-item::before,
+#movies-movie-of-week .carousel-item::before,
+#series-of-week .carousel-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--backdrop-url); /* Set via JS */
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(100%); /* Grayscale only for background */
+  z-index: 0;
+  border-radius: 12px;
+}
+
+/* Hide default card-info for custom layout */
+#home-movie-of-week .carousel-item .card-info,
+#movies-movie-of-week .carousel-item .card-info,
+#series-of-week .carousel-item .card-info {
+  display: none;
+}
+
+
+
+/* Blurred 90-degree shadow/reflection (inherits poster image, full color) */
+#home-movie-of-week .carousel-item img::after,
+#movies-movie-of-week .carousel-item img::after,
+#series-of-week .carousel-item img::after {
+  content: '';
+  position: absolute;
+  bottom: -100px;
+  left: -30px;
+  width: 100%;
+  height: 100%;
+  background-image: inherit;
+  transform: rotate(90deg) scale(0.9);
+  filter: blur(25px) opacity(0.5);
+  z-index: -1;
+}
+
+/* IMDb rating circle on bottom left of main poster (full color) */
+#home-movie-of-week .carousel-item .imdb-rating,
+#movies-movie-of-week .carousel-item .imdb-rating,
+#series-of-week .carousel-item .imdb-rating {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 70px;
+  height: 70px;
+  background: rgba(0,0,0,0.75);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: var(--gold);
+  font-weight: 700;
+  font-family: 'Roboto', sans-serif;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  z-index: 3;
+  border: 2px solid var(--gold);
+  filter: none;
+}
+
+/* Text content beside poster (movie details) */
+#home-movie-of-week .carousel-item .movie-info,
+#movies-movie-of-week .carousel-item .movie-info,
+#series-of-week .carousel-item .movie-info {
+  margin-left: 3.5rem;
+  max-width: 55%;
+  color: #fff;
+  z-index: 2;
+}
+
+#home-movie-of-week .carousel-item .movie-info h3,
+#movies-movie-of-week .carousel-item .movie-info h3,
+#series-of-week .carousel-item .movie-info h3 {
+  font-size: 2rem;
+  margin-bottom: 1.2rem;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.6);
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+#home-movie-of-week .carousel-item .movie-info p,
+#movies-movie-of-week .carousel-item .movie-info p,
+#series-of-week .carousel-item .movie-info p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 0.8rem;
+  font-family: 'Roboto', sans-serif;
+  color: #e6e6e6;
+}
+
+#home-movie-of-week .carousel-item .movie-info .cast,
+#movies-movie-of-week .carousel-item .movie-info .cast,
+#series-of-week .carousel-item .movie-info .cast,
+#home-movie-of-week .carousel-item .movie-info .director,
+#movies-movie-of-week .carousel-item .movie-info .director,
+#series-of-week .carousel-item .movie-info .director {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 0.8rem;
+}
+
+/* Vintage film reel border */
+#home-movie-of-week .carousel-item::after,
+#movies-movie-of-week .carousel-item::after,
+#series-of-week .carousel-item::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 12px solid transparent;
+  border-image: url('/static/images/film-reel-pattern.png') 30 round;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Vintage overlay (applies to whole item but doesn't affect color due to mix-blend-mode) */
+#home-movie-of-week .carousel-item .overlay,
+#movies-movie-of-week .carousel-item .overlay,
+#series-of-week .carousel-item .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0.6) 100%);
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+/* Hide carousel buttons */
+#home-movie-of-week .carousel-btn,
+#movies-movie-of-week .carousel-btn,
+#series-of-week .carousel-btn {
+  display: none;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  #home-movie-of-week .carousel-item,
+  #movies-movie-of-week .carousel-item,
+  #series-of-week .carousel-item {
+    flex-direction: column;
+    height: auto;
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+
+  #home-movie-of-week .carousel-item img,
+  #movies-movie-of-week .carousel-item img,
+  #series-of-week .carousel-item img {
+    width: 180px;
+    height: 270px;
+  }
+
+  #home-movie-of-week .carousel-item .movie-info,
+  #movies-movie-of-week .carousel-item .movie-info,
+  #series-of-week .carousel-item .movie-info {
+    margin-left: 0;
+    margin-top: 1.5rem;
+    max-width: 100%;
+  }
+
+  #home-movie-of-week .carousel-item .movie-info h3,
+  #movies-movie-of-week .carousel-item .movie-info h3,
+  #series-of-week .carousel-item .movie-info h3 {
+    font-size: 1.6rem;
+  }
+
+  #home-movie-of-week .carousel-item .movie-info p,
+  #movies-movie-of-week .carousel-item .movie-info p,
+  #series-of-week .carousel-item .movie-info p {
+    font-size: 0.9rem;
+  }
+
+  #home-movie-of-week .carousel-item .imdb-rating,
+  #movies-movie-of-week .carousel-item .imdb-rating,
+  #series-of-week .carousel-item .imdb-rating {
+    width: 60px;
+    height: 60px;
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #home-movie-of-week .carousel-item img,
+  #movies-movie-of-week .carousel-item img,
+  #series-of-week .carousel-item img {
+    width: 140px;
+    height: 210px;
+  }
+
+  #home-movie-of-week .carousel-item .movie-info h3,
+  #movies-movie-of-week .carousel-item .movie-info h3,
+  #series-of-week .carousel-item .movie-info h3 {
+    font-size: 1.4rem;
+  }
+
+  #home-movie-of-week .carousel-item .movie-info p,
+  #movies-movie-of-week .carousel-item .movie-info p,
+  #series-of-week .carousel-item .movie-info p {
+    font-size: 0.85rem;
+  }
+
+  #home-movie-of-week .carousel-item .imdb-rating,
+  #movies-movie-of-week .carousel-item .imdb-rating,
+  #series-of-week .carousel-item .imdb-rating {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+}/* Main portrait poster (full color) */
+#home-movie-of-week .carousel-item img,
+#movies-movie-of-week .carousel-item img,
+#series-of-week .carousel-item img {
+  width: 220px;
+  height: 330px;
+  transform: rotate(-5deg); /* Slanted appearance */
+  box-shadow: 12px 12px 24px rgba(0,0,0,0.7);
+  border-radius: 10px;
+  position: relative;
+  z-index: 2;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.1);
+  filter: none;
 }
